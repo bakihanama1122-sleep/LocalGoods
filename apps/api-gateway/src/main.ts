@@ -32,12 +32,12 @@ app.set("trust proxy", 1);
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: (req:any) => (req.user? 1000:100), // limit each IP to 100 requests per windowMs
+  max: (req:any) => (req.user? 1000:100),
   message: "Too many requests, please try again later.",
-  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  standardHeaders: true,
+  legacyHeaders: false, 
   keyGenerator: (req: any) => {
-    const safeIp = ipKeyGenerator(req); // normalized IP (handles IPv6 safely)
+    const safeIp = ipKeyGenerator(req);
     return req.user ? `${safeIp}-${req.user.id}` : safeIp;
   },
 });
