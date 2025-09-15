@@ -1,0 +1,36 @@
+{
+  "scripts": {
+    "dev": "nodemon server.js",
+    "start": "node server.js",
+    "setup-db": "node scripts/dbSetup.js",
+    "seed": "node db/seeders/index.js",
+    "seed:categories": "node -e \"require('./db/seeders/categorySeeder').seedCategories().then(() => process.exit(0))\"",
+    "seed:admin": "node -e \"require('./db/seeders/adminSeeder').createAdminUser().then(() => process.exit(0))\"",
+    "create-indexes": "node -e \"require('./db/utils/indexManager').createIndexes().then(() => process.exit(0))\"",
+    "drop-indexes": "node -e \"require('./db/utils/indexManager').dropAllIndexes().then(() => process.exit(0))\"",
+    "list-indexes": "node -e \"require('./db/utils/indexManager').listAllIndexes().then(() => process.exit(0))\""
+  },
+  "name": "database",
+  "version": "1.0.0",
+  "main": "index.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.2",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.1.0",
+    "express-validator": "^7.2.1",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.18.1",
+    "morgan": "^1.10.1",
+    "multer": "^2.0.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}
