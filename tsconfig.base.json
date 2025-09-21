@@ -1,5 +1,7 @@
 {
   "compilerOptions": {
+    "esModuleInterop": true,
+  "allowSyntheticDefaultImports": true,
     "composite": true,
     "declarationMap": true,
     "emitDeclarationOnly": true,
@@ -13,13 +15,15 @@
     "noImplicitOverride": true,
     "noImplicitReturns": true,
     "noUnusedLocals": true,
+    "resolveJsonModule": true,
     "skipLibCheck": true,
     "strict": true,
     "target": "es2022",
     "customConditions": ["development"],
     "baseUrl":".",
     "paths":{
-      "@error-handler/*": ["packages/error-handler/*"]
+      "@error-handler/*": ["packages/error-handler/*"],
+      "@localgoods/prisma": ["packages/libs/prisma/index.ts"]
     }
   },
   "references": [
