@@ -2,13 +2,18 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "dist",
-    "types": [
-      "node"
-    ],
+    "types": ["node"],
     "rootDir": "../../",
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
     "tsBuildInfoFile": "dist/tsconfig.app.tsbuildinfo"
   },
-  "include": ["src/**/*.ts", "../../packages/error-handler/**/*.ts"],
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.json",
+    "../../packages/error-handler/**/*.ts",
+    "../../packages/libs/**/**/*.ts"
+  ],
   "exclude": [
     "out-tsc",
     "dist",

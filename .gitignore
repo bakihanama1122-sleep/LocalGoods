@@ -44,4 +44,6 @@ Thumbs.db
 .github/instructions/nx.instructions.md
 
 test-output
-generated
+
+.env
+/generated/prisma
