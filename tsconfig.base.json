@@ -1,13 +1,15 @@
 {
   "compilerOptions": {
     "esModuleInterop": true,
-  "allowSyntheticDefaultImports": true,
+    "allowSyntheticDefaultImports": true,
     "composite": true,
     "declarationMap": true,
     "emitDeclarationOnly": true,
     "importHelpers": true,
     "isolatedModules": true,
-    "lib": ["es2022"],
+    "lib": [
+      "es2022"
+    ],
     "module": "nodenext",
     "moduleResolution": "nodenext",
     "noEmitOnError": true,
@@ -19,15 +21,22 @@
     "skipLibCheck": true,
     "strict": true,
     "target": "es2022",
-    "customConditions": ["development"],
-    "baseUrl":".",
-    "paths":{
-      "@error-handler/*": ["packages/error-handler/*"],
-      "@localgoods/prisma": ["packages/libs/prisma/index.ts"]
+    "customConditions": [
+      "development"
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "@error-handler/*": [
+        "packages/error-handler/*"
+      ],
+      "@localgoods/prisma": [
+        "packages/libs/prisma/index.ts"
+      ]
     }
   },
   "references": [
-    { "path": "packages/error-handler/tsconfig.lib.json" }
+    {
+      "path": "packages/error-handler/tsconfig.lib.json"
+    }
   ]
- 
 }
