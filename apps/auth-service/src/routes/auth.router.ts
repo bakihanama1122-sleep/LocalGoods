@@ -4,7 +4,7 @@ import { verifyForgotPasswordOtp } from "../utils/auth.helper";
 
 const router:Router = express.Router();
 
-router.post("/user-registeration",userRegistration);
+router.post("/user-registration",userRegistration);
 router.post("/verify-user",verifyUser);
 router.post("/login-user",loginUser);
 router.post("/forgot-password-user",userForgotPassword);

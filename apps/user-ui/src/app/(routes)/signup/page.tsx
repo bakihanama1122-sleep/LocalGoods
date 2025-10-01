@@ -76,6 +76,7 @@ const Signup = () => {
   });
 
   const onSubmit = (data: FormData) => {
+    console.log(data)
     signupMutation.mutate(data);
   };
 
@@ -87,7 +88,7 @@ const Signup = () => {
     setOtp(newOtp);
 
     if (value && index < inputRefs.current.length - 1) {
-      inputRefs.current[(index = 1)]?.focus();
+      inputRefs.current[(index + 1)]?.focus();
     }
   };
 
