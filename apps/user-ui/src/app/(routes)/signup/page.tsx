@@ -230,7 +230,7 @@ const Signup = () => {
               </div>
               <button className="w-full mt-4 text-lg cusrsor-pointere bg-blue-500 text-white py-2 rounded-lg"
               disabled={verifyOtpMutation.isPending}
-              onClick={()=>verifyOtpMutation.mutate}
+              onClick={()=>verifyOtpMutation.mutate()}
               >
                 {verifyOtpMutation.isPending?"Verifying....":"Verify OTP"}
               </button>
