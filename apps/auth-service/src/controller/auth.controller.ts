@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Request, response, Response } from "express";
 import bcrypt from "bcryptjs";
 import jwt, { JsonWebTokenError } from "jsonwebtoken";
 import { sendOtp, validateRegistrationData } from "../utils/auth.helper";
@@ -129,6 +129,18 @@ export const refreshToken = async(req:Request,res:Response,next:NextFunction) =>
 
   } catch (error) {
     return next(error);
+  }
+}
+
+export const getUser = async(req:any,res:Response,next:NextFunction)=>{
+  try{
+    const user = req.user;
+    res.status(201).json({
+      success:true,
+      user,
+    });
+  }catch(error){
+    next(error);
   }
 }
 
