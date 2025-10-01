@@ -1,7 +1,7 @@
 {
   "extends": "./tsconfig.base.json",
   "compileOnSave": false,
-  "type":"module",
+  "type": "module",
   "files": [],
   "references": [
     {
@@ -15,6 +15,9 @@
     },
     {
       "path": "./apps/api-gateway"
+    },
+    {
+      "path": "./apps/user-ui"
     }
   ]
 }

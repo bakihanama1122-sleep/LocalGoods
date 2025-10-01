@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
+import jwt, { JsonWebTokenError } from "jsonwebtoken";
 import { sendOtp, validateRegistrationData } from "../utils/auth.helper";
 import prisma from "../../../../packages/libs/prisma/index";
 import { AuthenticationError, ValidationError } from "../../../../packages/error-handler/index";
@@ -15,7 +15,7 @@ export const userRegistration = async (
   try {
     validateRegistrationData(req.body, "user");
     const { name, email } = req.body;
-
+    console.log("reached")
     const existingUser = await prisma.users.findUnique({ where: {email} });
 
     if (existingUser) {
@@ -96,6 +96,54 @@ export const loginUser = async(req:Request,res:Response,next:NextFunction)=>{
   }
 }
 
+export const refreshToken = async(req:Request,res:Response,next:NextFunction) =>{
+  try {
+    const refreshToken = req.cookies.refresh_token;
+    if(!refreshToken){
+      throw new ValidationError("Unauthrorized! No refresh token.");
+    }
+    const decoded = jwt.verify(
+      refreshToken,
+      process.env.REFRESH_TOKEN_SECRET as string
+    ) as {id: string; role: string};
+
+    if(!decoded || !decoded.id || !decoded.role ){
+      return new JsonWebTokenError('Forbidden! invalid refresh token.')
+    }
+
+    // let account;
+    // if(decoded.role === "user")
+    const user = await prisma.users.findUnique({where:{id:decoded.id}});
+    if(!user){
+      return new AuthenticationError("Forbidden! User/Seller not found");
+    }
+
+    const newAccessToken = jwt.sign(
+      {id:decoded.id, role:decoded.role},
+      process.env.ACCESS_TOKEN_SECRET as string,
+      {expiresIn:"15m"}
+    );
+
+    setCookie(res,"access_token",newAccessToken);
+    return res.status(201).json({success:true});
+
+  } catch (error) {
+    return next(error);
+  }
+}
+
+export const getUser = async(req:any,res:Response,next:NextFunction)=>{
+  try{
+    const user = req.user;
+    res.status(201).json({
+      success:true,
+      user,
+    });
+  }catch(error){
+    next(error);
+  }
+}
+
 export const userForgotPassword = async(req:Request,res:Response,next:NextFunction)=>{
   await handleForgotPassword(req,res,next,'user');
 };
@@ -107,17 +155,17 @@ export const verifyUserForgotPassword = async(req:Request,res:Response,next:Next
 export const resetUserPassword = async(req:Request,res:Response,next:NextFunction)=>{
   try {
     const body = req.body as Record<string, any>;
-    const {email,newPasword} = body;
-    if(!email || !newPasword){
+    const {email,newPassword} = body;
+    if(!email || !newPassword){
       return next(new ValidationError("Email and new password are required!"));
     }
     const user = await prisma.users.findUnique({where:{email}});
     if(!user) return next(new ValidationError("User not found!"));
-    const isSamePassword = await bcrypt.compare(newPasword,user.password as string);
+    const isSamePassword = await bcrypt.compare(newPassword,user.password as string);
     if(isSamePassword){
       return next(new ValidationError("New password cannot be same as old password."));
     }
-    const hashedPassword = await bcrypt.hash(newPasword,10);
+    const hashedPassword = await bcrypt.hash(newPassword,10);
     await prisma.users.update({
       where:{email},
       data:{password:hashedPassword},
