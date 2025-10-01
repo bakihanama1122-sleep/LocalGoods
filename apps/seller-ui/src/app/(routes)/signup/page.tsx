@@ -7,12 +7,9 @@ import Link from "next/link";
 import { Eye, EyeOff } from "lucide-react";
 import axios, { AxiosError } from "axios";
 import { useMutation } from "@tanstack/react-query";
+import { countries } from "apps/seller-ui/src/utils/countries";
 
-type FormData = {
-  email: string;
-  password: string;
-  name: string;
-};
+
 
 const Signup = () => {
   const [activeStep, setActiveStep] = useState(1);
@@ -31,7 +28,7 @@ const Signup = () => {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<FormData>();
+  } = useForm();
 
   const startResendTimer = () => {
     const interval = setInterval(() => {
@@ -81,7 +78,7 @@ const Signup = () => {
     },
   });
 
-  const onSubmit = (data: FormData) => {
+  const onSubmit = (data:any) => {
     console.log(data);
     signupMutation.mutate(data);
   };
@@ -141,6 +138,9 @@ const Signup = () => {
           <>
             {!showOtp ? (
               <form onSubmit={handleSubmit(onSubmit)}>
+                <h3 className="text-2xl font-semibold text-center mb-4">
+                  Create Account
+                </h3>
                 <label className="block text-gray-700 mb-1">Name</label>
                 <input
                   type="text"
@@ -175,6 +175,44 @@ const Signup = () => {
                   </p>
                 )}
 
+                <label className="block text-gray-700 mb-1">Phone Number</label>
+                <input
+                  type="tel"
+                  placeholder="99-********"
+                  className="w-full p-2 border-gray-300 outline-0 rounded mb-1"
+                  {...register("phone_number",{
+                    required:"Phone number is required",
+                    pattern:{
+                        value:/^\+?[1-9]\d{1,14}$/,
+                        message:"Invalid phone number format",
+                    },
+                    minLength:{
+                        value:10,
+                        message:"Phone number must be at least 10 digits",
+                    },
+                    maxLength:{
+                        value:10,
+                        message:"Phone number must be at max 15 digits",
+                    },
+                  })}
+                />
+                <label className="block text-gray-700 mb-1">Country</label>
+                <select 
+                className="w-full p-2 border border-gray-300 outline-0 rounded-[4px]"
+                {...register("country",{required:"Country is required"})}
+                name="" id="">
+                    <option value="">Select you country</option>
+                    {countries?.map((country)=>(
+                        <option key={country.code} value={country.code}>
+                            {country.name}
+                        </option>
+                    ))}
+                </select>
+                {errors.country &&(
+                    <p className="text-red-500 text-sm">
+                        {String(errors.country.message)}
+                    </p>
+                )}
                 <label className="block text-gray-700 mb-1">Password</label>
                 <div className="relative">
                   <input
@@ -202,6 +240,12 @@ const Signup = () => {
                       {String(errors.password.message)}
                     </p>
                   )}
+                  <p className="pt-3 text-center">
+                    Already have an account?{" "}
+                    <Link href={"/login"} className="text-blue-500">
+                    Login
+                    </Link>
+                  </p>
                 </div>
 
                 <button
@@ -212,8 +256,12 @@ const Signup = () => {
                   {signupMutation.isPending ? "Signing up ..." : "Signup"}
                 </button>
 
-                {serverError && (
-                  <p className="text-red-500 text-sm">{serverError}</p>
+                {signupMutation.isError &&
+                signupMutation.error instanceof AxiosError &&(
+                    <p className="text-red-500 text-sm mt-2">
+                        {signupMutation.error.response?.data?.message ||
+                        signupMutation.error.message}
+                    </p>
                 )}
               </form>
             ) : (
@@ -263,12 +311,12 @@ const Signup = () => {
                         verifyOtpMutation.error.message}
                     </p>
                   )}
+                  
               </div>
             )}
           </>
         )}
       </div>
-      
     </div>
   );
 };
