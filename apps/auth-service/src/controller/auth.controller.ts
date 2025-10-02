@@ -95,6 +95,9 @@ export const loginUser = async (
     if (!isMatch) {
       return next(new AuthenticationError("Invalid email or password."));
     }
+
+    res.clearCookie("seller_access_token");
+    res.clearCookie("seller_refresh_token");
     const accessToken = jwt.sign(
       { id: user.id, role: "user" },
       process.env.ACCESS_TOKEN_SECRET as string,
@@ -170,6 +173,8 @@ export const refreshToken = async (
       setCookie(res, "access_token", newAccessToken);
     else if(decoded.role === "seller")
       setCookie(res, "seller_access_token", newAccessToken);
+
+    req.role = decoded.role;
     return res.status(201).json({ success: true });
   } catch (error) {
     return next(error);
@@ -354,29 +359,44 @@ export const createStripeConnectionLink = async (
       return next(new ValidationError("Seller is not available with this id."));
     }
 
-    const account = await stripe.accounts.create({
-      type: "express",
-      email: seller?.email,
-      country: "IN",
-      capabilities: {
-        card_payments: { requested: true },
-        transfers: { requested: true },
-      },
-    });
+    // const account = await stripe.accounts.create({
+    //   type: "express",
+    //   email: seller?.email,
+    //   country: "IN",
+    //   capabilities: {
+    //     card_payments: { requested: true },
+    //     transfers: { requested: true },
+    //   },
+    // });
+
+    // await prisma.sellers.update({
+    //   where: { id: sellerId },
+    //   data: { stripeId: account.id },
+    // });
+
+    // const accountLink = await stripe.accountLinks.create({
+    //   account:account.id,
+    //   refresh_url:`http://localhost:3000/success`,
+    //   return_url:`http://localhost:3000/success`,
+    //   type:"account_onboarding"
+    // })
+
+    // res.json({url:accountLink})
+
+    const fakeStripeId = `acct_${Math.random().toString(36).substring(2, 15)}`;
 
     await prisma.sellers.update({
       where: { id: sellerId },
-      data: { stripeId: account.id },
+      data: { stripeId: fakeStripeId },
     });
 
-    const accountLink = await stripe.accountLinks.create({
-      account:account.id,
-      refresh_url:`http://localhost:3000/success`,
-      return_url:`http://localhost:3000/success`,
-      type:"account_onboarding"
-    })
+     const fakeAccountLink = {
+      url: `http://localhost:3000/dummy-stripe-onboarding?sellerId=${sellerId}&accountId=${fakeStripeId}`,
+    };
 
-    res.json({url:accountLink})
+    res.json({ url: fakeAccountLink.url });
+
+    
   } catch (error) {
     return next(error);
   }
@@ -398,6 +418,10 @@ export const loginSeller = async (
     if (!isMatch) {
       return next(new AuthenticationError("Invalid email or password."));
     }
+
+    res.clearCookie("access_token");
+    res.clearCookie("refresh_token");
+
     const accessToken = jwt.sign(
       { id: seller.id, role: "seller" },
       process.env.ACCESS_TOKEN_SECRET as string,
