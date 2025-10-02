@@ -4,7 +4,7 @@ import styled from "styled-components";
 
 
 export const SidebarWrapper = styled.div`
-    backgorund-color: var(--background);
+    background-color: var(--background);
     transition: transform 0.2s ease;
     height: 100%;
     position: fixed;
@@ -43,7 +43,7 @@ export const SidebarWrapper = styled.div`
 `;
 
 export const Overlay = styled.div`
-    backgorund-color:rgba(15,23,42,0.3);
+    background-color:rgba(15,23,42,0.3);
     position:fixed;
     top:0;
     right:0;
