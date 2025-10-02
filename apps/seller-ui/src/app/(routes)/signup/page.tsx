@@ -12,7 +12,7 @@ import CreateShop from "apps/seller-ui/src/shared/modules/auth/CreateShop";
 import StripeLogo from "apps/seller-ui/src/assets/svgs/StripeLogo";
 
 const Signup = () => {
-  const [activeStep, setActiveStep] = useState(1);
+  const [activeStep, setActiveStep] = useState(3);
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
   const [canResend, setCanResend] = useState(false);
@@ -21,7 +21,7 @@ const Signup = () => {
   const [otp, setOtp] = useState(["", "", "", ""]);
   const [sellerData, setSellerData] = useState<FormData | null>(null);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
-const [sellerId,setSellerId] = useState("");
+const [sellerId,setSellerId] = useState("68de436b6dddb9288fe41829");
 
   const {
     register,
@@ -73,7 +73,8 @@ const [sellerId,setSellerId] = useState("");
       return response.data;
     },
     onSuccess: (data) => {
-      setSellerId(data?.sellerId?.Id);
+      setSellerId(data?.seller?.id);
+      console.log("SELLER ID:",sellerId)
       setActiveStep(2);
     },
   });
@@ -112,7 +113,9 @@ const [sellerId,setSellerId] = useState("");
 
   const connectStripe = async()=>{
     try {
-        const response = await axios.post(`${process.env.NEXT_PUBLIC_URI}/api/create-stripe-link`,{
+        console.log("button clicked");
+        console.log(`${process.env.NEXT_PUBLIC_SERVER_URI}`)
+        const response = await axios.post(`${process.env.NEXT_PUBLIC_SERVER_URI}/api/create-stripe-link`,{
             sellerId
         });
         if(response.data.url){
@@ -213,7 +216,7 @@ const [sellerId,setSellerId] = useState("");
                 <select 
                 className="w-full p-2 border border-gray-300 outline-0 rounded-[4px]"
                 {...register("country",{required:"Country is required"})}
-                name="" id="">
+                >
                     <option value="">Select you country</option>
                     {countries?.map((country)=>(
                         <option key={country.code} value={country.code}>

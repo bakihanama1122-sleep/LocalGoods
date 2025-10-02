@@ -15,11 +15,11 @@ import {
   verifyForgotPasswordOtp,
 } from "../utils/auth.helper";
 import { setCookie } from "../utils/cookies/setCookies";
-import Stripe from "stripe";
+// import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion:"2025-09-30.clover"
-});
+// const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+//   apiVersion:"2025-09-30.clover"
+// });
 
 export const userRegistration = async (
   req: Request,
@@ -317,6 +317,8 @@ export const createShop = async (
   try {
     const { name, bio, address, opening_hours, website, category, sellerId } =
       req.body;
+
+    console.log(req.body);
 
     if (!name || !bio || !address || !sellerId || !opening_hours || !category) {
       return next(new ValidationError("All fields are required"));

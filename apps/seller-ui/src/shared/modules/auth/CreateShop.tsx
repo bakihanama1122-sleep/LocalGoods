@@ -20,10 +20,8 @@ const CreateShop = ({
   const shopCreateMutation = useMutation({
     mutationFn: async (data: FormData) => {
       const response = await axios.post(
-        `${process.env.PUBLIC_SERVER_URI}/api/create-shop`,
-        {
-          data,
-        }
+        `${process.env.NEXT_PUBLIC_SERVER_URI}/api/create-shop`,
+        {...data,sellerId}
       );
       return response.data;
     },
@@ -122,8 +120,6 @@ const CreateShop = ({
         <select
           className="w-full p-2 border border-gray-300 outline-0 !rounded mb-1"
           {...register("category", { required: "Category is required" })}
-          name=""
-          id=""
         >
           <option value="">Select a category</option>
           {shopCategories.map((category) => (
