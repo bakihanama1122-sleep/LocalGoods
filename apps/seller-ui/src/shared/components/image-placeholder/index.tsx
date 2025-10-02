@@ -16,7 +16,7 @@ const ImagePlaceHolder = ({
   onImageChange: (file: File | null, index: number) => void;
   onRemove: (index: number) => void;
   defaultImage?: string | null;
-  index?: number;
+  index?: number|null;
   setOpenImageModel: (openImageModel: boolean) => void;
 }) => {
   const [imagePreview, setImagePreview] = useState<string | null>(defaultImage);
@@ -67,6 +67,8 @@ const ImagePlaceHolder = ({
       )}
       {imagePreview ? (
         <Image
+        width={400}
+        height={300}
           src={imagePreview}
           alt="upload"
           className="w-full h-full object-coder rounded-lg"
