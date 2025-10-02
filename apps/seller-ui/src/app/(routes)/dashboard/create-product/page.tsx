@@ -199,9 +199,38 @@ const page = () => {
                 control={control} errors={errors}
                 />
               </div>
+
+              <div className="mt-2">
+                <label className="block font-semibold text-gray-300 mb-1">
+                  Cash on Delivery *
+                </label>
+                <select
+                {...register("cash_on_delivery",{
+                  required:"Cash on Delivery option is required",
+                })}
+                defaultValue="yes"
+                className="w-full border outlin-none border-gray-700 bg-transparent p-2"
+                >
+                  <option value="yes" className="bg-black">
+                    Yes
+                  </option>
+                  <option value="no" className="bg-black">
+                    No
+                  </option>
+                </select>
+              </div>
+
+            </div>
+            <div className="w-2/4">
+            <label className="block font-semibold text-gray-300 md-1">
+              Category *
+            </label>
+
             </div>
           </div>
         </div>
+
+
       </div>
     </form>
   );
