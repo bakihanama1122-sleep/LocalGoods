@@ -6,6 +6,7 @@ import ImagePlaceHolder from "apps/seller-ui/src/shared/components/image-placeho
 import Input from "packages/components/input";
 import ColorSelector from "packages/components/color-selector";
 import CustomeSpecifications from "packages/components/custom-specifications";
+import CustomProperties from "packages/components/custom-properties";
 
 const page = () => {
   const {
@@ -189,6 +190,12 @@ const page = () => {
 
               <div className="mt-2">
                 <CustomeSpecifications
+                control={control} errors={errors}
+                />
+              </div>
+
+              <div className="mt-2">
+                <CustomProperties
                 control={control} errors={errors}
                 />
               </div>
