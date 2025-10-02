@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import ImagePlaceHolder from "apps/seller-ui/src/shared/components/image-placeholder";
 import Input from "packages/components/input";
+import ColorSelector from "packages/components/color-selector";
 
 const page = () => {
   const {
@@ -182,7 +183,7 @@ const page = () => {
               </div>
 
               <div className="mt-2">
-                {/* <ColorSelector/> */}
+                <ColorSelector control={control} errors={errors} />
               </div>
             </div>
           </div>
