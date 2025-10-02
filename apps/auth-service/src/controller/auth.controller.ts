@@ -15,6 +15,11 @@ import {
   verifyForgotPasswordOtp,
 } from "../utils/auth.helper";
 import { setCookie } from "../utils/cookies/setCookies";
+import Stripe from "stripe";
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: "2025-10-02.kurnool",
+});
 
 export const userRegistration = async (
   req: Request,
@@ -110,7 +115,9 @@ export const loginUser = async (
       message: "Login successful",
       user: { id: user.id, email: user.email, name: user.name },
     });
-  } catch (error) {}
+  } catch (error) {
+    next(error);
+  }
 };
 
 export const refreshToken = async (
@@ -274,9 +281,7 @@ export const verifySeller = async (
       },
     });
 
-    res
-    .status(201)
-    .json({seller,message:"Seller registered succesfully!"});
+    res.status(201).json({ seller, message: "Seller registered succesfully!" });
   } catch (error) {
     next(error);
   }
@@ -288,30 +293,127 @@ export const createShop = async (
   next: NextFunction
 ) => {
   try {
-   
-    const {name,bio,address,opening_hours,website,category,sellerId } = req.body;
+    const { name, bio, address, opening_hours, website, category, sellerId } =
+      req.body;
 
-    if(!name || !bio || !address || !sellerId || !opening_hours || !category){
+    if (!name || !bio || !address || !sellerId || !opening_hours || !category) {
       return next(new ValidationError("All fields are required"));
     }
 
-    const shopData:any = {
-      name,bio,address,opening_hours,category,sellerId
+    const shopData: any = {
+      name,
+      bio,
+      address,
+      opening_hours,
+      category,
+      sellerId,
     };
 
-    if(website && website.trim() !== ""){
+    if (website && website.trim() !== "") {
       shopData.website = website;
     }
 
     const shop = await prisma.shops.create({
-      data:shopData,
+      data: shopData,
     });
 
-    res
-      .status(201)
-      .json({success:true,shop });
+    res.status(201).json({ success: true, shop });
   } catch (error) {
     next(error);
   }
 };
 
+export const createStripeConnectionLink = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { sellerId } = req.body;
+    if (!sellerId) return new ValidationError("Seller Id is required.");
+
+    const seller = await prisma.sellers.findUnique({ where: { id: sellerId } });
+    if (!seller) {
+      return next(new ValidationError("Seller is not available with this id."));
+    }
+
+    const account = await stripe.accounts.create({
+      type: "express",
+      email: seller?.email,
+      country: "IN",
+      capabilities: {
+        card_payments: { requested: true },
+        transfers: { requested: true },
+      },
+    });
+
+    await prisma.sellers.update({
+      where: { id: sellerId },
+      data: { stripeId: account.id },
+    });
+
+    const accountLink = await stripe.accountLinks.create({
+      account:account.id,
+      refresh_url:`http://localhost:3000/success`,
+      return_url:`http://localhost:3000/success`,
+      type:"account_onboarding"
+    })
+
+    res.json({url:accountLink})
+  } catch (error) {
+    return next(error);
+  }
+};
+
+export const loginSeller = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return next(new ValidationError("Email and password are required!"));
+    }
+    const seller = await prisma.sellers.findUnique({ where: { email } });
+    if (!seller) return next(new AuthenticationError("User doesn' exists!"));
+    const isMatch = await bcrypt.compare(password, seller.password!);
+    if (!isMatch) {
+      return next(new AuthenticationError("Invalid email or password."));
+    }
+    const accessToken = jwt.sign(
+      { id: seller.id, role: "seller" },
+      process.env.ACCESS_TOKEN_SECRET as string,
+      {
+        expiresIn: "15m",
+      }
+    );
+    const refreshToken = jwt.sign(
+      { id: seller.id, role: "seller" },
+      process.env.REFRESH_TOKEN_SECRET as string,
+      {
+        expiresIn: "7d",
+      }
+    );
+    setCookie(res, "seller-refresh-token", refreshToken);
+    setCookie(res, "seller-access-token", accessToken);
+    res.status(200).json({
+      message: "Login successful",
+      seller: { id: seller.id, email: seller.email, name: seller.name },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getSeller = async (req: any, res: Response, next: NextFunction) => {
+  try {
+    const seller = req.seller;
+    res.status(201).json({
+      success: true,
+      seller,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
