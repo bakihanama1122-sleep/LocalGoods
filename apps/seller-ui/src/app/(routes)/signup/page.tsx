@@ -12,7 +12,7 @@ import CreateShop from "apps/seller-ui/src/shared/modules/auth/CreateShop";
 import StripeLogo from "apps/seller-ui/src/assets/svgs/StripeLogo";
 
 const Signup = () => {
-  const [activeStep, setActiveStep] = useState(3);
+  const [activeStep, setActiveStep] = useState(1);
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
   const [canResend, setCanResend] = useState(false);
@@ -22,7 +22,6 @@ const Signup = () => {
   const [sellerData, setSellerData] = useState<FormData | null>(null);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 const [sellerId,setSellerId] = useState("");
-  const router = useRouter();
 
   const {
     register,
