@@ -10,6 +10,7 @@ import { useMutation } from "@tanstack/react-query";
 import { countries } from "apps/seller-ui/src/utils/countries";
 import CreateShop from "apps/seller-ui/src/shared/modules/auth/CreateShop";
 import StripeLogo from "apps/seller-ui/src/assets/svgs/StripeLogo";
+import ImagePlaceHolder from "apps/seller-ui/src/shared/components/image-placeholder";
 
 const Signup = () => {
   const [activeStep, setActiveStep] = useState(3);
