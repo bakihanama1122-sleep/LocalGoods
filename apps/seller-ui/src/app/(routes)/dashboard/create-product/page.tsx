@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import ImagePlaceHolder from "apps/seller-ui/src/shared/components/image-placeholder";
 import Input from "packages/components/input";
 import ColorSelector from "packages/components/color-selector";
+import CustomeSpecifications from "packages/components/custom-specifications";
 
 const page = () => {
   const {
@@ -184,6 +185,12 @@ const page = () => {
 
               <div className="mt-2">
                 <ColorSelector control={control} errors={errors} />
+              </div>
+
+              <div className="mt-2">
+                <CustomeSpecifications
+                control={control} errors={errors}
+                />
               </div>
             </div>
           </div>
