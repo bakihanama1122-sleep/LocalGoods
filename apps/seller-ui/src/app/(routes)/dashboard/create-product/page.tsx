@@ -13,6 +13,8 @@ import RichTextEditor from "packages/components/rich-text-editor";
 import SizeSelector from "packages/components/size-selector";
 import Image from "next/image";
 import { enhancements } from "apps/seller-ui/src/utils/AI.enhancements";
+import { useRouter } from "next/router";
+import toast from "react-hot-toast"
 
 interface UploadedImage{
   fileId:string;
@@ -37,6 +39,7 @@ const page = () => {
   const [selectedImage,setSelectedImage] = useState('');
   const [pictureUploadingLoader,setPictureUploadingLoader] = useState(false);
   const [processing,setProcessing] = useState(false);
+  const router = useRouter();
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["categories"],
@@ -68,6 +71,7 @@ const page = () => {
     return selectedCategory ? subCategoriesData[selectedCategory] || [] : [];
   }, [selectedCategory, subCategoriesData]);
 
+  
   const regularPrice = watch("regular_price");
 
   console.log(categories, subCategoriesData);
@@ -147,8 +151,17 @@ const page = () => {
     }
   }
   const handleSaveDraft = () => {};
-  const onSubmit = (data: any) => {
-    console.log(data);
+  const onSubmit = async(data: any) => {
+    
+    try {
+      setLoading(true);
+      await axiosInstance.post("/product/api/create-product",data);
+      router.push("/dashboard/all-products")
+    } catch (error:any) {
+      toast.error(error?.data?.message);
+    }finally{
+      setLoading(false);
+    }
   };
 
   return (
