@@ -136,7 +136,7 @@ const ProductList = () => {
           </button>
           <button
             className="text-red-400 hover:text-red-300 transition"
-            //   onClick={openDeleteModal(row.original)}
+            onClick={()=>openDeleteModal(row.original)}
           >
             <Trash size={18} />
           </button>
@@ -154,6 +154,11 @@ const ProductList = () => {
     state: { globalFilter },
     onGlobalFilterChange: setGlobalFilter,
   });
+
+  const openDeleteModal = (product:any)=>{
+    setSelectedProduct(product);
+    setShowDeleteModal(true);
+  }
 
   return (
     <div className="w-full min-h-screen p-8">
