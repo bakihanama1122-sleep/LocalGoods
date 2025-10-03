@@ -8,11 +8,12 @@ import React, { useState } from "react";
 import Input from "packages/components/input";
 import { Controller, useForm } from "react-hook-form";
 import { AxiosError } from "axios";
+import DeleteDiscountCodeModal from "apps/seller-ui/src/shared/components/modals/delete-discount-codes";
 
 const page = () => {
   const [showModal, setShowModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [selectedDiscount, setSelectedDiscount] = useState(false);
+  const [selectedDiscount, setSelectedDiscount] = useState<any>();
   const queryClient = useQueryClient();
 
   const { data: discountCodes = [], isLoading } = useQuery({
@@ -48,6 +49,16 @@ const page = () => {
       setShowModal(false);
     },
   });
+
+  const deleteDiscountCodeMutation = useMutation({
+    mutationFn: async(discountId)=>{
+        await axiosInstance.delete("/product/api/delete-discount-code/${discountId}")
+    },
+    onSuccess:()=>{
+        queryClient.invalidateQueries({queryKey:["shop-discounts"]});
+        setShowDeleteModal(false);
+    },
+  })
 
   const handleDeleteClick = async (discount: any) => {
     setSelectedDiscount(discount);
@@ -214,6 +225,14 @@ const page = () => {
             </form>
           </div>
         </div>
+      )}
+
+      {showDeleteModal && selectedDiscount && (
+        <DeleteDiscountCodeModal
+        discount={selectedDiscount}
+        onClose={()=>setShowDeleteModal(false)}
+        onConfirm={()=>deleteDiscountCodeMutation.mutate(selectedDiscount?.id)}
+        />
       )}
     </div>
   );
