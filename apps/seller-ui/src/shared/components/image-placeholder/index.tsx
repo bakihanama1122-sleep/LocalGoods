@@ -5,20 +5,28 @@ import React, { useState } from "react";
 const ImagePlaceHolder = ({
   size,
   small,
+  pictureUploadingLoader,
   onImageChange,
   onRemove,
   defaultImage = null,
+  setSelectedImage,
   index = null,
   setOpenImageModel,
+  images,
 }: {
   size: string;
   small?: boolean;
   onImageChange: (file: File | null, index: number) => void;
   onRemove: (index: number) => void;
   defaultImage?: string | null;
-  index?: number|null;
+  setSelectedImage:(e:string)=>void;
+  index?: any;
   setOpenImageModel: (openImageModel: boolean) => void;
+  images:any;
+  pictureUploadingLoader:boolean;
 }) => {
+
+
   const [imagePreview, setImagePreview] = useState<string | null>(defaultImage);
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -45,14 +53,19 @@ const ImagePlaceHolder = ({
         <>
           <button
             type="button"
+            disabled={pictureUploadingLoader}
             onClick={() => onRemove?.(index!)}
             className="absolute top-3 right-3 !rounded bg-red-600 shadow-lg"
           >
             <X size={16} />
           </button>
           <button
+            disabled={pictureUploadingLoader}
             className="absolute top-3 right-[70px] p-2 !rounded bg-blue-500 shadow-lg"
-            onClick={() => setOpenImageModel(true)}
+            onClick={() => {
+              setOpenImageModel(true);
+              setSelectedImage(images[index].file_url)
+            }}
           >
             <WandSparkles size={16} />
           </button>
