@@ -231,10 +231,14 @@ export const createProduct = async (
         regular_price: parseFloat(regular_price),
         custom_properties: customProperties || {},
         custom_specifications: custom_specifications || {},
-        images: images.map((image: any) => ({
-          file_Id: image.fileId,
-          url: image.file_url,
-        })),
+        images: {
+          create: images
+            .filter((img: any) => img && img.fieldId && img.file_url)
+            .map((image: any) => ({
+              file_Id: image.fileId,
+              url: image.file_url,
+            })),
+        },
       },
       include: { images: true },
     });

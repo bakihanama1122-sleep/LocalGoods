@@ -114,7 +114,7 @@ model products{
   detailed_description String
   images images[]
   video_url String?
-  tags String?
+  tags String[]
   brand String?
   colors String[]
   sizes String[]
