@@ -27,6 +27,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import Image from "next/image";
+import DeleteConfirmationModal from "apps/seller-ui/src/shared/components/modals/delete.confirmation.modal";
 
 const fetchProducts = async () => {
   const res = await axiosInstance.get("/product/api/get-shop-products");
@@ -38,6 +39,7 @@ const ProductList = () => {
   const [analyticsData, setAnalyticsData] = useState(null);
   const [showAnalytics, setShowAnalytics] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<any>();
+   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: products = [], isLoading } = useQuery({
@@ -222,6 +224,15 @@ const ProductList = () => {
                     ))}
                 </tbody>
             </table>
+        )}
+
+        {showDeleteModal &&(
+          <DeleteConfirmationModal
+          product={selectedProduct}
+          onClose={()=>setShowDeleteModal(false)}
+          onConfirm={()=>deleteMutation.mutate(selectedProduct?.id)}
+          onRestore={()=>restoreMutation.mutate(selectedProduct?.id)}
+          />
         )}
       </div>
 
