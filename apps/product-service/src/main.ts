@@ -1,21 +1,47 @@
-/**
- * This is not a production server yet!
- * This is only a minimal backend to get started.
- */
-
 import express from 'express';
+import cors from 'cors';
+import {errorMiddleware} from '../../../packages/error-handler/error-middleware';
+import cookieParser from 'cookie-parser';
+import productRouter from "./routes/product.router"
+
+import swaggerUi from "swagger-ui-express";
+import * as fs from 'fs';
 import * as path from 'path';
+const swaggerJsonPath = path.join(__dirname, 'swagger-output.json');
+const swaggerDocument = JSON.parse(fs.readFileSync(swaggerJsonPath, 'utf8'));
+
+const host = process.env.HOST ?? 'localhost';
+const port = process.env.PORT ? Number(process.env.PORT) : 6002;
 
 const app = express();
 
-app.use('/assets', express.static(path.join(__dirname, 'assets')));
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  })
+);
+app.use(express.json());
+app.use(cookieParser());
 
-app.get('/api', (req, res) => {
-  res.send({ message: 'Welcome to product-service!' });
+app.get('/', (req, res) => {
+    res.send({ 'message': 'Hello Product API'});
 });
 
-const port = process.env.PORT || 3333;
-const server = app.listen(port, () => {
-  console.log(`Listening at http://localhost:${port}/api`);
+//Routes
+app.use("/api-docs",swaggerUi.serve,swaggerUi.setup(swaggerDocument));
+app.get("/docs",(req,res)=>{
+  res.json(swaggerDocument);
+})
+
+app.use("/api",productRouter);
+
+app.use(errorMiddleware);
+
+const server = app.listen(port, host, () => {
+    console.log(`[ ready ] http://${host}:${port}/api`);
+    console.log(`swagger Docs available at http://localhost:${port}/docs`)
 });
-server.on('error', console.error);
+
+server.on('error',(error) => console.error(error));
