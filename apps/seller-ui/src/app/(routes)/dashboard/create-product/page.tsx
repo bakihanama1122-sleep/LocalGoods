@@ -61,30 +61,52 @@ const page = () => {
 
   console.log(categories, subCategoriesData);
 
-  const handleImageChange = (file: File | null, index: number) => {
-    const updatedImages = [...images];
-    updatedImages[index] = file;
-    if (index === images.length - 1 && images.length < 8) {
-      updatedImages.push(null);
-    }
+  const convertFiletoBase64 = (file: File) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = (error) => reject(error);
+    });
+  };
 
-    setImages(updatedImages);
-    setValue("images", updatedImages);
+  const handleImageChange = async (file: File | null, index: number) => {
+    if (!file) return;
+
+    try {
+      const fileName = await convertFiletoBase64(file);
+      const response = await axiosInstance.post(
+        "/product/api/upload-product-image",
+        fileName
+      );
+      const updatedImages = [...images];
+      updatedImages[index] = response.data.file_name;
+      if (index === images.length - 1 && updatedImages.length < 8) {
+        updatedImages.push(null);
+      }
+      setImages(updatedImages);
+      setValue("images", updatedImages);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const handleRemoveImages = (index: number) => {
-    setImages((prevImages) => {
-      let updatedImages = [...prevImages];
-      if (index === -1) {
-        updatedImages[0] = null;
-      } else {
-        updatedImages.splice(index, 1);
+    try {
+      const updatedImages = [...images]
+      const imageToDelete = updatedImages[index];
+      if(imageToDelete && typeof imageToDelete === "string"){
+
       }
-      if (!updatedImages.includes(null) && updatedImages.length < 0) {
+      updatedImages.splice(index,1);
+      if(!updatedImages.includes(null) && updatedImages.length<8){
         updatedImages.push(null);
       }
-      return updatedImages;
-    });
+      setImages(updatedImages);
+      setValue("images", updatedImages);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const handleSaveDraft = () => {};
@@ -476,7 +498,10 @@ const page = () => {
                             : [...currentSelection, code.id];
                           setValue("discountCodes", updatedSelection);
                         }}
-                      >{code?.public_name} ({code.discountValue} {code.discountType==="percentage"?"%":"₹"})</button>
+                      >
+                        {code?.public_name} ({code.discountValue}{" "}
+                        {code.discountType === "percentage" ? "%" : "₹"})
+                      </button>
                     ))}
                   </div>
                 )}
