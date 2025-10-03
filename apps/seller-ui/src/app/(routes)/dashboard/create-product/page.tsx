@@ -1,12 +1,14 @@
 "use client";
 import { ChevronRight } from "lucide-react";
-import React, { useState } from "react";
-import { useForm } from "react-hook-form";
+import React, { useMemo, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 import ImagePlaceHolder from "apps/seller-ui/src/shared/components/image-placeholder";
 import Input from "packages/components/input";
 import ColorSelector from "packages/components/color-selector";
 import CustomeSpecifications from "packages/components/custom-specifications";
 import CustomProperties from "packages/components/custom-properties";
+import { useQuery } from "@tanstack/react-query";
+import axiosInstance from "apps/seller-ui/src/utils/axiosInstance";
 
 const page = () => {
   const {
@@ -22,6 +24,33 @@ const page = () => {
   const [isChanged, setIsChanged] = useState(false);
   const [images, setImages] = useState<(File | null)[]>([null]);
   const [loading, setLoading] = useState(false);
+
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["categories"],
+    queryFn: async () => {
+      try {
+        const res = await axiosInstance.get("/product/api/get-catergories");
+        return res.data;
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    staleTime: 1000 * 60 * 5,
+    retry: 2,
+  });
+
+  const categories = data?.categories || [];
+  const subCategoriesData = data?.subCategories || {};
+
+  const selectedCategory = watch("category");
+  const subCategories = useMemo(()=>{
+    return selectedCategory? subCategoriesData[selectedCategory] || [] : []
+  },[selectedCategory,subCategoriesData]);
+
+  
+  const regularPrice = watch("regular_price");
+
+  console.log(categories, subCategoriesData);
 
   const handleImageChange = (file: File | null, index: number) => {
     const updatedImages = [...images];
@@ -150,17 +179,18 @@ const page = () => {
                   placeholder="aple,flagship"
                   {...register("slug", {
                     required: "slug is required!",
-                    pattern:{
-                      value:/^[a-z0-9]+(?:-[a-z0-9]+)*$/,
-                      message:"Invalid slug format! Use only lowercase lettrs,numbers"
+                    pattern: {
+                      value: /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
+                      message:
+                        "Invalid slug format! Use only lowercase lettrs,numbers",
                     },
-                    minLength:{
-                      value:3,
-                      message:"Slug cannot be less than 3 characters."
+                    minLength: {
+                      value: 3,
+                      message: "Slug cannot be less than 3 characters.",
                     },
-                    maxLength:{
-                      value:50,
-                      message:"Slug cannot be more than 50 characters."
+                    maxLength: {
+                      value: 50,
+                      message: "Slug cannot be more than 50 characters.",
                     },
                   })}
                 />
@@ -189,15 +219,11 @@ const page = () => {
               </div>
 
               <div className="mt-2">
-                <CustomeSpecifications
-                control={control} errors={errors}
-                />
+                <CustomeSpecifications control={control} errors={errors} />
               </div>
 
               <div className="mt-2">
-                <CustomProperties
-                control={control} errors={errors}
-                />
+                <CustomProperties control={control} errors={errors} />
               </div>
 
               <div className="mt-2">
@@ -205,11 +231,11 @@ const page = () => {
                   Cash on Delivery *
                 </label>
                 <select
-                {...register("cash_on_delivery",{
-                  required:"Cash on Delivery option is required",
-                })}
-                defaultValue="yes"
-                className="w-full border outlin-none border-gray-700 bg-transparent p-2"
+                  {...register("cash_on_delivery", {
+                    required: "Cash on Delivery option is required",
+                  })}
+                  defaultValue="yes"
+                  className="w-full border outlin-none border-gray-700 bg-transparent p-2"
                 >
                   <option value="yes" className="bg-black">
                     Yes
@@ -219,18 +245,83 @@ const page = () => {
                   </option>
                 </select>
               </div>
-
             </div>
             <div className="w-2/4">
-            <label className="block font-semibold text-gray-300 md-1">
-              Category *
-            </label>
+              <label className="block font-semibold text-gray-300 md-1">
+                Category *
+              </label>
+              {isLoading ? (
+                <p className="text-gray-400">Loading categories ........</p>
+              ) : isError ? (
+                <p className="text-red-500">Failed to load catergories</p>
+              ) : (
+                <Controller
+                  name="category"
+                  control={control}
+                  rules={{ required: "Category is required." }}
+                  render={({ field }) => (
+                    <select
+                      {...field}
+                      className="w-full border outline-none border-gray-700 bg-transparent"
+                    >
+                      {" "}
+                      <option value="" className="bg-black">
+                        Select Category
+                      </option>
+                      {categories?.map((category: string) => {
+                        <option
+                          value={category}
+                          key={category}
+                          className="bg-black"
+                        >
+                          {category}
+                        </option>;
+                      })}
+                    </select>
+                  )}
+                />
+              )}
+              {
+                errors.category && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.category.message as string}
+                  </p>
+                )
+              }
 
+              <div className="mt-2">
+                <label className="block font-semibold text-gray-300 md-1">
+                Sub category *
+              </label>
+              <Controller
+                  name="Sub category"
+                  control={control}
+                  rules={{ required: "Subcategory is required." }}
+                  render={({ field }) => (
+                    <select
+                      {...field}
+                      className="w-full border outline-none border-gray-700 bg-transparent"
+                    >
+                      {" "}
+                      <option value="" className="bg-black">
+                        Select Subcategory
+                      </option>
+                      {subCategories?.map((subCategory: string) => {
+                        <option
+                          value={subCategory}
+                          key={subCategory}
+                          className="bg-black"
+                        >
+                          {subCategory}
+                        </option>;
+                      })}
+                    </select>
+                  )}
+                />
+              </div>
             </div>
           </div>
         </div>
-
-
       </div>
     </form>
   );

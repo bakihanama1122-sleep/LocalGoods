@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import {errorMiddleware} from '../../../packages/error-handler/error-middleware';
 import cookieParser from 'cookie-parser';
-import productRouter from "./routes/product.router"
+import productRouter from "./routes/product.routes"
 
 import swaggerUi from "swagger-ui-express";
 import * as fs from 'fs';
