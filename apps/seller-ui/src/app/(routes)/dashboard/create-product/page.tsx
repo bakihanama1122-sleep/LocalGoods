@@ -1,5 +1,5 @@
 "use client";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, X } from "lucide-react";
 import React, { useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import ImagePlaceHolder from "apps/seller-ui/src/shared/components/image-placeholder";
@@ -11,6 +11,12 @@ import { useQuery } from "@tanstack/react-query";
 import axiosInstance from "apps/seller-ui/src/utils/axiosInstance";
 import RichTextEditor from "packages/components/rich-text-editor";
 import SizeSelector from "packages/components/size-selector";
+import Image from "next/image";
+
+interface UploadedImage{
+  fileId:string;
+  file_url:string;
+}
 
 const page = () => {
   const {
@@ -24,8 +30,10 @@ const page = () => {
 
   const [openImageModel, setOpenImageModel] = useState(false);
   const [isChanged, setIsChanged] = useState(false);
-  const [images, setImages] = useState<(File | null)[]>([null]);
+  const [images, setImages] = useState<(UploadedImage | null)[]>([null]);
   const [loading, setLoading] = useState(false);
+  const [selectedImage,setSelectedImage] = useState('');
+  const [pictureUploadingLoader,setPictureUploadingLoader] = useState(false);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["categories"],
@@ -72,15 +80,21 @@ const page = () => {
 
   const handleImageChange = async (file: File | null, index: number) => {
     if (!file) return;
-
+    setPictureUploadingLoader(true);
     try {
       const fileName = await convertFiletoBase64(file);
+      
       const response = await axiosInstance.post(
         "/product/api/upload-product-image",
-        fileName
+        {fileName}
       );
+      
+      const uploadedImage:UploadedImage = {
+        fileId:response.data.fileId,
+        file_url:response.data.file_url
+      }
       const updatedImages = [...images];
-      updatedImages[index] = response.data.file_name;
+      updatedImages[index] =uploadedImage;
       if (index === images.length - 1 && updatedImages.length < 8) {
         updatedImages.push(null);
       }
@@ -88,15 +102,21 @@ const page = () => {
       setValue("images", updatedImages);
     } catch (error) {
       console.log(error);
+    }finally{
+      setPictureUploadingLoader(false);
     }
   };
 
-  const handleRemoveImages = (index: number) => {
+  const handleRemoveImages = async (index: number) => {
     try {
       const updatedImages = [...images]
       const imageToDelete = updatedImages[index];
-      if(imageToDelete && typeof imageToDelete === "string"){
-
+      if(imageToDelete && typeof imageToDelete === "object"){
+          await axiosInstance.delete("/product/api/delete-product-image",{
+            data:{
+               fileId:imageToDelete.fileId!,
+            }
+          })
       }
       updatedImages.splice(index,1);
       if(!updatedImages.includes(null) && updatedImages.length<8){
@@ -131,9 +151,12 @@ const page = () => {
             <ImagePlaceHolder
               setOpenImageModel={setOpenImageModel}
               size="765 X 850"
+              images={images}
+              pictureUploadingLoader={pictureUploadingLoader}
               small={false}
               index={0}
               onImageChange={handleImageChange}
+              setSelectedImage={setSelectedImage}
               onRemove={handleRemoveImages}
             />
           )}
@@ -143,10 +166,13 @@ const page = () => {
               <ImagePlaceHolder
                 setOpenImageModel={setOpenImageModel}
                 size="765 X 850"
+                images={images}
+                pictureUploadingLoader={pictureUploadingLoader}
                 key={index}
                 small={true}
                 index={index + 1}
                 onImageChange={handleImageChange}
+                setSelectedImage={setSelectedImage}
                 onRemove={handleRemoveImages}
               />
             ))}
@@ -510,6 +536,25 @@ const page = () => {
           </div>
         </div>
       </div>
+
+      {openImageModel &&(
+        <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-60 z-50">
+            <div className="bg-gray-800 rounded-lg w-[450px] text-white">
+                <div className="flex justify-betweem items-center pb-3 mb-4">
+                  <h2 className="text-lg font-semibold">
+                     Enhance Product Image
+                  </h2>
+                  <X size={20} className="cursor-pointer" onClick={()=>setOpenImageModel(!openImageModel)}/>
+                </div>
+                <div className="w-full h-[250px] rounded-md overflow-hidden border border-gray-600">
+                  <Image
+                  src={selectedImage} alt="product_image"
+                  layout="fill"
+                />
+                </div>
+            </div>
+        </div>
+      )}
       <div className="mt-6 flex justify-end gap-3">
         {isChanged && (
           <button
