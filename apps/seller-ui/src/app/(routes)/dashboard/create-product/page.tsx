@@ -10,6 +10,7 @@ import CustomProperties from "packages/components/custom-properties";
 import { useQuery } from "@tanstack/react-query";
 import axiosInstance from "apps/seller-ui/src/utils/axiosInstance";
 import RichTextEditor from "packages/components/rich-text-editor";
+import SizeSelector from "packages/components/size-selector";
 
 const page = () => {
   const {
@@ -44,11 +45,10 @@ const page = () => {
   const subCategoriesData = data?.subCategories || {};
 
   const selectedCategory = watch("category");
-  const subCategories = useMemo(()=>{
-    return selectedCategory? subCategoriesData[selectedCategory] || [] : []
-  },[selectedCategory,subCategoriesData]);
+  const subCategories = useMemo(() => {
+    return selectedCategory ? subCategoriesData[selectedCategory] || [] : [];
+  }, [selectedCategory, subCategoriesData]);
 
-  
   const regularPrice = watch("regular_price");
 
   console.log(categories, subCategoriesData);
@@ -282,19 +282,17 @@ const page = () => {
                   )}
                 />
               )}
-              {
-                errors.category && (
-                  <p className="text-red-500 text-xs mt-1">
-                    {errors.category.message as string}
-                  </p>
-                )
-              }
+              {errors.category && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.category.message as string}
+                </p>
+              )}
 
               <div className="mt-2">
                 <label className="block font-semibold text-gray-300 md-1">
-                Sub category *
-              </label>
-              <Controller
+                  Sub category *
+                </label>
+                <Controller
                   name="Sub category"
                   control={control}
                   rules={{ required: "Subcategory is required." }}
@@ -323,29 +321,127 @@ const page = () => {
 
               <div className="mt-2">
                 <label className="block font-semibold text-gray-300 md-1">
-                Detailed Description * (Min 100 words)
-              </label>
-              <Controller
-              name="detailed_description"
-              control={control}
-              rules={{
-                required:"Detailed description is required!",
-                validate:(value)=>{
-                  const wordCount = value?.split(/s+/).filter((word:string)=>word).length;
-                  return(
-                    wordCount>=100 || 
-                    "Description must be at least 100 words!"
-                  );
-                },
-              }}
-              render={({field})=>(
-                <RichTextEditor
-                  value={field.value}
-                  onChange={field.onChange}
+                  Detailed Description * (Min 100 words)
+                </label>
+                <Controller
+                  name="detailed_description"
+                  control={control}
+                  rules={{
+                    required: "Detailed description is required!",
+                    validate: (value) => {
+                      const wordCount = value
+                        ?.split(/s+/)
+                        .filter((word: string) => word).length;
+                      return (
+                        wordCount >= 100 ||
+                        "Description must be at least 100 words!"
+                      );
+                    },
+                  }}
+                  render={({ field }) => (
+                    <RichTextEditor
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
+                  )}
                 />
-              )}
-              />
               </div>
+
+              <div className="mt-2">
+                <Input
+                  label="Video URL"
+                  placeholder="https://www.youtube.com/embed/xyz123"
+                  {...register("video_url", {
+                    pattern: {
+                      value:
+                        /^https:\/\/(www\.)?.youtube\.com\/embed\/[a-zA-Z0-9_-]+$/,
+                      message:
+                        "Invalid Youtube embed URL! use format: https://www.youtube.com/embed/xyz123",
+                    },
+                  })}
+                />
+                {errors.video_url && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.video_url.message as string}
+                  </p>
+                )}
+              </div>
+
+              <div className="mt-2">
+                <Input
+                  label="Regular Price"
+                  placeholder="Rs.20"
+                  {...register("regular_price", {
+                    valueAsNumber: true,
+                    min: { value: 1, message: "Price must be at least 1" },
+                    validate: (value) =>
+                      !isNaN(value) || "Only numbers are allowed",
+                  })}
+                />
+                {errors.regular_price && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.regular_price.message as string}
+                  </p>
+                )}
+              </div>
+
+              <div className="mt-2">
+                <Input
+                  label="Sales Price"
+                  placeholder="Rs.15"
+                  {...register("sale_price", {
+                    required: "Sale price is required",
+                    valueAsNumber: true,
+                    min: { value: 1, message: "Price must be at least 1" },
+                    validate: (value) => {
+                      if (!isNaN(value)) return "Only numbers are allowed";
+                      if (regularPrice && value >= regularPrice) {
+                        return "Sale Price must be less than Regular Price";
+                      }
+                      return true;
+                    },
+                  })}
+                />
+                {errors.regular_price && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.regular_price.message as string}
+                  </p>
+                )}
+              </div>
+
+              <div className="mt-2">
+                <Input
+                  label="Stock *"
+                  placeholder="100"
+                  {...register("stock", {
+                    required: "Stock is required",
+                    valueAsNumber: true,
+                    min: { value: 1, message: "stock must be at least 1" },
+                    max: { value: 1000, message: "stock can be at most 1,000" },
+                    validate: (value) => {
+                      if (!isNaN(value)) return "Only numbers are allowed";
+                      if (!Number.isInteger(value)) {
+                        return "Stock must be a whole number!";
+                      }
+                      return true;
+                    },
+                  })}
+                />
+                {errors.stock && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.stock.message as string}
+                  </p>
+                )}
+              </div>
+
+              <div className="mt-2">
+                <SizeSelector control={control} errors={errors}/>
+              </div>
+
+              <div className="mt-3">
+
+              </div>
+
             </div>
           </div>
         </div>
