@@ -78,6 +78,10 @@ const page = () => {
       return updatedImages;
     });
   };
+
+  const handleSaveDraft = ()=>{
+
+  }
   const onSubmit = (data: any) => {
     console.log(data);
   };
@@ -439,13 +443,34 @@ const page = () => {
               </div>
 
               <div className="mt-3">
-
+                <label className="block font-semibold text-gray-300 md-1">
+                  Select Discount Codes (optional)
+                </label>
               </div>
 
-            </div>
+            </div> 
           </div>
+          
         </div>
       </div>
+      <div className="mt-6 flex justify-end gap-3">
+                {isChanged&&(
+                  <button
+                  type="button"
+                  onChange={handleSaveDraft}
+                  className="px-4 py-2 bg-gray-700 text-white rounded-md"
+                  >
+                    Save Draft
+                  </button>
+                )}
+                <button
+                type="submit"
+                className="px-4 py-2 bg-blue-600 text-white rounded-md"
+                disabled={loading}
+                >
+                  {loading?"Creating...":"Create"}
+                </button>
+          </div>
     </form>
   );
 };
