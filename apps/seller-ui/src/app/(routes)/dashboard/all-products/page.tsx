@@ -34,6 +34,14 @@ const fetchProducts = async () => {
   return res?.data?.products;
 };
 
+const deleteProduct = async(productId:string)=>{
+  await axiosInstance.delete(`product/api/delete-product/${productId}`)
+};
+
+const restoreProduct = async(productId:string)=>{
+  await axiosInstance.put(`product/api/restore-product/${productId}`)
+};
+
 const ProductList = () => {
   const [globalFilter, setGlobalFilter] = useState("");
   const [analyticsData, setAnalyticsData] = useState(null);
@@ -46,6 +54,22 @@ const ProductList = () => {
     queryKey: ["shop-products"],
     queryFn: fetchProducts,
     staleTime: 1000 * 60 * 5,
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteProduct,
+    onSuccess:()=>{
+      queryClient.invalidateQueries({queryKey:["shop-products"]});
+      setShowDeleteModal(false);
+    },
+  });
+
+  const restoreMutation = useMutation({
+    mutationFn: restoreProduct,
+    onSuccess:()=>{
+      queryClient.invalidateQueries({queryKey:["shop-products"]});
+      setShowDeleteModal(false);
+    },
   });
 
   const columns = useMemo(() => [
