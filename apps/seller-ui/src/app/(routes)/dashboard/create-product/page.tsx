@@ -9,6 +9,7 @@ import CustomeSpecifications from "packages/components/custom-specifications";
 import CustomProperties from "packages/components/custom-properties";
 import { useQuery } from "@tanstack/react-query";
 import axiosInstance from "apps/seller-ui/src/utils/axiosInstance";
+import RichTextEditor from "packages/components/rich-text-editor";
 
 const page = () => {
   const {
@@ -318,6 +319,32 @@ const page = () => {
                     </select>
                   )}
                 />
+              </div>
+
+              <div className="mt-2">
+                <label className="block font-semibold text-gray-300 md-1">
+                Detailed Description * (Min 100 words)
+              </label>
+              <Controller
+              name="detailed_description"
+              control={control}
+              rules={{
+                required:"Detailed description is required!",
+                validate:(value)=>{
+                  const wordCount = value?.split(/s+/).filter((word:string)=>word).length;
+                  return(
+                    wordCount>=100 || 
+                    "Description must be at least 100 words!"
+                  );
+                },
+              }}
+              render={({field})=>(
+                <RichTextEditor
+                  value={field.value}
+                  onChange={field.onChange}
+                />
+              )}
+              />
               </div>
             </div>
           </div>
