@@ -216,7 +216,7 @@ const page = () => {
                   cols={10}
                   label="Short Description * (Max 150 words)"
                   placeholder="Enter product description for quick view"
-                  {...register("description", {
+                  {...register("short_description", {
                     required: "Description is required",
                     validate: (value) => {
                       const wordCount = value.trim().split(/\s+/).length;
@@ -227,9 +227,9 @@ const page = () => {
                     },
                   })}
                 />
-                {errors.description && (
+                {errors.short_description && (
                   <p className="text-red-500 text-xs mt-1">
-                    {errors.description.message as string}
+                    {errors.short_description.message as string}
                   </p>
                 )}
               </div>
