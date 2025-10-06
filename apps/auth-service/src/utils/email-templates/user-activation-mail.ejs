@@ -1,58 +1,80 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 </head>
 <style>
-    body{
-        background-color: beige;
+    body {
+        background-color: #E7F2EF;
     }
-    h3{
-        color: cadetblue;
-    }
-    .logo{
-        height: 200px;
-        width: 300vh;
-    }
-    .content{
+    .content {
         width: 400px;
         margin-left: 15%;
         justify-content: center;
         align-items: center;
-        
-}
+
+    }
+    .header{
+        display: flex;
+        background: #D9E9CF;
+        padding: 4px;
+        justify-content: center;
+        gap: 10px;
+    }
+    #title{
+        font-size: 40px;
+    }
+    .message,.welcome{
+        margin: 30px;
+    }
+    #otp{
+        margin-left: 30%;
+        color: green;
+        font-size: 30px;
+    }
 </style>
+
 <body>
-<div class="logo">
-    <img src="/github_banner.png" height="200px" width="300px" alt="My Image" />
-
-
-</div>
-
-    <!-- <div class="logo">
-        <img src="https://drive.google.com/uc?export=view&id=1glbcLfdc-9__niFlpPhgXU3CuX0pmiH6
-" height="200px" width="300px" alt="logo_image">
-    
-</div> -->
-<div class="intro"><h3>Welcome,</h3>
-
-<h3>Thank you for signing up with Local Goods.</h3>
-</div>
-<div class="content">
-
-<b>To activate your account</b> , please use the following One-Time Password <br/><b> OTP : <%=OTP CODE%>.</b><br/>
-
-
-This OTP is valid for the next 5 minutes and should be kept confidential. Do not share it with anyone.
-
-</div>
-    
-<h5>If you did not request this, please ignore this email   .
-</h5>
-
-Best regards,<br/>
+    <div class="wrapper">
+        <div class="header">
+            <div id="svg">
+                <svg width="80px" height="80px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M8 18C19.9545 18 20.9173 7.82917 20.9935 2.99666C21.0023 2.44444 20.54 1.99901 19.9878 2.00915C3 2.32115 3 10.5568 3 18V22"
+                        stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M3 18C3 18 3 12 11 11" stroke="#000000" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+            </div>
+            <div id="name">
+                <div id="title">
+                    LOCAL GOODS
+                </div>
+                <div id="sub-title">Becasue............</div>
+            </div>
+        </div>
+        <div class="body">
+            <div class="welcome">
+                Welcome to Local Goods !
+            </div>
+            <div class="message">
+                <p>Hi,<br/>Thank you for signing up with Local Goods.Complete you registration using the <b>OTP below</b>. </p>
+                <p id="otp"><%=otp%></p>
+                <p>This OTP is valid for the next 5 minutes and should be kept confidential. Do not share it with anyone.</p>
+                <p>If you did not request this, please ignore this email.</p>
+            </div>
+        </div>
+        <div class="footer">
+            <p>
+                Best regards,<br/>
 The Local Goods Team
+            </p>
+        </div>
+    </div>
+
 </body>
+
 </html>
