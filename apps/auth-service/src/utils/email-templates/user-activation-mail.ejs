@@ -5,8 +5,54 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 </head>
+<style>
+    body{
+        background-color: beige;
+    }
+    h3{
+        color: cadetblue;
+    }
+    .logo{
+        height: 200px;
+        width: 300vh;
+    }
+    .content{
+        width: 400px;
+        margin-left: 15%;
+        justify-content: center;
+        align-items: center;
+        
+}
+</style>
 <body>
-    <h2>Welocme to the Local Goods</h1>
-    <h3>Your OTP is : <%= otp %></h3>
+<div class="logo">
+    <img src="/github_banner.png" height="200px" width="300px" alt="My Image" />
+
+
+</div>
+
+    <!-- <div class="logo">
+        <img src="https://drive.google.com/uc?export=view&id=1glbcLfdc-9__niFlpPhgXU3CuX0pmiH6
+" height="200px" width="300px" alt="logo_image">
+    
+</div> -->
+<div class="intro"><h3>Welcome,</h3>
+
+<h3>Thank you for signing up with Local Goods.</h3>
+</div>
+<div class="content">
+
+<b>To activate your account</b> , please use the following One-Time Password <br/><b> OTP : <%=OTP CODE%>.</b><br/>
+
+
+This OTP is valid for the next 5 minutes and should be kept confidential. Do not share it with anyone.
+
+</div>
+    
+<h5>If you did not request this, please ignore this email   .
+</h5>
+
+Best regards,<br/>
+The Local Goods Team
 </body>
 </html>
