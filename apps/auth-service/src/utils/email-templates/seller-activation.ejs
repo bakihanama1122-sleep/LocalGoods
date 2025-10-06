@@ -1,12 +1,90 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 </head>
+<style>
+    body {
+        background-color: #E7F2EF;
+    }
+
+    .content {
+        width: 400px;
+        margin-left: 15%;
+        justify-content: center;
+        align-items: center;
+
+    }
+
+    .header {
+        display: flex;
+        background: #D9E9CF;
+        padding: 4px;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    #title {
+        font-size: 40px;
+    }
+
+    .message,
+    .welcome {
+        margin: 30px;
+    }
+
+    #otp {
+        margin-left: 30%;
+        color: green;
+        font-size: 30px;
+    }
+</style>
+
 <body>
-    <h2>Welocme to the Local Goods</h1>
-    <h3>Your OTP is : <%= otp %></h3>
+    <div class="wrapper">
+        <div class="header">
+            <div id="svg">
+                <svg width="80px" height="80px" viewBox="-0.88 0 308 308" xmlns="http://www.w3.org/2000/svg">
+                    <g id="shop" transform="translate(-1725.809 -1186.416)">
+                        <path id="Path_4" data-name="Path 4"
+                            d="M2032.055,1317.243a12.286,12.286,0,0,0-1.558-5.643l-36.515-69.051v-44.284a11.81,11.81,0,0,0-12.02-11.849H1776.009a11.816,11.816,0,0,0-12.027,11.849v44.276l-36.512,69.044a12.405,12.405,0,0,0-1.661,5.659,28.769,28.769,0,0,0,12.173,23.136V1466.6c0,15.372,12.856,27.82,28.081,27.82h225.579c15.371,0,28.34-12.449,28.34-27.821V1340.269A28.6,28.6,0,0,0,2032.055,1317.243Zm-62.073-106.827v23h-182v-23Zm-186.672,47h191.338l32.364,61.6a3.7,3.7,0,0,1-3.017,1.7l-250.251.031a3.583,3.583,0,0,1-2.923-1.707Zm120.672,213h-50v-55.773a25,25,0,1,1,50,0Zm87.66,0h-63.66v-55.774a49.5,49.5,0,0,0-99,0v55.773h-62.919c-1.864,0-3.081-1.809-3.081-3.82v-121.18h232v121.179A3.644,3.644,0,0,1,1991.642,1470.416Z"
+                            fill="#453c5c" />
+                    </g>
+                </svg>
+            </div>
+            <div id="name">
+                <div id="title">
+                    LOCAL GOODS
+                </div>
+                <div id="sub-title">Becasue local goods deserve local love.</div>
+            </div>
+        </div>
+        <div class="body">
+            <div class="welcome">
+                Welcome to Local Goods !
+            </div>
+            <div class="message">
+                <p>Hi,<br />Thank you for signing up with Local Goods.Complete you registration for seller account using
+                    the <b>OTP below</b>. </p>
+                <p id="otp">
+                    <%=otp%>
+                </p>
+                <p>This OTP is valid for the next 5 minutes and should be kept confidential. Do not share it with
+                    anyone.</p>
+                <p>If you did not request this, please ignore this email.</p>
+            </div>
+        </div>
+        <div class="footer">
+            <p>
+                Best regards,<br />
+                The Local Goods Team
+            </p>
+        </div>
+    </div>
+
 </body>
+
 </html>
