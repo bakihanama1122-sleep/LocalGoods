@@ -13,7 +13,7 @@ import RichTextEditor from "packages/components/rich-text-editor";
 import SizeSelector from "packages/components/size-selector";
 import Image from "next/image";
 import { enhancements } from "apps/seller-ui/src/utils/AI.enhancements";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import toast from "react-hot-toast"
 
 interface UploadedImage{

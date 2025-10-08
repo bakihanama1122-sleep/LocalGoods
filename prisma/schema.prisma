@@ -12,7 +12,7 @@ datasource db {
 model images{
   id String @id @default(auto()) @map("_id") @db.ObjectId
   file_id String
-  url String
+  url String[]
   userId String? @db.ObjectId @unique
   users users? @relation(fields:[userId],references : [id])
   shopId String? @unique @db.ObjectId
@@ -123,6 +123,7 @@ model products{
   stock Int
   sale_price Float
   regular_price Float
+  totalSales  Int      @default(0)
   ratings Float @default(5)
   warranty String?
   custom_specifications Json?
