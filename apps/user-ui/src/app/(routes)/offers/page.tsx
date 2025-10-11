@@ -47,7 +47,7 @@ const page = () => {
       params.set("sizes", selectedSizes.join(","));
     }
     params.set("page", page.toString());
-    router.replace(`/products?${decodeURIComponent(params.toString())}`);
+    router.replace(`/offers?${decodeURIComponent(params.toString())}`);
   };
 
   const fetchFilteredProducts = async () => {
@@ -68,7 +68,7 @@ const page = () => {
       query.set("limit", "12");
 
       const res = await axiosInstance.get(
-        `/product/api/get-filtered-products?${query.toString()}`
+        `/product/api/get-filtered-offers?${query.toString()}`
       );
 
       setProducts(res.data.products);
@@ -116,7 +116,7 @@ const page = () => {
       <div className="w-[90%] lg:w-[80%] m-auto">
         <div className="pb-[50px]">
           <h1 className="md:pt-[40px] font-medium text-[44px] leading-1 mb-[14px] font-jost">
-            All Products
+            All Offers
           </h1>
           <Link href={"/"} className="text-[#55585b] hover:underline">
             Home
@@ -266,7 +266,7 @@ const page = () => {
             ) : products.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid">
                 {products.map((product) => (
-                  <ProductCard key={product.id} product={product} />
+                  <ProductCard key={product.id} product={product} isEvent={true}/>
                 ))}
               </div>
             ) : (
