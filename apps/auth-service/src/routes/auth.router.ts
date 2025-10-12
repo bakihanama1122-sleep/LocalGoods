@@ -21,5 +21,10 @@ router.post("/create-stripe-link",createStripeConnectionLink);
 router.post("/login-seller",loginSeller);
 router.get("/logged-in-seller",isAuthenticated,isSeller,getSeller);
 
+// router.get("/shipping-address",isAuthenticated,getUserAddresses);
+// router.post("/add-address",isAuthenticated,addUserAddresses);
+// router.delete("/delete-address/:addressId",isAuthenticated,deleteUserAddresses);
+
+
 
 export default router;
