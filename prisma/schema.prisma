@@ -210,3 +210,36 @@ model address {
   isDefault Boolean     @default(true)
   createdAt DateTime    @default(now())
 }
+
+
+model Message {
+  id           String      @id @default(auto()) @map("_id") @db.ObjectId
+  fromUserId   String      @db.ObjectId
+  toUserId     String      @db.ObjectId
+  fromUser     User        @relation("MessagesFromUser", fields: [fromUserId], references: [id])
+  toUser       User        @relation("MessagesToUser", fields: [toUserId], references: [id])
+  content      String
+  attachments  Attachment[] @db.Json
+  readStatus   Boolean     @default(false)
+  readAt       DateTime?
+  messageType  MessageType @default(text)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  @@index([fromUserId, toUserId, createdAt(sort: Desc)])
+  @@index([toUserId, readStatus])
+}
+
+enum MessageType {
+  text
+  image
+  document
+}
+
+type Attachment {
+  type     String
+  url      String
+  filename String
+  size     Float
+}
+
