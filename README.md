@@ -133,6 +133,7 @@ LocalGoods/
 ├── docs/                         # Documentation
 │   ├── api/                      # API documentation
 │   ├── architecture/             # System architecture
+|---|prisma/                      #Schemas 
 ├── CONTRIBUTING.md              # Contribution guidelines
 ├── LICENSE.md                   # MIT License
 ├── README.md                    # This file
