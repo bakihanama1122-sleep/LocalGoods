@@ -5,7 +5,6 @@ import { sendOtp, validateRegistrationData } from "../utils/auth.helper";
 import prisma from "../../../../packages/libs/prisma/index";
 import {
   AuthenticationError,
-  NotFoundError,
   ValidationError,
 } from "../../../../packages/error-handler/index";
 import {

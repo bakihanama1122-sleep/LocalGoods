@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import ShopCard from "../../shared/components/cards/shop.card";
+import { countries } from "apps/user-ui/src/configs/countries";
+import { categories } from "apps/user-ui/src/configs/categories";
 
 
 const page = () => {
@@ -150,7 +152,7 @@ const page = () => {
                   ></div>
                 ))}
               </div>
-            ) : shops.length > 0 ? (
+            ) : shops && shops.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid">
                 {shops.map((shop) => (
                   <ShopCard key={shop.id} shop={shop} />

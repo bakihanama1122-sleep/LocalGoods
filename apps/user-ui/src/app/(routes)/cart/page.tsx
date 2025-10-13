@@ -5,18 +5,20 @@ import useLocationTracking from "apps/user-ui/src/hooks/useLocationTracking";
 import useUser from "apps/user-ui/src/hooks/useUser";
 import { useStore } from "apps/user-ui/src/store";
 import axiosInstance from "apps/user-ui/src/utils/axiosInstance";
+import axios from "axios";
 import { Loader2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 const CartPage = () => {
   const router = useRouter();
   const { user } = useUser();
   const location = useLocationTracking();
   const deviceInfo = useDeviceTracking();
-  const cart = useStore((state: any) => state.removeFromCart);
+  const cart = useStore((state: any) => state.cart);
   const [discountedProductId, setDiscountedProductId] = useState("");
   const [discountPercent, setDiscountPercent] = useState(0);
   const removeFromCart = useStore((state: any) => state.removeFromCart);
@@ -24,6 +26,25 @@ const CartPage = () => {
   const [discountAmount, setDiscountAmount] = useState(0);
   const [couponCode, setCouponCode] = useState("");
   const [selectedAddressId, setSelectedAddressId] = useState("");
+
+  const createPaymentSession = async()=>{
+    setLoading(true);
+    try {
+      const res = await axiosInstance.post("/order/api/create-payment-session",{
+        cart,
+        selectedAddressId,
+        coupon:{},
+      });
+
+      const sessionId = res.data.sessionId;
+      router.push(`/checkout?sessionId=${sessionId}`);
+
+    } catch (error) {
+      toast.error("something went wrong.Pleadse try again.");
+    }finally{
+      setLoading(false);
+    }
+  }
 
   const decreaseQuantity = (id: string) => {
     useStore.setState((state: any) => ({
@@ -273,6 +294,7 @@ const CartPage = () => {
                 </div>
 
                 <button
+                onClick={createPaymentSession}
                 disabled={loading}
                 className="w-full flex items-center justify-center gap-2 cursor-pointer mt-4 py-3 bg-[#010f1c] text-white hover:bg=[#0989FF] transition-all rounded-lg"
                 >
