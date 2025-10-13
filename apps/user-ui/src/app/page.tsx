@@ -139,7 +139,7 @@ const Page = () => {
 
         {shops?.length===0 && (
             <p className="text-center">
-                No shops Available yet!
+                No Top shops Available yet!
             </p>
         )}
 
