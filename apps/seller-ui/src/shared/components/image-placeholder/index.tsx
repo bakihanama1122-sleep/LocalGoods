@@ -1,6 +1,6 @@
 import { Pencil, PencilIcon, WandSparkles, X } from "lucide-react";
 import Image from "next/image";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 const ImagePlaceHolder = ({
   size,
@@ -10,6 +10,7 @@ const ImagePlaceHolder = ({
   onRemove,
   defaultImage = null,
   setSelectedImage,
+  setSelectedImageIndex,
   index = null,
   setOpenImageModel,
   images,
@@ -20,6 +21,7 @@ const ImagePlaceHolder = ({
   onRemove: (index: number) => void;
   defaultImage?: string | null;
   setSelectedImage:(e:string)=>void;
+  setSelectedImageIndex:(e:number)=>void;
   index?: any;
   setOpenImageModel: (openImageModel: boolean) => void;
   images:any;
@@ -28,6 +30,11 @@ const ImagePlaceHolder = ({
 
 
   const [imagePreview, setImagePreview] = useState<string | null>(defaultImage);
+
+  useEffect(() => {
+    setImagePreview(defaultImage);
+  }, [defaultImage]);
+
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -64,7 +71,8 @@ const ImagePlaceHolder = ({
             className="absolute top-3 right-[70px] p-2 !rounded bg-blue-500 shadow-lg"
             onClick={() => {
               setOpenImageModel(true);
-              setSelectedImage(images[index].file_url)
+              setSelectedImage(images[index].file_url);
+              setSelectedImageIndex(index);
             }}
           >
             <WandSparkles size={16} />
@@ -84,7 +92,7 @@ const ImagePlaceHolder = ({
         height={300}
           src={imagePreview}
           alt="upload"
-          className="w-full h-full object-coder rounded-lg"
+          className="w-full h-full object-cover rounded-lg"
         />
       ) : (
         <>
