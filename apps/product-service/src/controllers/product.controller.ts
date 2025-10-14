@@ -36,7 +36,7 @@ export const createDiscountCodes = async (
         discountCode,
       },
     });
-    if (!isDiscountCodeExist) {
+    if (isDiscountCodeExist) {
       return next(
         new ValidationError(
           "Discount code already exists.Please use different one."
