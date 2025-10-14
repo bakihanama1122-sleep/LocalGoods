@@ -13,7 +13,7 @@ import StripeLogo from "apps/seller-ui/src/assets/svgs/StripeLogo";
 import ImagePlaceHolder from "apps/seller-ui/src/shared/components/image-placeholder";
 
 const Signup = () => {
-  const [activeStep, setActiveStep] = useState(3);
+  const [activeStep, setActiveStep] = useState(1);
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
   const [canResend, setCanResend] = useState(false);
