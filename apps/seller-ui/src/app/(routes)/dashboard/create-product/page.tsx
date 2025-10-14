@@ -12,13 +12,13 @@ import axiosInstance from "apps/seller-ui/src/utils/axiosInstance";
 import RichTextEditor from "packages/components/rich-text-editor";
 import SizeSelector from "packages/components/size-selector";
 import Image from "next/image";
-import { enhancements } from "apps/seller-ui/src/utils/AI.enhancements";
+import { enhancements } from "../../../../utils/AI.enhancements";
 import { useRouter } from "next/navigation";
-import toast from "react-hot-toast"
+import toast from "react-hot-toast";
 
-interface UploadedImage{
-  fileId:string;
-  file_url:string;
+interface UploadedImage {
+  fileId: string;
+  file_url: string;
 }
 
 const page = () => {
@@ -35,17 +35,20 @@ const page = () => {
   const [isChanged, setIsChanged] = useState(false);
   const [images, setImages] = useState<(UploadedImage | null)[]>([null]);
   const [loading, setLoading] = useState(false);
-  const [activeEffect,setActiveEffect] = useState<string|null>(null);
-  const [selectedImage,setSelectedImage] = useState('');
-  const [pictureUploadingLoader,setPictureUploadingLoader] = useState(false);
-  const [processing,setProcessing] = useState(false);
+  const [activeEffect, setActiveEffect] = useState<string | null>(null);
+  const [selectedImage, setSelectedImage] = useState("");
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(
+    null
+  );
+  const [pictureUploadingLoader, setPictureUploadingLoader] = useState(false);
+  const [processing, setProcessing] = useState(false);
   const router = useRouter();
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["categories"],
     queryFn: async () => {
       try {
-        const res = await axiosInstance.get("/product/api/get-catergories");
+        const res = await axiosInstance.get("/product/api/get-categories");
         return res.data;
       } catch (error) {
         console.log(error);
@@ -71,7 +74,6 @@ const page = () => {
     return selectedCategory ? subCategoriesData[selectedCategory] || [] : [];
   }, [selectedCategory, subCategoriesData]);
 
-  
   const regularPrice = watch("regular_price");
 
   console.log(categories, subCategoriesData);
@@ -90,18 +92,18 @@ const page = () => {
     setPictureUploadingLoader(true);
     try {
       const fileName = await convertFiletoBase64(file);
-      
+
       const response = await axiosInstance.post(
         "/product/api/upload-product-image",
-        {fileName}
+        { fileName }
       );
-      
-      const uploadedImage:UploadedImage = {
-        fileId:response.data.fileId,
-        file_url:response.data.file_url
-      }
+
+      const uploadedImage: UploadedImage = {
+        fileId: response.data.fileId,
+        file_url: response.data.file_url,
+      };
       const updatedImages = [...images];
-      updatedImages[index] =uploadedImage;
+      updatedImages[index] = uploadedImage;
       if (index === images.length - 1 && updatedImages.length < 8) {
         updatedImages.push(null);
       }
@@ -109,24 +111,24 @@ const page = () => {
       setValue("images", updatedImages);
     } catch (error) {
       console.log(error);
-    }finally{
+    } finally {
       setPictureUploadingLoader(false);
     }
   };
 
   const handleRemoveImages = async (index: number) => {
     try {
-      const updatedImages = [...images]
+      const updatedImages = [...images];
       const imageToDelete = updatedImages[index];
-      if(imageToDelete && typeof imageToDelete === "object"){
-          await axiosInstance.delete("/product/api/delete-product-image",{
-            data:{
-               fileId:imageToDelete.fileId!,
-            }
-          })
+      if (imageToDelete && typeof imageToDelete === "object") {
+        await axiosInstance.delete("/product/api/delete-product-image", {
+          data: {
+            fileId: imageToDelete.fileId!,
+          },
+        });
       }
-      updatedImages.splice(index,1);
-      if(!updatedImages.includes(null) && updatedImages.length<8){
+      updatedImages.splice(index, 1);
+      if (!updatedImages.includes(null) && updatedImages.length < 8) {
         updatedImages.push(null);
       }
       setImages(updatedImages);
@@ -136,30 +138,51 @@ const page = () => {
     }
   };
 
-  const applyTransformation = async(transformation:string)=>{
-    if(!selectedImage || processing) return;
+  const applyTransformation = async (transformation: string) => {
+    if (!selectedImage || processing) return;
     setProcessing(true);
     setActiveEffect(transformation);
 
     try {
-      const transformedUrl = `${selectedImage}?tr=${transformation}`;
+      let transformedUrl;
+      if (selectedImage.includes("?tr=")) {
+        transformedUrl = selectedImage.replace(
+          "?tr=",
+          `?tr=${transformation},`
+        );
+      } else {
+        transformedUrl = `${selectedImage}?tr=${transformation}`;
+      }
       setSelectedImage(transformedUrl);
+      if (selectedImageIndex !== null) {
+        setImages((prevImages) => {
+          console.log("OLD ARRAY : ",prevImages);
+          const updated = [...prevImages];
+          updated[selectedImageIndex] = {
+            ...updated[selectedImageIndex],
+            file_url: transformedUrl, 
+          }as UploadedImage;
+          console.log("NEW ARRAY : ",updated);
+          return updated;
+      });
+    }
     } catch (error) {
       console.log(error);
-    }finally{
+    } finally {
       setProcessing(false);
     }
-  }
+  };
+
   const handleSaveDraft = () => {};
-  const onSubmit = async(data: any) => {
-    
+  const onSubmit = async (data: any) => {
     try {
       setLoading(true);
-      await axiosInstance.post("/product/api/create-product",data);
-      router.push("/dashboard/all-products")
-    } catch (error:any) {
+      console.log("came");
+      await axiosInstance.post("/product/api/create-product", data);
+      router.push("/dashboard/all-products");
+    } catch (error: any) {
       toast.error(error?.data?.message);
-    }finally{
+    } finally {
       setLoading(false);
     }
   };
@@ -187,12 +210,14 @@ const page = () => {
               index={0}
               onImageChange={handleImageChange}
               setSelectedImage={setSelectedImage}
+              setSelectedImageIndex={setSelectedImageIndex}
+              defaultImage={images[0]?.file_url} 
               onRemove={handleRemoveImages}
             />
           )}
 
           <div className="grid grid-cols-2 gap-3 mt-4">
-            {images.slice(1).map((_, index) => (
+            {images.slice(1).map((img, index) => (
               <ImagePlaceHolder
                 setOpenImageModel={setOpenImageModel}
                 size="765 X 850"
@@ -203,6 +228,8 @@ const page = () => {
                 index={index + 1}
                 onImageChange={handleImageChange}
                 setSelectedImage={setSelectedImage}
+                setSelectedImageIndex={setSelectedImageIndex}
+                defaultImage={img?.file_url || null} 
                 onRemove={handleRemoveImages}
               />
             ))}
@@ -357,15 +384,15 @@ const page = () => {
                       <option value="" className="bg-black">
                         Select Category
                       </option>
-                      {categories?.map((category: string) => {
+                      {categories?.map((category: string) => (
                         <option
                           value={category}
                           key={category}
                           className="bg-black"
                         >
                           {category}
-                        </option>;
-                      })}
+                        </option>
+                      ))}
                     </select>
                   )}
                 />
@@ -393,15 +420,15 @@ const page = () => {
                       <option value="" className="bg-black">
                         Select Subcategory
                       </option>
-                      {subCategories?.map((subCategory: string) => {
+                      {subCategories?.map((subCategory: string) => (
                         <option
                           value={subCategory}
                           key={subCategory}
                           className="bg-black"
                         >
                           {subCategory}
-                        </option>;
-                      })}
+                        </option>
+                      ))}
                     </select>
                   )}
                 />
@@ -532,6 +559,8 @@ const page = () => {
                 </label>
                 {discountLoading ? (
                   <p className="text-gray-400">Loading discount codes ...</p>
+                ) : discountCodes.length == 0 ? (
+                  <p className="text-gray-400">No discount codes</p>
                 ) : (
                   <div className="flex flex-wrap gap-2">
                     {discountCodes?.map((code: any) => (
@@ -567,41 +596,50 @@ const page = () => {
         </div>
       </div>
 
-      {openImageModel &&(
+      {openImageModel && (
         <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-60 z-50">
-            <div className="bg-gray-800 rounded-lg w-[450px] text-white">
-                <div className="flex justify-betweem items-center pb-3 mb-4">
-                  <h2 className="text-lg font-semibold">
-                     Enhance Product Image
-                  </h2>
-                  <X size={20} className="cursor-pointer" onClick={()=>setOpenImageModel(!openImageModel)}/>
-                </div>
-                <div className="w-full h-[250px] rounded-md overflow-hidden border border-gray-600">
-                  <Image
-                  src={selectedImage} alt="product_image"
-                  layout="fill"
-                />
-                </div>
-                {selectedImage&&(
-                  <div className="mt-4 space-y-2">
-                    <h3 className="text-white text-sm font-semibold">
-                       AI Enhancements
-                    </h3>
-                    <div className="grid grid-cols-2 gap-3 mx-h-[250px] overflow-y-auto">
-                      {enhancements?.map(({label,effect})=>(
-                        <button 
-                        key={effect}
-                        className={`p-2 rounded-md flex items-center gap-2 ${activeEffect===effect?"bg-blue-600 text-white":"bg-gray-700 hover:bg-gray-600"}`}
-                        onClick={()=>applyTransformation(effect)}
-                        disabled={processing}
-                        >
-                         <Wand size={18}/>{label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
+          <div className="bg-gray-800 p-6 rounded-lg w-[450px] text-white">
+            <div className="flex justify-between items-center pb-3 mb-4">
+              <h2 className="text-lg font-semibold">Enhance Product Image</h2>
+              <X
+                size={20}
+                className="cursor-pointer"
+                onClick={() => setOpenImageModel(!openImageModel)}
+              />
             </div>
+            <div className="w-full h-[250px] rounded-md overflow-hidden border border-gray-600 relative">
+              <Image
+                src={selectedImage}
+                alt="product-image"
+                layout="fill"
+                unoptimized
+              />
+            </div>
+            {selectedImage && (
+              <div className="mt-4 space-y-2">
+                <h3 className="text-white text-sm font-semibold">
+                  AI Enhancements
+                </h3>
+                <div className="grid grid-cols-2 gap-3 mx-h-[250px] overflow-y-auto">
+                  {enhancements?.map(({ label, effect }: any) => (
+                    <button
+                      key={effect}
+                      className={`p-2 rounded-md flex items-center gap-2 ${
+                        activeEffect === effect
+                          ? "bg-blue-600 text-white"
+                          : "bg-gray-700 hover:bg-gray-600"
+                      }`}
+                      onClick={() => applyTransformation(effect)}
+                      disabled={processing}
+                    >
+                      <Wand size={18} />
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       )}
       <div className="mt-6 flex justify-end gap-3">

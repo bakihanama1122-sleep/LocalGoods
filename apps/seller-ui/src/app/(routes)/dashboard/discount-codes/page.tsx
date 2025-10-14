@@ -20,6 +20,7 @@ const page = () => {
     queryKey: ["shop-discounts"],
     queryFn: async () => {
       const res = await axiosInstance.get("/product/api/get-discount-codes");
+      console.log("DISCOUNT CODES : ",res?.data?.discount_codes)
       return res?.data?.discount_codes || [];
     },
   });
@@ -41,7 +42,7 @@ const page = () => {
 
   const createDiscountCodeMutation = useMutation({
     mutationFn: async (data:any) => {
-      await axiosInstance.post("/product/api/create-discount-coe", data);
+      await axiosInstance.post("/product/api/create-discount-code", data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["shop-discounts"] });
@@ -52,7 +53,7 @@ const page = () => {
 
   const deleteDiscountCodeMutation = useMutation({
     mutationFn: async(discountId)=>{
-        await axiosInstance.delete("/product/api/delete-discount-code/${discountId}")
+        await axiosInstance.delete(`/product/api/delete-discount-code/${discountId}`)
     },
     onSuccess:()=>{
         queryClient.invalidateQueries({queryKey:["shop-discounts"]});
@@ -112,16 +113,17 @@ const page = () => {
               </tr>
             </thead>
             <tbody>
-              {discountCodes?.map((discount: any) => {
+              {discountCodes?.map((discount: any) =>(
                 <tr
                   key={discount?.id}
-                  className="border-b border-gray-800 hover:bg-gray-800 transition"
+                  className="border-b border-gray-800 hover:bg-gray-800 transition text-white"
                 >
                   <td className="p-3">{discount?.public_name}</td>
+                  <td className="p-3">{discount?.discountType}</td>
                   <td className="p-3 capitalize">
                     {discount.discountType === "percentage"
                       ? `${discount.discountValue}%`
-                      : `${discount.discountValue}`}
+                      : `₹${discount.discountValue}`}
                   </td>
                   <td className="p-3">{discount?.discountCode}</td>
                   <td className="p-3">
@@ -132,8 +134,8 @@ const page = () => {
                       <Trash size={10} />
                     </button>
                   </td>
-                </tr>;
-              })}
+                </tr>
+              ))}
             </tbody>
           </table>
         )}
@@ -180,7 +182,7 @@ const page = () => {
                       className="w-full border outline-none border-gray-700 bg-transparent"
                     >
                       <option value="percentage">Percentage (%)</option>
-                      <option value="percentage">Flat Amount (₹)</option>
+                      <option value="flat">Flat Amount (₹)</option>
                     </select>
                   )}
                 />
