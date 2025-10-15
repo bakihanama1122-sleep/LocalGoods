@@ -52,7 +52,7 @@ const SideBarWrapper = () => {
         </Box>
       </Sidebar.Header>
       <div className="block my-3 h-full">
-        <Sidebar.Body className="body sidebar">
+        <Sidebar.Body className="body sidebar hover: hover:bg-[#222831] hover:text-white p-4 rounded">
           <SidebarItem
             title="Dashboard"
             icon={<HomeIcon fill={getIconColor("/dashboard")} />}
@@ -63,6 +63,7 @@ const SideBarWrapper = () => {
           <div className="mt-2 block">
             <SideBarMenu title="Main Menu">
               <SidebarItem
+              
                 title="Orders"
                 isActive={activeSidebar === "/dashboard/orders"}
                 href="/dashboard/orders"

@@ -195,7 +195,7 @@ const ProductList = () => {
           <Plus size={18} /> Add Product
         </Link>
       </div>
-      <div className="flex items-center text-white">
+      <div className="flex items-center text-white" >
         <Link href={"/dashboard"} className="text-[#80Deea] cursor-pointer">
           Dashboard
         </Link>

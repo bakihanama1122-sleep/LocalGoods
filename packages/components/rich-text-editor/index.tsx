@@ -28,7 +28,7 @@ const RichTextEditor = ({
     },[]);
 
     return (
-        <div className="relative">
+        <div className="relative my-2">
             <ReactQuill
             theme="snow"
             value={editorValue}
