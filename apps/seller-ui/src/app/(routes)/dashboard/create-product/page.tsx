@@ -362,7 +362,7 @@ const page = () => {
                 </select>
               </div>
             </div>
-            <div className="w-2/4">
+            <div className="w-2/4 ">
               <label className="block font-semibold text-gray-300 md-1">
                 Category *
               </label>
@@ -381,7 +381,7 @@ const page = () => {
                       className="w-full border outline-none border-gray-700 bg-transparent"
                     >
                       {" "}
-                      <option value="" className="bg-black">
+                      <option value="" className="bg-[#333446]">
                         Select Category
                       </option>
                       {categories?.map((category: string) => (
@@ -404,7 +404,7 @@ const page = () => {
               )}
 
               <div className="mt-2">
-                <label className="block font-semibold text-gray-300 md-1">
+                <label className="block font-semibold text-gray-300 md-1 my-2">
                   Sub category *
                 </label>
                 <Controller
@@ -414,10 +414,10 @@ const page = () => {
                   render={({ field }) => (
                     <select
                       {...field}
-                      className="w-full border outline-none border-gray-700 bg-transparent"
+                      className="w-full border outline-none border-gray-700 bg-transparent my-2"
                     >
                       {" "}
-                      <option value="" className="bg-black">
+                      <option value="" className="bg-[#333446] ">
                         Select Subcategory
                       </option>
                       {subCategories?.map((subCategory: string) => (
@@ -434,8 +434,8 @@ const page = () => {
                 />
               </div>
 
-              <div className="mt-2">
-                <label className="block font-semibold text-gray-300 md-1">
+              <div className="mt-2 my-2">
+                <label className="block font-semibold text-gray-300 md-1 ">
                   Detailed Description * (Min 100 words)
                 </label>
                 <Controller
