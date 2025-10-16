@@ -75,7 +75,7 @@ const ProductCard = ({
         href={`/shop/${product?.shop?.id}`}
         className="block text-blue-500 text-sm font-medium my-2 px-2"
       >
-        {product?.shop?.name}
+        {product?.shop?.name || "Shop name"}
       </Link>
       <Link href={`/product/${product?.slug}`}>
         <h3 className="text-base text-gray-800 font-semibold my-2 px-2 lin">
@@ -83,20 +83,20 @@ const ProductCard = ({
         </h3>
       </Link>
 
-      <div className="mt-2 px-2">
+      <div className="mt-2 px-2 text-yellow-500">
           <Ratings rating={product?.ratings}/>
       </div>
       <div className="mt-3 flex justify-between items-center px-2">
           <div className="flex items-center gap-2">
             <span className="text-lg font-bold text-gray-900">
-                ${product?.sale_price}
+                ₹{product?.sale_price}
             </span>
-            <span className="text-sm line-through text-gray-400">
-                ${product?.regular_price}
+            <span className="text-lg line-through text-gray-400">
+                ₹{product?.regular_price}
             </span>
           </div>
           <span className="text-green-500 text-sm font-medium">
-            {product.totalsales} sold
+            {product.totalsales || 0} sold
           </span>
       </div>
       {isEvent && timeLeft && (

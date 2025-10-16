@@ -1,17 +1,21 @@
-// pages/dummy-stripe-onboarding.tsx
+"use client";
+
 import { useEffect } from "react";
-import { useRouter } from "next/router";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function DummyStripeOnboarding() {
   const router = useRouter();
-  const { sellerId, accountId } = router.query;
+  const searchParams = useSearchParams();
+
+  const sellerId = searchParams.get("sellerId");
+  const accountId = searchParams.get("accountId");
 
   useEffect(() => {
     if (sellerId && accountId) {
       // Simulate a delay for "onboarding"
       const timer = setTimeout(() => {
         router.push("/success");
-      }, 3000); // 3 seconds delay
+      }, 3000);
 
       return () => clearTimeout(timer);
     }

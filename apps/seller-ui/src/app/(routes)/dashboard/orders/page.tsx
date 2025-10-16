@@ -28,9 +28,10 @@ import {
 } from "@tanstack/react-query";
 import Image from "next/image";
 import DeleteConfirmationModal from "apps/seller-ui/src/shared/components/modals/delete.confirmation.modal";
+import { Span } from "next/dist/trace";
 
-const fetchProducts = async () => {
-  const res = await axiosInstance.get("/product/api/get-shop-products");
+const fetchOrders = async () => {
+  const res = await axiosInstance.get("/order/api/get-seller-orders");
   return res?.data?.products;
 };
 
@@ -42,7 +43,7 @@ const restoreProduct = async (productId: string) => {
   await axiosInstance.put(`product/api/restore-product/${productId}`);
 };
 
-const ProductList = () => {
+const OrderList = () => {
   const [globalFilter, setGlobalFilter] = useState("");
   const [analyticsData, setAnalyticsData] = useState(null);
   const [showAnalytics, setShowAnalytics] = useState(false);
@@ -50,16 +51,16 @@ const ProductList = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const queryClient = useQueryClient();
 
-  const { data: products = [], isLoading } = useQuery({
-    queryKey: ["shop-products"],
-    queryFn: fetchProducts,
+  const { data: orders = [], isLoading } = useQuery({
+    queryKey: ["seller-orders"],
+    queryFn: fetchOrders,
     staleTime: 1000 * 60 * 5,
   });
 
   const deleteMutation = useMutation({
     mutationFn: deleteProduct,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["shop-products"] });
+      queryClient.invalidateQueries({ queryKey: ["seller-orders"] });
       setShowDeleteModal(false);
     },
   });
@@ -67,7 +68,7 @@ const ProductList = () => {
   const restoreMutation = useMutation({
     mutationFn: restoreProduct,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["shop-products"] });
+      queryClient.invalidateQueries({ queryKey: ["seller-orders"] });
       setShowDeleteModal(false);
     },
   });
@@ -75,101 +76,61 @@ const ProductList = () => {
   const columns = useMemo(
     () => [
       {
-        accessorkey: "image",
-        header: "Image",
+        accessorkey: "id",
+        header: "Order Id",
         cell: ({ row }: any) => (
-          <Image
-            src={row.original.images[0]?.url[0]}
-            alt={row.original.images[0]?.url[0]}
-            width={200}
-            height={200}
-            className="w-12 h-12 rounded-mg object-cover"
-          />
+          <span className="text-white text-sm truncate">
+            #{row.original.id.slice(-6).toUpperCase()}
+          </span>
         ),
       },
       {
-        accessorkey: "name",
-        header: "Product Name",
+        accessorkey: "user.name",
+        header: "Buyer",
         cell: ({ row }: any) => {
-          const truncatedTitle =
-            row.original.title.length > 25
-              ? `${row.original.title.substring(0, 25)}...`
-              : row.original.title;
-
-          return (
-            <Link
-              href={`${process.env.NEXT_PUBLIC_USER_UI_LINK}/product/${row.original.slug}`}
-              className="text-blue-400 hover:underline"
-              title={row.original.title}
-            >
-              {truncatedTitle}
-            </Link>
-          );
+          <span className="text-white">
+            {row.original.user?.name ?? "Guest"}
+          </span>;
         },
       },
       {
-        accessorkey: "price",
-        header: "Price",
-        cell: ({ row }: any) => <span>₹{row.original.sale_price}</span>,
+        accessorkey: "Total",
+        header: "Total",
+        cell: ({ row }: any) => <span>₹{row.original.total}</span>,
       },
       {
-        accessorkey: "stock",
-        header: "Stock",
+        accessorkey: "status",
+        header: "Status",
         cell: ({ row }: any) => (
           <span
-            className={row.original.stock < 10 ? "text-red-500" : "text-white"}
+            className={`px-2 py-1 rounded-full text-xs font-medium ${
+              row.original.status === "Paid"
+                ? "bg-green-600 text-white"
+                : "bg-yellow-500 text-white"
+            }`}
           >
-            {row.original.stock} left
+            {row.original.status}
           </span>
         ),
       },
       {
-        accessorkey: "category",
-        header: "Category",
-        cell: ({ row }: any) => (
-          <span className="text-gray-200">
-            {row.original.category || "—"}
-          </span>
-        ),
-      },
-      {
-        accessorkey: "rating",
-        header: "Rating",
-        cell: ({ row }: any) => (
-          <div className="flex items-center gap-1 text-yellow-400">
-            <Star fill="#fde047" size={18} />{" "}
-            <span className="text-white">{row.original.ratings || 0}</span>
-          </div>
-        ),
+        accessorkey: "createdAt",
+        header: "Date",
+        cell: ({ row }: any) => {
+          const date = new Date(row.original.createdAt).toLocaleDateString();
+          return <span className="text-white text-sm">{date}</span>;
+        },
       },
       {
         header: "Actions",
         cell: ({ row }: any) => (
           <div className="flex gap-3">
             <Link
-              href={`/product/${row.original.id}`}
+              href={`/order/${row.original.id}`}
               className="text-blue-400 hover:text-blue-300 transition"
             >
               <Eye size={18} />
             </Link>
-            <Link
-              href={`/product/edit/${row.original.id}`}
-              className="text-yellow-400 hover:text-yellow-300 transition"
-            >
-              <Pencil size={18} />
-            </Link>
-            <button
-              className="text-green-400 hover:text-green-300 transition"
-              // onClick={openAnalytics(row.original)}
-            >
-              <BarChart size={18} />
-            </button>
-            <button
-              className="text-red-400 hover:text-red-300 transition"
-              onClick={() => openDeleteModal(row.original)}
-            >
-              <Trash size={18} />
-            </button>
           </div>
         ),
       },
@@ -178,7 +139,7 @@ const ProductList = () => {
   );
 
   const table = useReactTable({
-    data: products,
+    data: orders,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -187,35 +148,22 @@ const ProductList = () => {
     onGlobalFilterChange: setGlobalFilter,
   });
 
-  const openDeleteModal = (product: any) => {
-    setSelectedProduct(product);
-    setShowDeleteModal(true);
-  };
-
   return (
     <div className="w-full min-h-screen p-8">
-      <div className="flex justify-between items-center mb-1">
-        <h2 className="text-2xl text-white font-semibold">All Products</h2>
-        <Link
-          href="/dashboard/create-product"
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
-        >
-          <Plus size={18} /> Add Product
-        </Link>
-      </div>
+      <h2 className="text-2xl text-white font-semibold mb-2">All Orders</h2>
       <div className="flex items-center text-white">
         <Link href={"/dashboard"} className="text-[#80Deea] cursor-pointer">
           Dashboard
         </Link>
         <ChevronRight size={20} className="opacity-[.8]" />
-        <span>All Products</span>
+        <span>All Orders</span>
       </div>
 
       <div className="mb-4 flex items-center bg-gray-900 p-2 rounded-md flex-1">
         <Search size={18} className="text-gray-400 mr-2" />
         <input
           type="text"
-          placeholder="search product"
+          placeholder="search orders....."
           className="w-full bg-transparent text-white outline-none"
           value={globalFilter}
           onChange={(e) => setGlobalFilter(e.target.value)}
@@ -224,7 +172,7 @@ const ProductList = () => {
 
       <div className="overflow-x-auto bg-gray-900 rounded-lg p-4">
         {isLoading ? (
-          <p className="text-center text-white">Loading products...........</p>
+          <p className="text-center text-white">Loading orders...........</p>
         ) : (
           <table className="w-full text-white">
             <thead>
@@ -263,17 +211,12 @@ const ProductList = () => {
           </table>
         )}
 
-        {showDeleteModal && (
-          <DeleteConfirmationModal
-            product={selectedProduct}
-            onClose={() => setShowDeleteModal(false)}
-            onConfirm={() => deleteMutation.mutate(selectedProduct?.id)}
-            onRestore={() => restoreMutation.mutate(selectedProduct?.id)}
-          />
+        {!isLoading && orders.length===0 &&(
+            <p className="text-center py-3 text-white">No Orders found!</p>
         )}
       </div>
     </div>
   );
 };
 
-export default ProductList;
+export default OrderList;

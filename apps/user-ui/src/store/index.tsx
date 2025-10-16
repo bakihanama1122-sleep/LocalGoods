@@ -25,7 +25,7 @@ type Store = {
     location: string,
     deviceInfo: string
   ) => void;
-  addTowishlist: (
+  addToWishlist: (
     product: Product,
     user: any,
     location: string,
@@ -67,7 +67,7 @@ export const useStore = create<Store>()(
         }));
     },
 
-    addTowishlist:(product,user,location,deviceInfo)=>{
+    addToWishlist:(product,user,location,deviceInfo)=>{
         set((state)=>{
             if(state.wishlist.find((item)=>item.id === product.id))
                 return state;

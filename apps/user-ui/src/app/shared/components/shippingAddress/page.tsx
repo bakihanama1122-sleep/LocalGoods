@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { countries } from "apps/user-ui/src/configs/countries";
 import axiosInstance from "apps/user-ui/src/utils/axiosInstance";
 import { MapPin, Plus, Trash2, X } from "lucide-react";
 import { useState } from "react";
@@ -204,3 +205,5 @@ const ShippingAddressSection = () => {
     </div>
   );
 };
+
+export default ShippingAddressSection;

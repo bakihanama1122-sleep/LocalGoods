@@ -102,7 +102,7 @@ const CartPage = () => {
         <span className="inline-block p-[1.5px] mx-1 bg-[#a8acb0] "></span>
         <span className="text-[#55585b]">Cart</span>
 
-        {CartPage.length === 0 ? (
+        {cart.length === 0 ? (
           <div className="text-center text-gray-600 text-lg">
             Your cart is empty! start adding products.
           </div>

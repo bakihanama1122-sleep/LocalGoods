@@ -31,9 +31,7 @@ export async function generateMetadata({
 
 const page = async ({ params }: { params: { slug: string } }) => {
   const productDetails = await fetchProductDetails(params?.slug);
-  return 
-  <ProductDetails productDetails={productDetails}/>
-
+  return <ProductDetails productDetails={productDetails} />;
 };
 
 export default page;

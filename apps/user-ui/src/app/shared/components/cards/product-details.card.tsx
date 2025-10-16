@@ -38,17 +38,17 @@ const ProductDetailsCard = ({
   estimatedDelivery.setDate(estimatedDelivery.getDate()+5);
   return (
     <div
-      className="fixed flex items-center justify-center top-0 left-0 h-screen w-full bg-[#0000001d] z-50"
+      className="fixed flex items-center justify-center top-0 left-0 h-screen w-full bg-[#0000001d]"
       onClick={() => setOpen(false)}
     >
       <div
-        className="w-[90%] md:w-[70%] md:mt-14 2xl:mt-0 h-max overflow-scroll min-h-[70vh] p-4 md:p-6 bg-white shadow rounded-lg"
+        className="w-[90%] md:w-[70%] md:mt-14 2xl:mt-0 h-max overflow-scroll min-h-[60vh] p-4 md:p-6 bg-white shadow rounded-lg z-50"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="w-full flex flex-col md:flex-row">
           <div className="w-full md:w-1/2 h-full">
             <Image
-              src={data?.images?.[activeImage]?.url}
+              src={data?.images?.[activeImage]?.url[0]}
               alt={data?.images?.[activeImage].url}
               width={400}
               height={400}
@@ -68,7 +68,7 @@ const ProductDetailsCard = ({
                   <Image
                     src={
                       img?.url ||
-                      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRW6EO0Nejxf7qn0zIhOWuhTEhbxZpwPhpXhA&s"
+                      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cHJvZHVjdHxlbnwwfHwwfHx8MA%3D%3D"
                     }
                     alt={`Thumbnail ${index}`}
                     height={80}
@@ -98,7 +98,7 @@ const ProductDetailsCard = ({
                   </Link>
 
                   <span className="block mt-1">
-                    <Ratings rating={data?.Shop?.ratings} />
+                    <Ratings rating={data?.Shop?.ratings || 0} />
                   </span>
 
                   <p className="text-gray-600 mt-1 flex items-center">
@@ -173,11 +173,11 @@ const ProductDetailsCard = ({
               </div>
               <div className="mt-5 flex items-center gap-4">
                 <h3 className="text-2xl font-semibold text-gray-900">
-                  ${data?.sale_price}
+                  ₹{data?.sale_price}
                 </h3>
                 {data?.regular_price && (
                   <h3 className="text-lg text-red-600 line-through">
-                    ${data.regular_price}
+                    ₹{data.regular_price}
                   </h3>
                 )}
               </div>

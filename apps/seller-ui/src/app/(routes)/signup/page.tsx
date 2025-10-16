@@ -13,7 +13,7 @@ import StripeLogo from "apps/seller-ui/src/assets/svgs/StripeLogo";
 import ImagePlaceHolder from "apps/seller-ui/src/shared/components/image-placeholder";
 
 const Signup = () => {
-  const [activeStep, setActiveStep] = useState(3);
+  const [activeStep, setActiveStep] = useState(1);
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
   const [canResend, setCanResend] = useState(false);
@@ -22,7 +22,7 @@ const Signup = () => {
   const [otp, setOtp] = useState(["", "", "", ""]);
   const [sellerData, setSellerData] = useState<FormData | null>(null);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
-const [sellerId,setSellerId] = useState("68de436b6dddb9288fe41829");
+const [sellerId,setSellerId] = useState(""); // 68de436b6dddb9288fe41829
 
   const {
     register,
@@ -114,8 +114,6 @@ const [sellerId,setSellerId] = useState("68de436b6dddb9288fe41829");
 
   const connectStripe = async()=>{
     try {
-        console.log("button clicked");
-        console.log(`${process.env.NEXT_PUBLIC_SERVER_URI}`)
         const response = await axios.post(`${process.env.NEXT_PUBLIC_SERVER_URI}/api/create-stripe-link`,{
             sellerId
         });
@@ -213,6 +211,11 @@ const [sellerId,setSellerId] = useState("68de436b6dddb9288fe41829");
                     },
                   })}
                 />
+                {errors.phone_number &&(
+                    <p className="text-red-500 text-sm">
+                        {String(errors.phone_number.message)}
+                    </p>
+                )}
                 <label className="block text-gray-700 mb-1">Country</label>
                 <select 
                 className="w-full p-2 border border-gray-300 outline-0 rounded-[4px]"

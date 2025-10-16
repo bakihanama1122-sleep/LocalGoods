@@ -1,6 +1,6 @@
 "use client";
 import { ChevronRight, Wand, X } from "lucide-react";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import ImagePlaceHolder from "apps/seller-ui/src/shared/components/image-placeholder";
 import Input from "packages/components/input";
@@ -76,7 +76,7 @@ const page = () => {
 
   const regularPrice = watch("regular_price");
 
-  console.log(categories, subCategoriesData);
+ 
 
   const convertFiletoBase64 = (file: File) => {
     return new Promise((resolve, reject) => {
@@ -156,16 +156,14 @@ const page = () => {
       setSelectedImage(transformedUrl);
       if (selectedImageIndex !== null) {
         setImages((prevImages) => {
-          console.log("OLD ARRAY : ",prevImages);
           const updated = [...prevImages];
           updated[selectedImageIndex] = {
             ...updated[selectedImageIndex],
-            file_url: transformedUrl, 
-          }as UploadedImage;
-          console.log("NEW ARRAY : ",updated);
+            file_url: transformedUrl,
+          } as UploadedImage;
           return updated;
-      });
-    }
+        });
+      }
     } catch (error) {
       console.log(error);
     } finally {
@@ -175,10 +173,27 @@ const page = () => {
 
   const handleSaveDraft = () => {};
   const onSubmit = async (data: any) => {
+    console.log("=== FORM DEBUG ===");
+    console.log("Form Data:", data);
+    console.log("Form Errors:", errors);
+    console.log("Images:", images);
+    console.log(
+      "Valid Images:",
+      images.filter((img) => img !== null)
+    );
+    const validImages = images.filter((img) => img !== null);
+    if (validImages.length === 0) {
+      toast.error("Please upload at least one product image");
+      return;
+    }
     try {
       setLoading(true);
       console.log("came");
-      await axiosInstance.post("/product/api/create-product", data);
+      const formData = {
+        ...data,
+        images: validImages,
+      };
+      await axiosInstance.post("/product/api/create-product", formData);
       router.push("/dashboard/all-products");
     } catch (error: any) {
       toast.error(error?.data?.message);
@@ -186,6 +201,12 @@ const page = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+  if (Object.keys(errors).length > 0) {
+    console.log("Form Validation Errors:", errors);
+  }
+}, [errors]);
 
   return (
     <form
@@ -211,7 +232,7 @@ const page = () => {
               onImageChange={handleImageChange}
               setSelectedImage={setSelectedImage}
               setSelectedImageIndex={setSelectedImageIndex}
-              defaultImage={images[0]?.file_url} 
+              defaultImage={images[0]?.file_url}
               onRemove={handleRemoveImages}
             />
           )}
@@ -229,7 +250,7 @@ const page = () => {
                 onImageChange={handleImageChange}
                 setSelectedImage={setSelectedImage}
                 setSelectedImageIndex={setSelectedImageIndex}
-                defaultImage={img?.file_url || null} 
+                defaultImage={img?.file_url || null}
                 onRemove={handleRemoveImages}
               />
             ))}
@@ -261,8 +282,8 @@ const page = () => {
                     validate: (value) => {
                       const wordCount = value.trim().split(/\s+/).length;
                       return (
-                        wordCount <= 150 ||
-                        `Description cannot exceed 150 words (Current: ${wordCount})`
+                        wordCount <= 100 ||
+                        `Description cannot exceed 100 words (Current: ${wordCount})`
                       );
                     },
                   })}
@@ -408,7 +429,7 @@ const page = () => {
                   Sub category *
                 </label>
                 <Controller
-                  name="Sub category"
+                  name="subCategory"
                   control={control}
                   rules={{ required: "Subcategory is required." }}
                   render={({ field }) => (
@@ -432,6 +453,11 @@ const page = () => {
                     </select>
                   )}
                 />
+                {errors.subcategory && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.subcategory.message as string}
+                  </p>
+                )}
               </div>
 
               <div className="mt-2">
@@ -445,7 +471,7 @@ const page = () => {
                     required: "Detailed description is required!",
                     validate: (value) => {
                       const wordCount = value
-                        ?.split(/s+/)
+                        ?.split(/\s+/)
                         .filter((word: string) => word).length;
                       return (
                         wordCount >= 100 ||
@@ -509,7 +535,7 @@ const page = () => {
                     valueAsNumber: true,
                     min: { value: 1, message: "Price must be at least 1" },
                     validate: (value) => {
-                      if (!isNaN(value)) return "Only numbers are allowed";
+                      if (isNaN(value)) return "Only numbers are allowed";
                       if (regularPrice && value >= regularPrice) {
                         return "Sale Price must be less than Regular Price";
                       }
@@ -517,9 +543,9 @@ const page = () => {
                     },
                   })}
                 />
-                {errors.regular_price && (
+                {errors.sale_price && (
                   <p className="text-red-500 text-xs mt-1">
-                    {errors.regular_price.message as string}
+                    {errors.sale_price.message as string}
                   </p>
                 )}
               </div>
@@ -534,7 +560,7 @@ const page = () => {
                     min: { value: 1, message: "stock must be at least 1" },
                     max: { value: 1000, message: "stock can be at most 1,000" },
                     validate: (value) => {
-                      if (!isNaN(value)) return "Only numbers are allowed";
+                      if (isNaN(value)) return "Only numbers are allowed";
                       if (!Number.isInteger(value)) {
                         return "Stock must be a whole number!";
                       }
@@ -568,7 +594,7 @@ const page = () => {
                         key={code.id}
                         type="button"
                         className={`px-3 py-1 rounded-md text-sm font-semibold border ${
-                          watch("discount")?.includes(code.id)
+                          watch("discountCodes")?.includes(code.id)
                             ? "bg-blue-600 text-white border-blue-600"
                             : "bg-gray-800 text-gray-600 hover:bg-gray-700"
                         }`}
@@ -642,11 +668,12 @@ const page = () => {
           </div>
         </div>
       )}
+
       <div className="mt-6 flex justify-end gap-3">
         {isChanged && (
           <button
             type="button"
-            onChange={handleSaveDraft}
+            onClick={handleSaveDraft}
             className="px-4 py-2 bg-gray-700 text-white rounded-md"
           >
             Save Draft

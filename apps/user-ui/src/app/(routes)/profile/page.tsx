@@ -1,6 +1,6 @@
 'use client'
 import useUser from 'apps/user-ui/src/hooks/useUser'
-import { BadgeCheck, Bell, CheckCircle, Clock, Gift, Inbox, Loader2, Lock, LogOut, MapPin, Pencil, PhoneCall, Receipt, Settings, ShoppingBag, TrainTrack } from 'lucide-react';
+import { BadgeCheck, Bell, CheckCircle, Clock, Gift, Inbox, Loader2, Lock, LogOut, MapPin, Pencil, PhoneCall, Receipt, Settings, ShoppingBag, TrainTrack, User } from 'lucide-react';
 import React, { act, useEffect, useState } from 'react'
 import StatCard from '../../shared/components/cards/stat.card';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -8,6 +8,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import axiosInstance from 'apps/user-ui/src/utils/axiosInstance';
 import Image from 'next/image';
 import QuickActionCard from '../../shared/components/cards/quick-action.card';
+import ShippingAddressSection from '../../shared/components/shippingAddress/page';
 
 const page = () => {
     const searchParams = useSearchParams();
@@ -71,7 +72,7 @@ const page = () => {
                     <nav className='space-y-2'>
                         <NavItems
                         label="Profile"
-                        Icon={user}
+                        Icon={User}
                         active={activeTab === "Profile"}
                         onClick={()=>setActiveTab("Profile")}
                         />
@@ -209,6 +210,7 @@ const NavItems = ({label,Icon,active,danger,onClick}:any)=>(
     }`}
     >
         <Icon className="w-4 h-4"/>
+        {label}
     </button>
 )
 

@@ -157,6 +157,7 @@ export const createProduct = async (
   res: Response,
   next: NextFunction
 ) => {
+  
   try {
     const {
       title,
@@ -172,7 +173,7 @@ export const createProduct = async (
       category,
       colors = [],
       sizes = [],
-      discountCodes,
+      discountCodes=[],
       stock,
       sale_price,
       regular_price,
@@ -210,6 +211,7 @@ export const createProduct = async (
         new ValidationError("Slug already exist! Please use a different slug!")
       );
     }
+    
     const newProduct = await prisma.products.create({
       data: {
         title,
@@ -218,7 +220,7 @@ export const createProduct = async (
         warranty,
         cashOnDelivery: cash_on_delivery,
         slug,
-        shopId: req.seller?.shop?.id!,
+        shopId: req.seller?.Shop?.id!,
         tags: Array.isArray(tags) ? tags : tags.split(","),
         brand,
         video_url,
@@ -232,12 +234,14 @@ export const createProduct = async (
         regular_price: parseFloat(regular_price),
         custom_properties: customProperties || {},
         custom_specifications: custom_specifications || {},
+        starting_date:null,
+        ending_date:null,
         images: {
           create: images
-            .filter((img: any) => img && img.fieldId && img.file_url)
+            .filter((img: any) => img && img.fileId && img.file_url) 
             .map((image: any) => ({
-              file_Id: image.fileId,
-              url: image.file_url,
+              file_id: image.fileId,
+              url: [image.file_url],
             })),
         },
       },
@@ -375,7 +379,7 @@ export const getAllProducts = async (
         },
         {
           ending_date: null,
-        },
+        }
       ],
     };
 
@@ -713,62 +717,61 @@ export const searchedProducts = async (
 };
 
 export const topShops = async (
-  req:Request,
-  res:Response,
-  next:NextFunction
-)=>{
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const topShopsData = await prisma.orders.groupBy({
-      by:["shopId"],
-      _sum:{
-        total:true,
+      by: ["shopId"],
+      _sum: {
+        total: true,
       },
-      orderBy:{
-        _sum:{
-          total:"desc"
+      orderBy: {
+        _sum: {
+          total: "desc",
         },
       },
-      take:10
+      take: 10,
     });
 
-    const shopIds = topShopsData.map((item:any)=>item.shopId);
+    const shopIds = topShopsData.map((item: any) => item.shopId);
 
     const shops = await prisma.shops.findMany({
-      where:{
-        id:{
-          in:shopIds,
+      where: {
+        id: {
+          in: shopIds,
         },
       },
-      select:{
-        id:true,
-        name:true,
-        avatar:true,
-        coverBanner:true,
-        address:true,
-        rating:true,
-        followers:true,
-        category:true,
+      select: {
+        id: true,
+        name: true,
+        avatar: true,
+        coverBanner: true,
+        address: true,
+        rating: true,
+        followers: true,
+        category: true,
       },
     });
 
-    const enrichedShops = shops.map((shop)=>{
-      const salesData = topShopsData.find((s)=>s.shopId===shop.id);
+    const enrichedShops = shops.map((shop) => {
+      const salesData = topShopsData.find((s) => s.shopId === shop.id);
       return {
         ...shop,
-        totalSales:salesData?._sum.total ?? 0,
+        totalSales: salesData?._sum.total ?? 0,
       };
     });
 
     const top10Shops = enrichedShops
-    .sort((a,b)=>b.totalSales=a.totalSales)
-    .slice(0,10);
+      .sort((a, b) => (b.totalSales = a.totalSales))
+      .slice(0, 10);
 
-    return res.status(200).json({shops:top10Shops});
-
+    return res.status(200).json({ shops: top10Shops });
   } catch (error) {
     return next(error);
   }
-}
+};
 
 export const getAllEvents = async (
   req: any,
@@ -784,10 +787,10 @@ export const getAllEvents = async (
     const baseFilter = {
       AND: [
         {
-          starting_date: {not:null},
+          starting_date: { not: null },
         },
         {
-          ending_date:  {not:null},
+          ending_date: { not: null },
         },
       ],
     };
@@ -809,8 +812,8 @@ export const getAllEvents = async (
       prisma.products.findMany({
         take: 10,
         where: baseFilter,
-        orderBy:{
-          totalSales:"desc",
+        orderBy: {
+          totalSales: "desc",
         },
       }),
     ]);
