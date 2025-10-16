@@ -44,6 +44,7 @@ const Login = () => {
   })
 
   const onSubmit = (data: FormData) => {
+    console.log("ASCDVBF");
     loginMutation.mutate(data);
   };
 
@@ -94,7 +95,7 @@ const Login = () => {
             )}
 
             <label className="block text-gray-700 mb-1">Password</label>
-            <div className="realtive">
+            <div className="relative">
               <input
                 type={passwordVisible ? "text" : "password"}
                 placeholder="Min. 6 characters"
