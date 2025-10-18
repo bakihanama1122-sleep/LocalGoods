@@ -2,7 +2,7 @@ import React from 'react'
 
 const SectionTitle = ({title}:{title:string}) => {
   return (
-    <div className='relative'>
+    <div className='relative z-0'>
         <h1 className='md:text-3xl text-4xl relative z-10 font-semibold'>
             {title}
         </h1>
