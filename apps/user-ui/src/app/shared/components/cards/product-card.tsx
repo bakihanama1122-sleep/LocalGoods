@@ -48,7 +48,7 @@ const ProductCard = ({
     })
 
   return (
-    <div className="w-full min-h-[350px] h-max bg-white rounded-lg relative">
+    <div className="w-full min-h-[350px] h-max bg-[#FFFDF6] rounded-lg relative">
       {isEvent && (
         <div className="absolute top-2 left-2 bg-red-600 text-white text-[10px] font-semibold px-2 py-1 rounded-sm shadow-md">
           OFFER
@@ -108,7 +108,7 @@ const ProductCard = ({
       )}
 
       <div className="absolute z-10 flex flex-col gap-3 right-3 top-10">
-        <div className="bg-white rounded-full p-[6px] shadow-md">
+        <div className="bg-yellow-300 rounded-full p-[6px] shadow-md">
             <Heart
             className="cursor-pointer hover:scale-110 transition"
             size={22}
@@ -122,14 +122,14 @@ const ProductCard = ({
             }
             />
         </div>
-        <div className="bg-white rounded-full p-[5px] shadow-md">
+        <div className="bg-green-100 rounded-full p-[5px] shadow-md">
             <Eye
             className="cursor-pointer text-[#4b5563] hover:scale-110 transition"
             size={22}
             onClick={()=>setOpen(!open)}
             />
         </div>
-        <div className="bg-white rounded-full p-[6px] shadow-md">
+        <div className="bg-blue-300 rounded-full p-[6px] shadow-md">
             <ShoppingBag
             className="cursor-pointer text-[#4b5563] hover:scale-110 transition"
             size={22}
