@@ -129,7 +129,7 @@ const ProductCard = ({
             onClick={()=>setOpen(!open)}
             />
         </div>
-        <div className="bg-blue-300 rounded-full p-[6px] shadow-md">
+        <div className= "relative z-0 bg-blue-300 rounded-full p-[6px] shadow-md">
             <ShoppingBag
             className="cursor-pointer text-[#4b5563] hover:scale-110 transition"
             size={22}

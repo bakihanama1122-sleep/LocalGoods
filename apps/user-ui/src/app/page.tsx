@@ -143,7 +143,7 @@ const Page = () => {
             </p>
         )}
 
-        <div className="my-8 block">
+        <div className="relative z-0 my-8 block">
           <SectionTitle title="Top offers" />
         </div>
 
