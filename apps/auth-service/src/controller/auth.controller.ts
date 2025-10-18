@@ -402,7 +402,7 @@ export const createStripeConnectionLink = async (
       type:"account_onboarding"
     })
 
-    res.json({url:accountLink})
+    res.json({url:accountLink.url})
 
     // const fakeStripeId = `acct_${Math.random().toString(36).substring(2, 15)}`;
 
