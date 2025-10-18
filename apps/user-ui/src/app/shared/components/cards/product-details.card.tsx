@@ -42,11 +42,11 @@ const ProductDetailsCard = ({
       onClick={() => setOpen(false)}
     >
       <div
-        className="w-[90%] md:w-[70%] md:mt-14 2xl:mt-0 h-max overflow-scroll min-h-[60vh] p-4 md:p-6 bg-white shadow rounded-lg z-50"
+        className="bg-[#FFFDF6]  w-[90%] md:w-[70%] md:mt-14 2xl:mt-0 h-max overflow-scroll min-h-[60vh] p-4 md:p-6 shadow-md rounded z-50"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="w-full flex flex-col md:flex-row">
-          <div className="w-full md:w-1/2 h-full">
+        <div className=" w-full flex flex-col md:flex-row">
+          <div className="  w-full md:w-1/2 h-full">
             <Image
               src={data?.images?.[activeImage]?.url[0]}
               alt={data?.images?.[activeImage].url}
@@ -54,7 +54,7 @@ const ProductDetailsCard = ({
               height={400}
               className="w-full rounded-lg object-contain"
             />
-            <div className="flex gap-2 mt-4">
+            <div className="  flex gap-2 mt-4">
               {data?.images?.map((img: any, index: number) => (
                 <div
                   key={index}
@@ -79,9 +79,9 @@ const ProductDetailsCard = ({
               ))}
             </div>
           </div>
-          <div className="w-full md:w-1/2 md:pl-8 mt-6 md:mt-0">
+          <div className="w-full p-3  rounded md:w-1/2 md:pl-8 mt-6 md:mt-0">
             <div className="border-b relative pb-3 border-gray-200 flex items-center justify-between">
-              <div className="flex items-start gap-3">
+              <div className="flex items-start gap-6">
                 <Image
                   src={data?.Shop?.avatar}
                   alt="Shop Logo"
