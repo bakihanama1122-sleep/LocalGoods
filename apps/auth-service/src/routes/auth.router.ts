@@ -1,7 +1,7 @@
 import express,{Router} from "express";
-import { createShop, createStripeConnectionLink, getSeller, getUser, loginSeller, loginUser, refreshToken, registerSeller, resetUserPassword, userForgotPassword, userRegistration, verifySeller, verifyUser, verifyUserForgotPassword } from "../controller/auth.controller";
+import { addUserAddress, createShop, createStripeConnectionLink, deleteUserAddress, getAdmin, getSeller, getUser, getUserAddresses, loginAdmin, loginSeller, loginUser, refreshToken, registerSeller, resetUserPassword, updateUserPassword, userForgotPassword, userRegistration, verifySeller, verifyUser, verifyUserForgotPassword } from "../controller/auth.controller";
 import isAuthenticated from "../../../../packages/middleware/isAuthenticated"
-import { isSeller } from "../../../../packages/middleware/authorizeRoles";
+import { isAdmin, isSeller } from "../../../../packages/middleware/authorizeRoles";
 
 const router:Router = express.Router();
 
@@ -13,6 +13,7 @@ router.get("/logged-in-user",isAuthenticated,getUser);
 router.post("/forgot-password-user",userForgotPassword);
 router.post("/reset-password-user",resetUserPassword);
 router.post("/verify-forgot-password-user",verifyUserForgotPassword);
+router.post("/change-password",isAuthenticated,updateUserPassword);
 
 router.post("/seller-registration",registerSeller);
 router.post("/verify-seller",verifySeller);
@@ -20,10 +21,13 @@ router.post("/create-shop",createShop);
 router.post("/create-stripe-link",createStripeConnectionLink);
 router.post("/login-seller",loginSeller);
 router.get("/logged-in-seller",isAuthenticated,isSeller,getSeller);
+router.post("/login-admin",loginAdmin);
+router.get("/logged-in-admin",isAuthenticated,isAdmin,getAdmin);
 
-// router.get("/shipping-address",isAuthenticated,getUserAddresses);
-// router.post("/add-address",isAuthenticated,addUserAddresses);
-// router.delete("/delete-address/:addressId",isAuthenticated,deleteUserAddresses);
+
+router.get("/shipping-addresses",isAuthenticated,getUserAddresses);
+router.post("/add-address",isAuthenticated,addUserAddress);
+router.delete("/delete-address/:addressId",isAuthenticated,deleteUserAddress);
 
 
 

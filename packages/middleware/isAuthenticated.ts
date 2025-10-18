@@ -4,17 +4,20 @@ import prisma from "../libs/prisma/index";
 
 const isAuthenticated = async (req: any, res: Response, next: NextFunction) => {
   try {
+    console.log("CAME")
     const token =
       req.cookies["access_token"] ||
       req.cookies["seller-access-token"] ||
+      req.cookies["admin-access-token"] ||
       req.headers.authorization?.split(" ")[1];
+    console.log(token)
     if (!token) {
       return res.status(401).json({ message: "Unauthorized! Token missing." });
     }
 
     const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET!) as {
       id: string;
-      role: "user" | "seller";
+      role: "user" | "seller" | "admin";
     };
     if (!decoded) {
       return res.status(401).json({
@@ -23,7 +26,7 @@ const isAuthenticated = async (req: any, res: Response, next: NextFunction) => {
     }
 
     let account;
-    if (decoded.role === "user") {
+    if (decoded.role === "user" || decoded.role === "admin") {
       account = await prisma.users.findUnique({
         where: { id: decoded.id },
       });

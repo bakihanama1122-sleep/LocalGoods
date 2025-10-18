@@ -17,26 +17,50 @@ import * as path from "path";
 
 const app = express();
 
+const allowedOrigins = [
+  "http://localhost:3000",
+  "http://localhost:3001",
+  "http://localhost:3002",
+];
+
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   })
 );
 
+app.options("*", cors({
+  origin: function(origin, callback) {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) callback(null, true);
+    else callback(new Error("Not allowed by CORS"));
+  },
+  credentials: true,
+  allowedHeaders: ["Content-Type", "Authorization"],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+}));
+
 app.use(morgan("dev"));
-app.use(express.json({limit: '100mb'}));
-app.use(express.urlencoded({ extended: true, limit: '100mb' }));
+app.use(express.json({ limit: "100mb" }));
+app.use(express.urlencoded({ extended: true, limit: "100mb" }));
 app.use(cookieParser());
 app.set("trust proxy", 1);
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: (req:any) => (req.user? 1000:100),
+  max: (req: any) => (req.user ? 1000 : 100),
   message: "Too many requests, please try again later.",
   standardHeaders: true,
-  legacyHeaders: false, 
+  legacyHeaders: false,
   keyGenerator: (req: any) => {
     const safeIp = ipKeyGenerator(req);
     return req.user ? `${safeIp}-${req.user.id}` : safeIp;
@@ -51,21 +75,20 @@ app.get("/gateway-health", (req, res) => {
   res.send({ message: "Welcome to api-gateway!" });
 });
 
-app.use("/order",proxy("http://localhost:6004"));
-app.use("/seller",proxy("http://localhost:6003"));
-app.use("/product",proxy("http://localhost:6002"));
-app.use("/",proxy("http://localhost:6001"));
-
+app.use("/admin", proxy("http://localhost:6005"));
+app.use("/order", proxy("http://localhost:6004"));
+app.use("/seller", proxy("http://localhost:6003"));
+app.use("/product", proxy("http://localhost:6002"));
+app.use("/", proxy("http://localhost:6001"));
 
 const port = process.env.PORT || 8081;
 const server = app.listen(port, () => {
   console.log(`Listening at http://localhost:${port}/api`);
   try {
     initializeSiteConfig();
-    console.log("Site config initalized successfully!")
+    console.log("Site config initalized successfully!");
   } catch (error) {
-    console.error("Failed to initalize site config: ",error)
+    console.error("Failed to initalize site config: ", error);
   }
- 
 });
 server.on("error", console.error);

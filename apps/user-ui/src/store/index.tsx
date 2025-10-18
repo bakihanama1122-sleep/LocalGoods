@@ -37,6 +37,7 @@ type Store = {
     location: string,
     deviceInfo: string
   ) => void;
+  clearAll: () => void;
 };
 
 export const useStore = create<Store>()(
@@ -80,6 +81,8 @@ export const useStore = create<Store>()(
         set((state)=>({
             wishlist:state.wishlist?.filter((item)=>item.id !==id),
         }));
-    }
+    },
+
+    clearAll: () => set({ cart: [], wishlist: [] }),
   }),{name:"store-storage"}
 ));

@@ -1,8 +1,8 @@
-import {useElements,useStripe} from '@stripe/react-stripe-js';
+import {useElements,useStripe,PaymentElement} from '@stripe/react-stripe-js';
 import { CheckCircle, Loader2, XCircle } from 'lucide-react';
 import React, { useState } from "react";
 
-const checkoutForm = ({
+const CheckoutForm = ({
   clientSecret,
   cartItems,
   coupon,
@@ -27,7 +27,7 @@ const checkoutForm = ({
         0
     );
 
-    const handeSubmit = async (e:React.FormEvent)=>{
+    const handleSubmit = async (e:React.FormEvent)=>{
         e.preventDefault();
         setLoading(true);
         setErrorMsg(null);
@@ -131,4 +131,4 @@ const checkoutForm = ({
   </div>);
 };
 
-export default checkoutForm;
+export default CheckoutForm;

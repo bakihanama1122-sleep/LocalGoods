@@ -7,7 +7,11 @@ import redis from "../../../../packages/libs/redis";
 import prisma from "../../../../packages/libs/prisma/index";
 import crypto from "crypto";
 import { sendEmail } from "../utils/send-mail";
-import { title } from "process";
+import Stripe from "stripe";
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!,{
+  apiVersion:"2025-09-30.clover"
+})
 
 export const createPaymentIntent = async (
   req: any,
@@ -20,7 +24,7 @@ export const createPaymentIntent = async (
   const platformFee = Math.floor(customerAmount * 0.1);
 
   try {
-    const paymentIntent = await stripe.paymnetIntents.create({
+    const paymentIntent = await stripe.paymentIntents.create({
       amount: customerAmount,
       currency: "usd",
       payment_method_types: ["card"],
@@ -34,7 +38,7 @@ export const createPaymentIntent = async (
       },
     });
     res.send({
-      clientSecret: paymentIntent.cient_secret,
+      clientSecret: paymentIntent.client_secret,
     });
   } catch (error) {
     return next(error);
@@ -188,7 +192,7 @@ export const createOrder = async (
 
     let event;
     try {
-      event = stripeSignature.webhooks.constructEvent(
+      event = stripe.webhooks.constructEvent(
         rawBody,
         stripeSignature,
         process.env.STRIPE_WEBHOOK_SECRET!
@@ -213,12 +217,12 @@ export const createOrder = async (
           .send("No session found, skipping order creation");
       }
 
-      const { cart, total, shippingAddressId, coupon } =
+      const { cart, totalAmount, shippingAddressId, coupon } =
         JSON.parse(sessionData);
 
       const user = await prisma.users.findUnique({ where: { id: userId } });
-      const name = user?.name;
-      const email = user?.email;
+      const name = user?.name!;
+      const email = user?.email!;
 
       const shopGrouped = cart.reduce((acc: any, item: any) => {
         if (!acc[item.shopId]) acc[item.shopId] = [];
@@ -279,7 +283,7 @@ export const createOrder = async (
 
         await sendEmail(
           email,
-          "Your Eshop Order Confirmation",
+          "Your LocalGoods Order Confirmation",
           "order-confirmation",
           {
             name,
@@ -301,30 +305,30 @@ export const createOrder = async (
           },
         });
 
-        for (const shop of sellerShops) {
-          const firstProduct = shopGrouped[shop.id][0];
-          const productTitle = firstProduct?.title || "new item";
+        // for (const shop of sellerShops) {
+        //   const firstProduct = shopGrouped[shop.id][0];
+        //   const productTitle = firstProduct?.title || "new item";
 
-          await prisma.notifications.create({
-            data: {
-              title: "New Order Received",
-              message: `A customer just ordered ${productTitle} from your shop.`,
-              creatorId: userId,
-              receiverId: shop.sellerId,
-              redirect_link: `https://localgoods.com/order/${sessionId}`,
-            },
-          });
-        }
+        //   await prisma.notifications.create({
+        //     data: {
+        //       title: "New Order Received",
+        //       message: `A customer just ordered ${productTitle} from your shop.`,
+        //       creatorId: userId,
+        //       receiverId: shop.sellerId,
+        //       redirect_link: `https://localgoods.com/order/${sessionId}`,
+        //     },
+        //   });
+        // }
 
-        await prisma.notifications.create({
-          data: {
-            title: "Platform order Alert.",
-            message: `A new order was placed by ${name}`,
-            creatorId: userId,
-            receiverId: "admin",
-            redirect_link: `https://localgoods.com/order/${sessionId}`,
-          },
-        });
+        // await prisma.notifications.create({
+        //   data: {
+        //     title: "Platform order Alert.",
+        //     message: `A new order was placed by ${name}`,
+        //     creatorId: userId,
+        //     receiverId: "admin",
+        //     redirect_link: `https://localgoods.com/order/${sessionId}`,
+        //   },
+        // });
 
         await redis.del(sessionKey);
       }
@@ -492,3 +496,104 @@ export const updateDeliveryStatus = async (
     next(error);
   }
 };
+
+export const verifyCouponCode = async (
+  req: any,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { couponCode, cart } = req.body;
+
+    if (!couponCode || !cart || cart.length === 0) {
+      return next(new ValidationError("Coupon code and cart are required!"));
+    }
+
+    const discount = await prisma.discount_codes.findUnique({
+      where: { discountCode: couponCode },
+    });
+
+    if (!discount) {
+      return next(new ValidationError("Coupon code isn't valid!"));
+    }
+
+    const matchingProduct = cart.find((item: any) =>
+      item.discount_codes?.some((d: any) => d === discount.id)
+    );
+
+    if (!matchingProduct) {
+      return res.status(200).json({
+        valid: false,
+        discount: 0,
+        discountAmount: 0,
+        message: "No matching product found in cart for this coupon",
+      });
+    }
+
+    let discountAmount = 0;
+    const price = matchingProduct.sale_price * matchingProduct.quantity;
+
+    if (discount.discountType === "percentage") {
+      discountAmount = (price * discount.discountValue) / 100;
+    } else if (discount.discountType === "flat") {
+      discountAmount = discount.discountValue;
+    }
+
+    discountAmount = Math.min(discountAmount, price);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getUserOrders = async(
+  req:any,
+  res:Response,
+  next:NextFunction
+)=>{
+  try {
+    const orders = await prisma.orders.findMany({
+      where:{
+        userId:req.user.id,
+      },
+      include:{
+        items:true
+      },
+      orderBy:{
+        createdAt:"desc"
+      },
+    });
+
+    res.status(201).json({
+      success:true,
+      orders,
+    });
+  } catch (error) {
+    return next(error);
+  }
+}
+
+export const getAdminOrders = async(
+  req:any,
+  res:Response,
+  next:NextFunction
+)=>{
+  try {
+    const orders = await prisma.orders.findMany({
+      include:{
+        user:true,
+        shop:true,
+      },
+      orderBy:{
+        createdAt:"desc",
+      }
+    });
+
+    res.status(200).json({
+      success:true,
+      orders
+    });
+    
+  } catch (error) {
+    next(error);
+  }
+}

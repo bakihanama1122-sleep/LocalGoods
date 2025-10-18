@@ -11,8 +11,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
-import InnerImageZoom from "react-inner-image-zoom";
-import "react-inner-image-zoom/lib/InnerImageZoom/styles.css";
+import "react-inner-image-zoom/lib/styles.min.css";
 import Ratings from "../../components/ratings";
 import Link from "next/link";
 import { useStore } from "apps/user-ui/src/store";
@@ -21,6 +20,7 @@ import useDeviceTracking from "apps/user-ui/src/hooks/DeviceTracking";
 import useUser from "apps/user-ui/src/hooks/useUser";
 import ProductCard from "../../components/cards/product-card";
 import axiosInstance from "apps/user-ui/src/utils/axiosInstance";
+import InnerImageZoom from "react-inner-image-zoom";
 
 const ProductDetails = ({ productDetails }: { productDetails: any }) => {
   const [currentImage, setCurrentImage] = useState(
@@ -77,25 +77,25 @@ const ProductDetails = ({ productDetails }: { productDetails: any }) => {
       100
   );
 
-  const fetchFilteredProducts = async()=>{
+  const fetchFilteredProducts = async () => {
     try {
-        const query = new URLSearchParams();
-        query.set("priceRange",priceRange.join(","));
-        query.set("page","1");
-        query.set("limit","5");
+      const query = new URLSearchParams();
+      query.set("priceRange", priceRange.join(","));
+      query.set("page", "1");
+      query.set("limit", "5");
 
-        const res = await axiosInstance.get(
-            `/product/api/get-filtered-products?${query.toString()}`
-        );
-        setRecommendedProducts(res.data.products);
+      const res = await axiosInstance.get(
+        `/product/api/get-filtered-products?${query.toString()}`
+      );
+      setRecommendedProducts(res.data.products);
     } catch (error) {
-        console.error(error);
+      console.error(error);
     }
   };
 
-  useEffect(()=>{
+  useEffect(() => {
     fetchFilteredProducts();
-  },[priceRange]);
+  }, [priceRange]);
 
   return (
     <div className="w-full bg-[#f5f5f5] py-5">
@@ -124,24 +124,32 @@ const ProductDetails = ({ productDetails }: { productDetails: any }) => {
                 <ChevronLeft size={24} />
               </button>
             )}
-            <div className="flex gap-2 overflow-x-auto">
-              {productDetails?.images?.map((img: any, index: number) => (
-                <Image
-                  key={index}
-                  src={img?.url || ""}
-                  alt="Thumbnail"
-                  width={60}
-                  height={60}
-                  className={`cursor-pointer border rounded-lg p-1 ${
-                    currentImage == img ? "border-blue-500" : "border-gray-300"
-                  }`}
-                  onClick={() => {
-                    setCurrentIndex(index);
-                    setCurrentImage(img);
-                  }}
-                />
-              ))}
-            </div>
+            {productDetails?.images?.length > 0 && (
+              <div className="flex gap-2 overflow-x-auto">
+                {productDetails.images.map(
+                  (img: any, index: number) =>
+                    img?.url? (
+                      <Image
+                        key={index}
+                        src={img?.url}
+                        alt="Thumbnail"
+                        width={60}
+                        height={60}
+                        className={`cursor-pointer border rounded-lg p-1 ${
+                          // Compare by index, not object
+                          currentIndex === index
+                            ? "border-blue-500"
+                            : "border-gray-300"
+                        }`}
+                        onClick={() => {
+                          setCurrentIndex(index);
+                          setCurrentImage(img);
+                        }}
+                      />
+                    ):null
+                )}
+              </div>
+            )}
             {productDetails?.images.length > 4 && (
               <button
                 className="absolute right-0 bg-white p-2 rounded-full shadow-md z-10"
@@ -383,12 +391,14 @@ const ProductDetails = ({ productDetails }: { productDetails: any }) => {
                 </div>
               </div>
               <div className="text-senter mt-4 border-t border-t-gray-200 pt-2">
-                <Link
-                  href={`shop/${productDetails?.shop.id}`}
-                  className="text-blue-500 font0-medium text-sm hover:underline"
-                >
-                  GO TO STORE
-                </Link>
+                {productDetails?.shop?.id && (
+                  <Link
+                    href={`/shop/${productDetails.shop.id}`}
+                    className="text-blue-500 font-medium text-sm hover:underline"
+                  >
+                    GO TO STORE
+                  </Link>
+                )}
               </div>
             </div>
           </div>
@@ -397,39 +407,33 @@ const ProductDetails = ({ productDetails }: { productDetails: any }) => {
         <div className="w-[90%] lg:w-[80%] mx-auto mt-5">
           <div className="bg-white min-h-[60vh] h-full p-5">
             <h3 className="text-lg font-semibold">
-                  Product details of {productDetails?.title}
+              Product details of {productDetails?.title}
             </h3>
             <div
-            className="prose prose-sm text-slate-200 max-w-none"
-            dangerouslySetInnerHTML={{
-                __html:productDetails?.detailed_description,
-            }}
+              className="prose prose-sm text-slate-200 max-w-none"
+              dangerouslySetInnerHTML={{
+                __html: productDetails?.detailed_description,
+              }}
             />
           </div>
         </div>
         <div className="w-[90%] lg:w-[80%] mx-auto">
-            <div className="bg-white min-h-[50vh] h-full mt-5 p-5">
-                <h3 className="text-lg font-semibold">
-                    Ratings & Reviews of {productDetails?.title}
-                </h3>
-                <p className="text-center pt-14">
-                    No Reviews available yet!
-                </p>
-            </div>
+          <div className="bg-white min-h-[50vh] h-full mt-5 p-5">
+            <h3 className="text-lg font-semibold">
+              Ratings & Reviews of {productDetails?.title}
+            </h3>
+            <p className="text-center pt-14">No Reviews available yet!</p>
+          </div>
         </div>
         <div className="w-[90%] lg:w-[80%] mx-auto">
-            <div className="w-full h-full my-5 p-5">
-                <h3 className="text-xl font-semibold mb-2">
-                    You may also like
-                </h3>
-                <div
-                className="m-auto grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5"
-                >
-                    {recommendedProducts?.map((i:any)=>(
-                        <ProductCard key={i.id} product={i}/>
-                    ))}
-                </div>
+          <div className="w-full h-full my-5 p-5">
+            <h3 className="text-xl font-semibold mb-2">You may also like</h3>
+            <div className="m-auto grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5">
+              {recommendedProducts?.map((i: any) => (
+                <ProductCard key={i.id} product={i} />
+              ))}
             </div>
+          </div>
         </div>
       </div>
     </div>

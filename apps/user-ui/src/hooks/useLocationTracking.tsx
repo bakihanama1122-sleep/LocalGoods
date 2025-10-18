@@ -20,7 +20,7 @@ const useLocationTracking = () =>{
 
     useEffect(()=>{
         if(location) return;
-        fetch("http-ip-api.com/json/").then((res)=>res.json()).then((data)=>{
+        fetch("https-ip-api.com/json/").then((res)=>res.json()).then((data)=>{
             const newLocation = {
                 country: data?.country,
                 city:data.city,

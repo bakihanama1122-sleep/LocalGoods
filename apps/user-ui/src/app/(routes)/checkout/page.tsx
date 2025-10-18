@@ -1,10 +1,12 @@
 'use client'
+
 import axiosInstance from 'apps/user-ui/src/utils/axiosInstance';
 import { XCircle } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react'
-
-
+import {loadStripe,Appearance} from "@stripe/stripe-js";
+import {Elements} from "@stripe/react-stripe-js";
+import CheckoutForm from '../../shared/components/checkout/CheckoutForm';
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY!);
 
 const page = () => {
@@ -96,7 +98,7 @@ const page = () => {
                         Please go back and try checking out again.
                     </p>
                     <button
-                    onClick={()=> router,push("/cart")}
+                    onClick={()=> router.push("/cart")}
                     className='bg-blue-600 text-white px-5 py-5 rounded-md hover:bg-blue-600'
                     >
                         Back to Cart
@@ -105,23 +107,21 @@ const page = () => {
             </div>
         )
     }
+
   return (
     clientSecret && (
 
-        <p>
-            
-        </p>
-        // <Elements
-        // stripe={stripePromise}
-        // options={{clientSecret,appearance}}
-        // >
-        //     <checkoutForm
-        //          clientSecret={clientSecret}
-        //          cartItems={cartItems}
-        //          coupon={coupon}
-        //          sessionId={sessionId}
-        //     />
-        // </Elements>
+        <Elements
+        stripe={stripePromise}
+        options={{clientSecret,appearance}}
+        >
+            <CheckoutForm
+                 clientSecret={clientSecret}
+                 cartItems={cartItem}
+                 coupon={coupon}
+                 sessionId={sessionId}
+            />
+        </Elements>
     )
   )
 }

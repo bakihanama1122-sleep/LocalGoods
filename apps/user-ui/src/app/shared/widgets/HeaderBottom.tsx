@@ -98,15 +98,23 @@ const HeaderBottom = () => {
           <div className="flex items-center gap-5">
             <Link href={"/wishlist"} className="relative">
               <HeartIcon />
-              <div className="w-6 h-6 border-2 border-white bg-red-500 rounded-full flex items-center justify-center absolute top-[-10px] right-[-10px]">
-                <span className="text-white font-medium text-sm">{wishlist?.length}</span>
-              </div>
+              {wishlist?.length > 0 && (
+                  <div className="w-6 h-6 border-2 border-white bg-red-500 rounded-full flex items-center justify-center absolute top-[-10px] right-[-10px]">
+                    <span className="text-white font-medium text-sm">
+                      {wishlist.length}
+                    </span>
+                  </div>
+                )}
             </Link>
             <Link href={"/cart"} className="relative">
               <ShoppingCart />
-              <div className="w-6 h-6 border-2 border-white bg-red-500 rounded-full flex items-center justify-center absolute top-[-10px] right-[-10px]">
-                <span className="text-white font-medium text-sm">{cart?.length}</span>
-              </div>
+              {cart?.length > 0 && (
+                  <div className="w-6 h-6 border-2 border-white bg-red-500 rounded-full flex items-center justify-center absolute top-[-10px] right-[-10px]">
+                    <span className="text-white font-medium text-sm">
+                      {cart.length}
+                    </span>
+                  </div>
+                )}
             </Link>
           </div>
         </div>

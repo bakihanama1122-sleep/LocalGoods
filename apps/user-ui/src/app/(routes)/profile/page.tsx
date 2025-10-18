@@ -4,20 +4,40 @@ import { BadgeCheck, Bell, CheckCircle, Clock, Gift, Inbox, Loader2, Lock, LogOu
 import React, { act, useEffect, useState } from 'react'
 import StatCard from '../../shared/components/cards/stat.card';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import axiosInstance from 'apps/user-ui/src/utils/axiosInstance';
 import Image from 'next/image';
 import QuickActionCard from '../../shared/components/cards/quick-action.card';
 import ShippingAddressSection from '../../shared/components/shippingAddress/page';
+import OrdersTable from '../../shared/components/tables/orders-table';
+import useRequiredAuth from 'apps/user-ui/src/hooks/useRequiredAuth';
+import ChangePassword from '../../shared/components/change-password';
 
 const page = () => {
     const searchParams = useSearchParams();
     const router = useRouter();
     const queryClient = useQueryClient();
 
-    const {user,isLoading} = useUser();
+    const {user,isLoading} = useRequiredAuth();
     const queryTab = searchParams.get("active") || "Profile"
     const [activeTab,setActiveTab] = useState(queryTab);
+
+    const {data:orders = []}= useQuery({
+        queryKey:['user-orders'],
+        queryFn:async()=>{
+            const res = await axiosInstance.get(`/order/api/get-user-orders`);
+            return res.data.orders;
+        }
+    });
+
+    const totalOrders = orders.length;
+    const processingOrders = orders.filter(
+        (o:any)=>
+            o?.deliveryStatus !== "Delivered" && o?.deliveryStatus !== "Cancelled"
+    ).length;
+    const completedOrders = orders.filter(
+        (o:any)=>o?.deliveryStatus === "Delivered"
+    ).length;
 
     useEffect(()=>{
         if(activeTab!==queryTab){
@@ -53,17 +73,17 @@ const page = () => {
             <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6'>
                 <StatCard
                 title="Total Orders"
-                count={10}
+                count={totalOrders}
                 Icon={Clock}
                 />
                 <StatCard
                 title="Processing Orders"
-                count={4}
+                count={processingOrders}
                 Icon={TrainTrack}
                 />
                 <StatCard
                 title="Completed Orders"
-                count={10}
+                count={completedOrders}
                 Icon={CheckCircle}
                 />
             </div>
@@ -160,8 +180,12 @@ const page = () => {
                                 {user.points || 0}
                             </p>
                         </div>
-                    ):activeTab==="Shipping Addresss"?(
+                    ):activeTab==="Shipping address"?(
                         <ShippingAddressSection/>
+                    ):activeTab==="My Orders"?(
+                        <OrdersTable/>
+                    ):activeTab==="Change Password"?(
+                        <ChangePassword/>
                     ):<></>}
                 </div>
 

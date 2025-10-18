@@ -20,6 +20,12 @@ model images {
   productsId String?   @db.ObjectId
 }
 
+enum userRole {
+  user
+  admin
+  seller
+}
+
 model users {
   id          String        @id @default(auto()) @map("_id") @db.ObjectId
   name        String
@@ -33,6 +39,9 @@ model users {
   imagesId    String?       @db.ObjectId
   followings  follower[]
   orders      orders[]
+  role        userRole    @default(user)
+  messagesSent     Message[] @relation("MessagesFromUser")
+  messagesReceived Message[] @relation("MessagesToUser")
   // followers  Follower[]
 }
 
@@ -99,6 +108,7 @@ model sellers {
   isDeleted    Boolean   @default(false)
   deletedAt    DateTime?
   shopId       String?   @db.ObjectId
+  role          userRole @default(seller)
 }
 
 model site_config {
@@ -216,10 +226,10 @@ model Message {
   id           String      @id @default(auto()) @map("_id") @db.ObjectId
   fromUserId   String      @db.ObjectId
   toUserId     String      @db.ObjectId
-  fromUser     User        @relation("MessagesFromUser", fields: [fromUserId], references: [id])
-  toUser       User        @relation("MessagesToUser", fields: [toUserId], references: [id])
+  fromUser     users        @relation("MessagesFromUser", fields: [fromUserId], references: [id])
+  toUser       users        @relation("MessagesToUser", fields: [toUserId], references: [id])
   content      String
-  attachments  Attachment[] @db.Json
+  attachments  Attachment[] 
   readStatus   Boolean     @default(false)
   readAt       DateTime?
   messageType  MessageType @default(text)
