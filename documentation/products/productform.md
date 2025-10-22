@@ -34,3 +34,12 @@ This document outlines the comprehensive Product Information Management System d
   - Minimum length: 3 characters
   - Maximum length: 50 characters
 - **Purpose**: SEO-friendly URL generation
+
+#### Brand
+- **Field Type**: Text input (optional)
+- **Purpose**: Manufacturer/brand identification for filtering and search
+
+#### Tags
+- **Field Type**: Comma-separated text input (required)
+- **Format**: Values separated by commas (e.g., "antique, wooden, handcrafted")
+- **Purpose**: Enhanced searchability and product categorization
