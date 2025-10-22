@@ -435,3 +435,101 @@ ImageKit uses URL-based transformations, allowing real-time image modifications 
 │                                                            │
 └──────────────────────────────────────────────────────────┘
 ```
+### Data Payload Structure
+
+```json
+{
+  "title": "string",
+  "short_description": "string (max 100 words)",
+  "detailed_description": "string (min 100 words, HTML)",
+  "slug": "string (lowercase-with-hyphens)",
+  "brand": "string",
+  "tags": "string (comma-separated)",
+  "category": "string",
+  "subCategory": "string",
+  "regular_price": "number",
+  "sale_price": "number",
+  "stock": "integer (1-1000)",
+  "video_url": "string (YouTube embed URL)",
+  "cash_on_delivery": "yes|no",
+  "images": [
+    {
+      "fileId": "string",
+      "file_url": "string"
+    }
+  ],
+  "sizes": ["array of selected sizes"],
+  "colors": ["array of selected colors"],
+  "custom_specifications": [
+    {
+      "name": "string",
+      "value": "string"
+    }
+  ],
+  "custom_properties": [
+    {
+      "name": "string",
+      "value": "string"
+    }
+  ],
+  "discountCodes": ["array of discount code IDs"]
+}
+```
+
+## Performance Optimizations
+
+### React Query Caching Strategy
+- **Stale Time**: 5 minutes for category data
+- **Retry Logic**: 2 automatic retry attempts on failure
+- **Reduces**: Unnecessary API calls and improves user experience
+
+### Memoization
+- **useMemo Hook**: Subcategory filtering computation cached
+- **Dependency Array**: Re-computes only when category selection changes
+- **Benefit**: Prevents unnecessary re-renders
+
+### Controlled Re-renders
+- **React Hook Form**: Minimizes component re-renders
+- **Uncontrolled Components**: Where appropriate for better performance
+- **Watch API**: Selective field observation
+
+## Engineering Best Practices Demonstrated
+
+### 1. Separation of Concerns
+- Reusable components (`ImagePlaceHolder`, `ColorSelector`, `SizeSelector`)
+- Custom hooks for form field arrays
+- Dedicated utility files (AI enhancements configuration)
+
+### 2. Type Safety
+- TypeScript interfaces for data structures
+- Proper typing for component props
+- API response type definitions
+
+### 3. Error Boundary Implementation
+- Multi-layer validation approach
+- Graceful error handling with user feedback
+- Development debugging capabilities
+
+### 4. State Management
+- Form state isolated in React Hook Form
+- Server state managed by React Query
+- Component state for UI interactions
+- Clear separation of concerns
+
+### 5. User Experience
+- Loading states for all async operations
+- Optimistic UI updates where appropriate
+- Clear error messaging
+- Responsive design considerations
+
+### 6. Code Maintainability
+- Modular component structure
+- Clear function naming conventions
+- Consistent error handling patterns
+- Comprehensive validation rules
+
+### 7. Security Considerations
+- Client-side validation as first defense
+- Server-side validation expected
+- Base64 encoding for image transmission
+- Proper file type handling
