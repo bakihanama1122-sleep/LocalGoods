@@ -78,3 +78,11 @@ This document outlines the comprehensive Product Information Management System d
 - **Field Type**: Dropdown (required)
 - **Implementation**: Controller component from React Hook Form
 - **Error States**: Handles loading and error scenarios with user feedback
+
+#### Sub-Category Selection
+- **Dynamic Behavior**: Options populated based on parent category selection
+- **Implementation**: 
+  - Uses `useMemo` hook for performance optimization
+  - Filters subcategories from cached data structure
+  - Automatically updates when category changes
+- **Validation**: Required field with form-level validation
