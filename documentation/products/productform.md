@@ -228,3 +228,21 @@ This document outlines the comprehensive Product Information Management System d
    - Receives `{ fileId, file_url }` from server
    - Updates local state at specific index
    - Integrates with form state through `setValue()`
+
+#### Image Deletion System
+
+```
+┌──────────────────────────────────────────────────────────┐
+│  handleRemoveImages(index)                               │
+├──────────────────────────────────────────────────────────┤
+│                                                           │
+│  1. Extract image object at index                         │
+│  2. Send DELETE request with fileId                       │
+│     └─▶ /product/api/delete-product-image                │
+│                                                           │
+│  3. Remove from local state array                         │
+│  4. Add null placeholder if needed                        │
+│  5. Update form state                                     │
+│                                                           │
+└──────────────────────────────────────────────────────────┘
+```
