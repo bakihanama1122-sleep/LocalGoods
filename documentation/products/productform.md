@@ -69,3 +69,12 @@ This document outlines the comprehensive Product Information Management System d
   - Color and background customization
   - Media embedding (links, images, videos)
 - **Purpose**: Comprehensive product information for detail pages
+
+### 3. Categorization System
+
+#### Category Selection
+- **Data Source**: API endpoint `/product/api/get-categories`
+- **Fetching Strategy**: React Query with 5-minute stale time and 2 retry attempts
+- **Field Type**: Dropdown (required)
+- **Implementation**: Controller component from React Hook Form
+- **Error States**: Handles loading and error scenarios with user feedback
