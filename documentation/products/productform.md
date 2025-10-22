@@ -157,3 +157,50 @@ This document outlines the comprehensive Product Information Management System d
   - YouTube embed URL format enforcement
   - Regex pattern: `^https:\/\/(www\.)?youtube\.com\/embed\/[a-zA-Z0-9_-]+$`
 - **Purpose**: Product demonstration videos
+
+## Image Management System
+
+### Architecture Overview
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    Client Application                        │
+├─────────────────────────────────────────────────────────────┤
+│                                                               │
+│  ┌──────────────┐        ┌──────────────┐                   │
+│  │ File Input   │───────▶│ Base64       │                   │
+│  │ Component    │        │ Conversion   │                   │
+│  └──────────────┘        └──────┬───────┘                   │
+│                                  │                            │
+│                                  ▼                            │
+│                    ┌─────────────────────────┐               │
+│                    │  POST /upload-image     │               │
+│                    │  { fileName: base64 }   │               │
+│                    └──────────┬──────────────┘               │
+└───────────────────────────────┼──────────────────────────────┘
+                                 │
+                                 ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    Backend API Server                        │
+├─────────────────────────────────────────────────────────────┤
+│                                                               │
+│  ┌────────────────────────────────────────────────────────┐ │
+│  │  Image Upload Handler                                   │ │
+│  │  • Receives Base64 data                                │ │
+│  │  • Uploads to ImageKit CDN                             │ │
+│  │  • Returns { fileId, file_url }                        │ │
+│  └──────────────────────┬─────────────────────────────────┘ │
+│                         │                                    │
+└─────────────────────────┼────────────────────────────────────┘
+                          │
+                          ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    ImageKit CDN                              │
+├─────────────────────────────────────────────────────────────┤
+│                                                               │
+│  • Stores original image                                     │
+│  • Generates unique file ID                                  │
+│  • Provides transformation-ready URLs                        │
+│  • Format: baseURL/fileId?tr=transformations                │
+│                                                               │
+└─────────────────────────────────────────────────────────────┘
