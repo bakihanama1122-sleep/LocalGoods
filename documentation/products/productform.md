@@ -148,3 +148,12 @@ This document outlines the comprehensive Product Information Management System d
 #### Custom Properties
 - **Similar Implementation**: Field array pattern
 - **Purpose**: Additional product attributes beyond standard specifications
+
+### 8. Multimedia Integration
+
+#### Video URL
+- **Field Type**: Text input (optional)
+- **Validation**: 
+  - YouTube embed URL format enforcement
+  - Regex pattern: `^https:\/\/(www\.)?youtube\.com\/embed\/[a-zA-Z0-9_-]+$`
+- **Purpose**: Product demonstration videos
