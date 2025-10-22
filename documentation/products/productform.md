@@ -25,3 +25,12 @@ This document outlines the comprehensive Product Information Management System d
   - Mandatory field enforced through `react-hook-form` validation
   - Empty submissions prevented at form level
 - **Purpose**: Primary identifier for product listing
+
+#### Slug
+- **Field Type**: Text input (required)
+- **Validation Rules**:
+  - Must contain only lowercase letters, numbers, and hyphens
+  - Regex pattern: `^[a-z0-9]+(?:-[a-z0-9]+)*$`
+  - Minimum length: 3 characters
+  - Maximum length: 50 characters
+- **Purpose**: SEO-friendly URL generation
