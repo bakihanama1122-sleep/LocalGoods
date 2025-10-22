@@ -164,15 +164,15 @@ This document outlines the comprehensive Product Information Management System d
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    Client Application                        │
+│                    Client Application                       │
 ├─────────────────────────────────────────────────────────────┤
-│                                                               │
+│                                                             │
 │  ┌──────────────┐        ┌──────────────┐                   │
 │  │ File Input   │───────▶│ Base64       │                   │
-│  │ Component    │        │ Conversion   │                   │
-│  └──────────────┘        └──────┬───────┘                   │
-│                                  │                            │
-│                                  ▼                            │
+│  │ Component    │        │ Conversion   │                    │
+│  └──────────────┘        └──────┬───────┘                    │
+│                                  │                           │
+│                                  ▼                           │
 │                    ┌─────────────────────────┐               │
 │                    │  POST /upload-image     │               │
 │                    │  { fileName: base64 }   │               │
@@ -181,26 +181,27 @@ This document outlines the comprehensive Product Information Management System d
                                  │
                                  ▼
 ┌─────────────────────────────────────────────────────────────┐
-│                    Backend API Server                        │
+│                    Backend API Server                       │
 ├─────────────────────────────────────────────────────────────┤
-│                                                               │
+│                                                             │
 │  ┌────────────────────────────────────────────────────────┐ │
-│  │  Image Upload Handler                                   │ │
+│  │  Image Upload Handler                                  │ │
 │  │  • Receives Base64 data                                │ │
 │  │  • Uploads to ImageKit CDN                             │ │
 │  │  • Returns { fileId, file_url }                        │ │
 │  └──────────────────────┬─────────────────────────────────┘ │
-│                         │                                    │
-└─────────────────────────┼────────────────────────────────────┘
+│                         │                                   │
+└─────────────────────────┼───────────────────────────────────┘
                           │
                           ▼
 ┌─────────────────────────────────────────────────────────────┐
-│                    ImageKit CDN                              │
+│                    ImageKit CDN                             │
 ├─────────────────────────────────────────────────────────────┤
-│                                                               │
-│  • Stores original image                                     │
-│  • Generates unique file ID                                  │
-│  • Provides transformation-ready URLs                        │
+│                                                             │
+│  • Stores original image                                    │
+│  • Generates unique file ID                                 │
+│  • Provides transformation-ready URLs                       │
 │  • Format: baseURL/fileId?tr=transformations                │
-│                                                               │
+│                                                             │
 └─────────────────────────────────────────────────────────────┘
+```
