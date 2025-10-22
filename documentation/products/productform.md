@@ -212,3 +212,19 @@ This document outlines the comprehensive Product Information Management System d
 - **Capacity**: Up to 8 product images per listing
 - **State Management**: Array-based state with null placeholders
 - **Auto-expansion**: Automatically adds new upload slot when previous slot is filled
+
+#### Upload Workflow
+
+1. **File Selection**: User selects image file through `ImagePlaceHolder` component
+2. **Base64 Conversion**: 
+   - Promise-based FileReader API
+   - Converts file to Base64-encoded string
+   - Error handling with promise rejection
+3. **API Upload**: 
+   - POST request to `/product/api/upload-product-image`
+   - Payload: `{ fileName: base64String }`
+   - Loading state managed with `pictureUploadingLoader`
+4. **Response Handling**:
+   - Receives `{ fileId, file_url }` from server
+   - Updates local state at specific index
+   - Integrates with form state through `setValue()`
