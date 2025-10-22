@@ -86,3 +86,22 @@ This document outlines the comprehensive Product Information Management System d
   - Filters subcategories from cached data structure
   - Automatically updates when category changes
 - **Validation**: Required field with form-level validation
+
+### 4. Pricing Structure
+
+#### Regular Price
+- **Field Type**: Number input
+- **Validation Rules**:
+  - Minimum value: 1
+  - Must be numeric (NaN check)
+  - Automatic type coercion with `valueAsNumber: true`
+- **Purpose**: Original/maximum retail price
+
+#### Sale Price
+- **Field Type**: Number input (required)
+- **Complex Validation**:
+  - Must be numeric
+  - Minimum value: 1
+  - Must be less than Regular Price (cross-field validation)
+  - Real-time comparison using form `watch()` API
+- **Error Messages**: Context-aware messages for different validation failures
