@@ -341,3 +341,13 @@ ImageKit uses URL-based transformations, allowing real-time image modifications 
 │                                                         │
 └─────────────────────────────────────────────────────────┘
 ```
+
+### Multi-Selection Interface
+
+- **UI Pattern**: Button-based toggle selection
+- **State Management**: Array of selected discount code IDs
+- **Visual Feedback**: Selected codes highlighted with blue styling
+- **Toggle Logic**: 
+  - Click selected code to deselect
+  - Click unselected code to add to selection
+  - Updates form state immediately through `setValue()`
