@@ -398,3 +398,40 @@ ImageKit uses URL-based transformations, allowing real-time image modifications 
 - **Toast Notifications**: Success/failure messages for async operations
 - **Loading States**: Disabled buttons and loading text during submission
 - **Visual Validation**: Error borders and color changes on invalid fields
+
+## Form Submission Pipeline
+
+### Data Aggregation Process
+
+```
+┌──────────────────────────────────────────────────────────┐
+│  onSubmit Handler Workflow                                │
+├──────────────────────────────────────────────────────────┤
+│                                                            │
+│  1. React Hook Form triggers handleSubmit                 │
+│                                                            │
+│  2. Pre-validation checks                                 │
+│     └─▶ Filter null images                               │
+│     └─▶ Ensure at least one valid image                  │
+│                                                            │
+│  3. Data structure preparation                            │
+│     formData = {                                          │
+│       ...data,              // All form fields            │
+│       images: validImages   // Filtered image array       │
+│     }                                                     │
+│                                                            │
+│  4. API submission                                        │
+│     POST /product/api/create-product                      │
+│     • Set loading state                                   │
+│     • Try-catch error handling                            │
+│     • Toast feedback                                      │
+│                                                            │
+│  5. Success handling                                      │
+│     └─▶ Navigate to /dashboard/all-products              │
+│                                                            │
+│  6. Error handling                                        │
+│     └─▶ Display error message                            │
+│     └─▶ Reset loading state                              │
+│                                                            │
+└──────────────────────────────────────────────────────────┘
+```
