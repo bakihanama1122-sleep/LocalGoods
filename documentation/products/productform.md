@@ -54,3 +54,18 @@ This document outlines the comprehensive Product Information Management System d
   - Custom validator calculates words using `split(/\s+/)` method
 - **Purpose**: Quick product overview displayed in listing pages
 - **Error Handling**: Dynamic word count feedback showing current count vs. limit
+
+#### Detailed Description
+- **Field Type**: Rich Text Editor (required)
+- **Component**: React Quill with custom toolbar
+- **Validation Rules**:
+  - Minimum word count: 100 words
+  - Custom validation function filters empty strings
+- **Features**:
+  - Text formatting (bold, underline, strike-through)
+  - Headers (H1-H6)
+  - Lists (ordered/unordered)
+  - Code blocks and blockquotes
+  - Color and background customization
+  - Media embedding (links, images, videos)
+- **Purpose**: Comprehensive product information for detail pages
