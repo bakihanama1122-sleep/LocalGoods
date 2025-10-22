@@ -351,3 +351,50 @@ ImageKit uses URL-based transformations, allowing real-time image modifications 
   - Click selected code to deselect
   - Click unselected code to add to selection
   - Updates form state immediately through `setValue()`
+
+  ## Error Handling Strategy
+
+### Validation Architecture
+
+```
+┌──────────────────────────────────────────────────────────┐
+│  Error Handling Layers                                    │
+├──────────────────────────────────────────────────────────┤
+│                                                            │
+│  1. Client-Side Field Validation                          │
+│     └─▶ React Hook Form rules                            │
+│         • Required checks                                 │
+│         • Pattern matching (regex)                        │
+│         • Range validation (min/max)                      │
+│         • Custom validators                               │
+│                                                            │
+│  2. Cross-Field Validation                                │
+│     └─▶ Watch API for reactive validation                │
+│         • Sale price vs Regular price                     │
+│         • Dynamic word counting                           │
+│                                                            │
+│  3. Pre-Submission Validation                             │
+│     └─▶ Image array validation                           │
+│         • At least one image required                     │
+│         • Toast notification for failures                 │
+│                                                            │
+│  4. API Error Handling                                    │
+│     └─▶ Try-catch blocks with user feedback              │
+│         • Network errors                                  │
+│         • Server validation errors                        │
+│         • Toast notifications                             │
+│                                                            │
+│  5. Development Debugging                                 │
+│     └─▶ useEffect hooks for error logging                │
+│         • Console logs for form errors                    │
+│         • Data structure verification                     │
+│                                                            │
+└──────────────────────────────────────────────────────────┘
+```
+
+### User Feedback Mechanisms
+
+- **Inline Error Messages**: Red text below invalid fields with specific error descriptions
+- **Toast Notifications**: Success/failure messages for async operations
+- **Loading States**: Disabled buttons and loading text during submission
+- **Visual Validation**: Error borders and color changes on invalid fields
