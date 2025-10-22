@@ -205,3 +205,10 @@ This document outlines the comprehensive Product Information Management System d
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
 ```
+
+### Image Upload Process
+
+#### Multi-Image Support
+- **Capacity**: Up to 8 product images per listing
+- **State Management**: Array-based state with null placeholders
+- **Auto-expansion**: Automatically adds new upload slot when previous slot is filled
