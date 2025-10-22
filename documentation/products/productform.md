@@ -133,3 +133,18 @@ This document outlines the comprehensive Product Information Management System d
 - **Component**: Custom component for color management
 - **Features**: Visual color picker interface
 - **Integration**: Connected to form state through Controller
+
+### 7. Dynamic Specifications System
+
+#### Custom Specifications
+- **Implementation**: Dynamic field array using `useFieldArray` hook
+- **Structure**: Key-value pairs (name and value)
+- **Features**:
+  - Add unlimited specifications dynamically
+  - Remove individual specifications
+  - Each specification name is required
+- **Use Case**: Flexible attribute system (e.g., Material: Wood, Weight: 1.5kg)
+
+#### Custom Properties
+- **Similar Implementation**: Field array pattern
+- **Purpose**: Additional product attributes beyond standard specifications
