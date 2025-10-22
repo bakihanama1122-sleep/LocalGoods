@@ -105,3 +105,19 @@ This document outlines the comprehensive Product Information Management System d
   - Must be less than Regular Price (cross-field validation)
   - Real-time comparison using form `watch()` API
 - **Error Messages**: Context-aware messages for different validation failures
+
+### 5. Inventory Management
+
+#### Stock Quantity
+- **Field Type**: Number input (required)
+- **Validation Logic**:
+  - Range: 1 to 1,000 units
+  - Must be whole number (integer validation)
+  - Custom validator ensures `Number.isInteger()` check
+- **Purpose**: Real-time inventory tracking
+
+#### Cash on Delivery Option
+- **Field Type**: Dropdown (required)
+- **Options**: Yes/No
+- **Default Value**: "Yes"
+- **Purpose**: Payment method availability configuration
