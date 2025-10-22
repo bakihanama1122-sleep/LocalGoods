@@ -8,6 +8,8 @@ import { useStore } from "apps/user-ui/src/store";
 import useUser from "apps/user-ui/src/hooks/useUser";
 import useLocationTracking from "apps/user-ui/src/hooks/useLocationTracking";
 import useDeviceTracking from "apps/user-ui/src/hooks/DeviceTracking";
+import axiosInstance from "apps/user-ui/src/utils/axiosInstance";
+import { isProtected } from "apps/user-ui/src/utils/protected";
 
 const ProductDetailsCard = ({
   data,
@@ -21,6 +23,7 @@ const ProductDetailsCard = ({
   const [isSelected, setIsSelected] = useState(data?.colors?.[0] || "");
   const [isSizeSelected, setIsSizeSelected] = useState(data?.sales?.[0] || "");
   const [quantity, setQuantity] = useState(1);
+  const [isLoading,setIsLoading] = useState(false);
 
   const addToCart = useStore((state:any)=>state.addToCart);
   const cart = useStore((state:any)=>state.cart);
@@ -36,9 +39,30 @@ const ProductDetailsCard = ({
 
   const estimatedDelivery = new Date();
   estimatedDelivery.setDate(estimatedDelivery.getDate()+5);
+
+  const handleChat = async()=>{
+    if(isLoading){
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+        const res = await axiosInstance.post("/chatting/api/create-user-conversationGroup",{sellerId:data?.Shop?.sellerId},
+          isProtected
+        );
+        router.push(`/inbox/conversationId=${res.data.conversation.id}`);
+    } catch (error) {
+      console.log(error);
+    }finally{
+      setIsLoading(false);
+    }
+  }
+
+
   return (
     <div
-      className="fixed  flex items-center justify-center top-0 left-0 h-screen w-full bg-[#0000001d]"
+      className="fixed flex items-center justify-center top-0 left-0 h-screen w-full bg-[#0000001d] z-50"
       onClick={() => setOpen(false)}
     >
       <div
@@ -109,7 +133,8 @@ const ProductDetailsCard = ({
               </div>
               <button
                 className="flex cursor-pointer items-center gap-2 px-4"
-                onClick={() => router.push(`/inbox?shopId=${data?.shop?.id}`)}
+                onClick={() => handleChat()}
+                disabled={isLoading}
               >
                 Chat with Seller
               </button>

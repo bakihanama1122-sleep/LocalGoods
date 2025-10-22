@@ -22,7 +22,7 @@ const ShopCard: React.FC<ShopCardProps> = ({ shop }) => {
     <div className="w-full rounded-md cursor-pointer bg-white border-gray-200 shadow-sm overflow-hidden transition">
       <div className="h-[120px] w-full relative">
         <Image
-          src={shop?.coverBanner || ""}
+          src={shop?.coverBanner || "/store_banner_fallback.jpg"}
           alt="cover"
           fill
           className="object-cover w-full h-full"
@@ -32,7 +32,7 @@ const ShopCard: React.FC<ShopCardProps> = ({ shop }) => {
       <div className="relative flex justify-center -mt-8">
         <div className="w-16 h-16 rounded-full border-4 border-white overflow-hidden shadow bg-white">
           <Image
-            src={shop.avatar || ""}
+            src={shop.avatar || "/store_fallback.png"}
             alt={shop.name}
             width={64}
             height={64}

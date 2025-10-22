@@ -1,7 +1,7 @@
 import express,{Router} from "express";
 import { isAdmin } from "../../../../packages/middleware/authorizeRoles";
 import isAuthenticated from "../../../../packages/middleware/isAuthenticated";
-import { addNewAdmin, getAllAdmins, getAllCustomizations, getAllEvents, getAllProducts, getAllSellers, getAllUsers } from "../controllers/admin.controller";
+import { addNewAdmin, getAllAdmins, getAllCustomizations, getAllEvents, getAllNotifications, getAllProducts, getAllSellers, getAllUsers, getUserNotifications, markNotificationAsRead } from "../controllers/admin.controller";
 
 const router:Router = express.Router();
 
@@ -12,6 +12,8 @@ router.put("/add-new-admin",isAuthenticated,isAdmin,addNewAdmin);
 router.get("/get-all-customizations",getAllCustomizations);
 router.get("/get-all-users",isAuthenticated,isAdmin,getAllUsers);
 router.get("/get-all-sellers",isAuthenticated,isAdmin,getAllSellers);
-
+router.get("/get-all-notifications",isAuthenticated,isAdmin,getAllNotifications);
+router.get("/get-all-notifications",isAuthenticated,getUserNotifications);
+router.post("/mark-notification-as-read",isAuthenticated,markNotificationAsRead);
 
 export default router;

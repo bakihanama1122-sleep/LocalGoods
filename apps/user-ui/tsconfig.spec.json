@@ -20,6 +20,7 @@
     "src/**/*.spec.js",
     "src/**/*.test.jsx",
     "src/**/*.spec.jsx",
+    "../../packages/**/*.{tsx,ts}",
     "src/**/*.d.ts"
   ],
   "references": [

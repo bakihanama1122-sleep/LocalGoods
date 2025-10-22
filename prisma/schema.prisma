@@ -9,13 +9,25 @@ datasource db {
 }
 
 model images {
-  id         String    @id @default(auto()) @map("_id") @db.ObjectId
-  file_id    String
-  url        String[]
-  userId     String?   @unique @db.ObjectId
-  users      users?    @relation(fields: [userId], references: [id])
-  shopId     String?   @unique @db.ObjectId
-  shops      shops?    @relation(fields: [shopId], references: [id])
+  id      String   @id @default(auto()) @map("_id") @db.ObjectId
+  file_id String
+  url     String[]
+
+  // User avatar (one-to-one)
+  userAvatarOf users[] @relation("UserAvatar")
+
+  // User gallery (one-to-many)
+  user   users?  @relation("UserImages", fields: [userId], references: [id])
+  userId String? @db.ObjectId
+
+  // Shop avatar (one-to-one)
+  shopAvatarOf shops[] @relation("ShopAvatar")
+
+  // Shop gallery (one-to-many)
+  shop   shops?  @relation("ShopImages", fields: [shopId], references: [id])
+  shopId String? @db.ObjectId
+
+  // Product images (one-to-many)
   products   products? @relation(fields: [productsId], references: [id])
   productsId String?   @db.ObjectId
 }
@@ -27,22 +39,28 @@ enum userRole {
 }
 
 model users {
-  id          String        @id @default(auto()) @map("_id") @db.ObjectId
-  name        String
-  email       String        @unique
-  password    String?
-  following   String[]
-  avatar      images?
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  shopReviews shopReviews[]
-  imagesId    String?       @db.ObjectId
-  followings  follower[]
-  orders      orders[]
-  role        userRole    @default(user)
-  messagesSent     Message[] @relation("MessagesFromUser")
-  messagesReceived Message[] @relation("MessagesToUser")
-  // followers  Follower[]
+  id               String        @id @default(auto()) @map("_id") @db.ObjectId
+  name             String
+  email            String        @unique
+  password         String?
+  following        String[]
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  shopReviews      shopReviews[]
+  followings       follower[]
+  orders           orders[]
+  role             userRole      @default(user)
+  // messagesSent     Message[]     @relation("MessagesFromUser")
+  // messagesReceived Message[]     @relation("MessagesToUser")
+
+  // One-to-one avatar
+  avatar images? @relation("UserAvatar", fields: [avatarId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  avatarId String?  @db.ObjectId
+
+  // One-to-many gallery
+  images images[] @relation("UserImages")
+
+
 }
 
 model shopReviews {
@@ -74,7 +92,6 @@ model shops {
   name          String
   bio           String?
   category      String
-  avatar        images?
   coverBanner   String?
   address       String
   opening_hours String?
@@ -89,9 +106,15 @@ model shops {
   products      products[]
   isDeleted     Boolean       @default(false)
   deletedAt     DateTime?
-  imagesId      String?
   followers     follower[]
   orders        orders[]
+
+  // One-to-one avatar
+  avatar images? @relation("ShopAvatar", fields: [avatarId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  avatarId String?  @db.ObjectId
+
+  // One-to-many gallery
+  images images[] @relation("ShopImages")
 }
 
 model sellers {
@@ -108,7 +131,7 @@ model sellers {
   isDeleted    Boolean   @default(false)
   deletedAt    DateTime?
   shopId       String?   @db.ObjectId
-  role          userRole @default(seller)
+  role         userRole  @default(seller)
 }
 
 model site_config {
@@ -221,24 +244,23 @@ model address {
   createdAt DateTime    @default(now())
 }
 
+// model Message {
+//   id          String       @id @default(auto()) @map("_id") @db.ObjectId
+//   fromUserId  String       @db.ObjectId
+//   toUserId    String       @db.ObjectId
+//   fromUser    users        @relation("MessagesFromUser", fields: [fromUserId], references: [id])
+//   toUser      users        @relation("MessagesToUser", fields: [toUserId], references: [id])
+//   content     String
+//   attachments Attachment[]
+//   readStatus  Boolean      @default(false)
+//   readAt      DateTime?
+//   messageType MessageType  @default(text)
+//   createdAt   DateTime     @default(now())
+//   updatedAt   DateTime     @updatedAt
 
-model Message {
-  id           String      @id @default(auto()) @map("_id") @db.ObjectId
-  fromUserId   String      @db.ObjectId
-  toUserId     String      @db.ObjectId
-  fromUser     users        @relation("MessagesFromUser", fields: [fromUserId], references: [id])
-  toUser       users        @relation("MessagesToUser", fields: [toUserId], references: [id])
-  content      String
-  attachments  Attachment[] 
-  readStatus   Boolean     @default(false)
-  readAt       DateTime?
-  messageType  MessageType @default(text)
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
-
-  @@index([fromUserId, toUserId, createdAt(sort: Desc)])
-  @@index([toUserId, readStatus])
-}
+//   @@index([fromUserId, toUserId, createdAt(sort: Desc)])
+//   @@index([toUserId, readStatus])
+// }
 
 enum MessageType {
   text
@@ -253,3 +275,94 @@ type Attachment {
   size     Float
 }
 
+model notifications {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  creatorId String @db.ObjectId
+  receiverId String
+  redirect_link String?
+  title String
+  message String
+  status String @default("Unread")
+
+createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  
+}
+
+model shopAnalytics {
+   id String @id @default(auto()) @map("_id") @db.ObjectId
+   totalVisitors Int @default(0)
+
+   countryStats Json?
+   cityStats Json?
+   deviceStats Json?
+
+   lastVisitedAt DateTime
+
+   createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model productAnalytics {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  productId String @unique
+  shopId String
+  views Int @default(0)
+  cartAdds Int @default(0)
+  wishListAdds Int @default(0)
+  purchases Int @default(0)
+  lastViewedAt DateTime
+createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+}
+
+model userAnalytics{
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  userId String @unique
+  country String?
+  city String?
+  device String?
+  lastVisited DateTime
+  actions Json?
+  recommendations Json?
+  lasttrianed DateTime @default(now())
+
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model conversationGroup{
+  id String  @id @default(auto()) @map("_id") @db.ObjectId
+  isGroup Boolean @default(false)
+  name String?
+  creatorId String @db.ObjectId
+  participantsIds String[] @db.ObjectId
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model participant{
+  id String  @id @default(auto()) @map("_id") @db.ObjectId
+  conversationId String @db.ObjectId
+  userId String? @db.ObjectId
+  sellerId String? @db.ObjectId
+  lastSeenAt DateTime?
+  isOnline Boolean @default(false)
+  unreadCount Int @default(0)
+  muted Boolean @default(false)
+  joinedAt DateTime @default(now())
+}
+
+model message {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  conversationId String @db.ObjectId
+  senderId String @db.ObjectId
+  senderType String
+  content String?
+  attachments String[]
+  status String @default("sent")
+  createdAt DateTime @default(now())
+
+  @@unique([conversationId,senderId,content,createdAt])
+}

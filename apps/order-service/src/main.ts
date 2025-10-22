@@ -9,14 +9,26 @@ import { createOrder } from './controllers/order.controller';
 
 
 const app = express();
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'http://localhost:3002',
+];
+
+
 app.use(
   cors({
-    origin:["http://localhost:3000"],
-    allowedHeaders:["Authorization","content-Type"],
-    credentials:true
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization'],
   })
 );
-
 app.post("/api/create-order",bodyParser.raw({type:"application/json"}),(req,res,next)=>{
   (req as any).rawBody = req.body;
   next();

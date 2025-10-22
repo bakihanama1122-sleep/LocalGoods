@@ -3,9 +3,12 @@ import { MoveRight } from 'lucide-react'
 import Image from 'next/image'
 import React from 'react'
 import {useRouter} from "next/navigation"
+import useLayout from 'apps/user-ui/src/hooks/useLayout'
 
 const Hero = () => {
     const router = useRouter();
+  const {layout } = useLayout();
+
   return (
     <div className='bg-[#115061] h-[85vh] flex flex-col justify-center w-full'>
         <div className='md:w-[80%] w-[90%] m-auto md:flex h-full items-center'>
@@ -32,6 +35,7 @@ const Hero = () => {
         <div className='md:w-1/2 flex justify-center'>
                 <Image
                 src={
+                    layout?.banner ||
                     "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cHJvZHVjdHxlbnwwfHwwfHx8MA%3D%3D"
                 }
                 alt=""

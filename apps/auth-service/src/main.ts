@@ -20,7 +20,7 @@ const allowedOrigins = [
   'http://localhost:3002',
 ];
 
-// Add this CORS middleware to your admin service
+
 app.use(
   cors({
     origin: function (origin, callback) {

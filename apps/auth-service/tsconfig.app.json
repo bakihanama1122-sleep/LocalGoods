@@ -13,7 +13,8 @@
     "src/**/*.json",
     "../../packages/error-handler/**/*.ts",
     "../../packages/libs/**/**/*.ts",
-    "../../packages/middleware/**/*.ts"
+    "../../packages/middleware/**/*.ts",
+    "../../packages/utils/**/*.ts"
   ],
   "exclude": [
     "out-tsc",

@@ -23,7 +23,7 @@ const Ratings: FC<Props> = ({ rating }) => {
   return (
     <div className="flex items-center gap-1">
       {stars}
-      <span className="text-sm text-gray-600 ml-1">({rating.toFixed(1)||0})</span>
+      <span className="text-sm text-gray-600 ml-1">({rating?.toFixed(1)||0})</span>
     </div>
   );
 };

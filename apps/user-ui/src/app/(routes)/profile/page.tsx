@@ -12,6 +12,7 @@ import ShippingAddressSection from '../../shared/components/shippingAddress/page
 import OrdersTable from '../../shared/components/tables/orders-table';
 import useRequiredAuth from 'apps/user-ui/src/hooks/useRequiredAuth';
 import ChangePassword from '../../shared/components/change-password';
+import Link from 'next/link';
 
 const page = () => {
     const searchParams = useSearchParams();
@@ -53,6 +54,19 @@ const page = () => {
             router.push("/login");
         });
     };
+
+     const markAsRead = async(notificationId:string)=>{
+    await axiosInstance.post("/seller/api/mark-notification-as-read",{
+      notificationId,
+    });
+
+    const {data:notifications,isLoading:notificationsLoading} = useQuery({
+        queryKey:["notifications"],
+        queryFn:async()=>{
+            const res = await axiosInstance.get("admin/api/get-user-notifications");
+            return res.data.notifications;
+        },
+    })
 
   return (
     <div className='bg-gray-50 p-6 pb-14'>
@@ -182,11 +196,52 @@ const page = () => {
                         </div>
                     ):activeTab==="Shipping address"?(
                         <ShippingAddressSection/>
-                    ):activeTab==="My Orders"?(
+                    ):activeTab==="My orders"?(
                         <OrdersTable/>
                     ):activeTab==="Change Password"?(
                         <ChangePassword/>
-                    ):<></>}
+                    ):(
+                        activeTab==="Notifications"?(
+
+                            <div className='space-y-4 text-sm text-gray-700'>
+                                {!notificationsLoading && notifications.length==0 && (
+                                    <p>No Notifications available yet!</p>
+                                )}
+
+                                {!notificationsLoading && notifications?.length > 0 &&(
+        <div className="md:w-[80%] my-6 rounded-lg divide-y divide-gray-800 bg-black/40 backdrop-blur-lg shadow-sm">
+          {notifications.map((d:any)=>(
+            <Link
+            key={d.id}
+            href={`${d.redirect_link}`}
+            className={`block px-5 py-4 transition ${
+              d.status!=="Unread" ? "hover:bg-gray-800/40"
+              :"bg-gray-800/50 hover:bg-gray-800/70"
+            }`}      
+            onClick={()=>markAsRead(d.id)}
+            >
+              <div className='flex items-start gap-3'>
+                <div className='flex flex-col'>
+                  <span className='text-white font-medium'>{d.title}</span>
+                  <span className='text-gray-300 text-sm'>{d.message}</span>
+                  <span className='text-gray-500 text-xs mt-1'>
+                  {new Date(d.createdAt).toLocaleString("en-UK",{
+                    dateStyle:"medium",
+                    timeStyle:"short"
+                  })}
+                  </span>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
+                            </div>
+
+                        ):(
+                            <p></p>
+                        )
+                    )}
                 </div>
 
                 <div className='w-full md:w-1/4 space-y-4'>
@@ -237,5 +292,5 @@ const NavItems = ({label,Icon,active,danger,onClick}:any)=>(
         {label}
     </button>
 )
-
+}
 export default page

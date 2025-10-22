@@ -1,36 +1,54 @@
 "use client"
-import { useState,useEffect } from "react";
+import { useState, useEffect } from "react";
 
 const LOCATION_STORAGE_KEY = "user_location";
 const LOCATION_EXPIRY_DAYS = 20;
 
-const getStoredLocation = () =>{
-    const storedData = localStorage.getItem(LOCATION_STORAGE_KEY);
-    if(!storedData) return null;
+const getStoredLocation = () => {
+  const storedData = localStorage.getItem(LOCATION_STORAGE_KEY);
+  if (!storedData) return null;
 
-    const parsedData = JSON.parse(storedData);
-    const expiryTime = LOCATION_EXPIRY_DAYS * 24*60*60*1000;
-    const isExpired = Date.now()-parsedData.timeStamp>expiryTime;
+  const parsedData = JSON.parse(storedData);
+  const expiryTime = LOCATION_EXPIRY_DAYS * 24 * 60 * 60 * 1000;
+  const isExpired = Date.now() - parsedData.timestamp > expiryTime;
 
-    return isExpired?null:parsedData;
-}
+  return isExpired ? null : parsedData;
+};
 
-const useLocationTracking = () =>{
-    const [location,setLocation] = useState<{country:string,city:string} | null>(getStoredLocation());
+const useLocationTracking = () => {
+  const [location, setLocation] = useState<{country:string,state:string,city:string} | null>(null);
 
-    useEffect(()=>{
-        if(location) return;
-        fetch("https-ip-api.com/json/").then((res)=>res.json()).then((data)=>{
-            const newLocation = {
-                country: data?.country,
-                city:data.city,
-                timestamp:Date.now(),
-            };
-            localStorage.setItem(LOCATION_STORAGE_KEY,JSON.stringify(newLocation));
-            setLocation(newLocation);
-        }).catch((error)=>console.log("Failed to get location",error));
-    },[]);
-    return location;
-}
+  useEffect(() => {
+    if (!navigator.geolocation) {
+      console.log("Geolocation not supported");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+
+        // Reverse geocode using free service like OpenStreetMap Nominatim
+        try {
+          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
+          const data = await res.json();
+          const newLocation = {
+            country: data.address.country || "Unknown",
+            state: data.address.state || "Unknown",
+            city: data.address.city || data.address.town || data.address.village || "Unknown",
+          };
+          setLocation(newLocation);
+        } catch (err) {
+          console.error("Reverse geocoding failed", err);
+        }
+      },
+      (err) => console.error("Geolocation error:", err),
+      { enableHighAccuracy: true }
+    );
+  }, []);
+
+  return location;
+};
+
 
 export default useLocationTracking;

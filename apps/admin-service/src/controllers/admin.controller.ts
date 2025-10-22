@@ -276,3 +276,82 @@ export const getAllSellers = async (
     next(error);
   }
 };
+
+
+export const getAllNotifications = async(
+  req:Request,
+  res:Response,
+  next:NextFunction
+)=>{
+  try {
+    const notifications = await prisma.notifications.findMany({
+      where:{
+        receiverId:"admin"
+      },
+      orderBy:{
+        createdAt:"desc"
+      }
+    });
+
+    res.status(200).json({
+      success:true,
+      notifications,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export const getUserNotifications = async(
+  req:any,
+  res:Response,
+  next:NextFunction
+)=>{
+  try {
+    const notifications = await prisma.notifications.findMany({
+      where:{
+        receiverId:req.user?.id
+      },
+      orderBy:{
+        createdAt:"desc"
+      }
+    });
+
+    res.status(200).json({
+      success:true,
+      notifications,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export const markNotificationAsRead = async(
+  req:any,
+  res:Response,
+  next:NextFunction
+)=>{
+  try {
+    const {notificationId} = req.body;
+
+    if(!notificationId){
+      return next(new ValidationError("Notification id is required"));
+    }
+
+    const notification = await prisma.notifications.update({
+      where:{
+        id:notificationId
+      },
+      data:{
+        status:"Read"
+      }
+    });
+
+    res.status(200).json({
+      success:true,
+      notification,
+    });
+  } catch (error) {
+    next(error);
+  }
+}

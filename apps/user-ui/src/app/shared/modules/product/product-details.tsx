@@ -21,10 +21,12 @@ import useUser from "apps/user-ui/src/hooks/useUser";
 import ProductCard from "../../components/cards/product-card";
 import axiosInstance from "apps/user-ui/src/utils/axiosInstance";
 import InnerImageZoom from "react-inner-image-zoom";
+import { isProtected } from "apps/user-ui/src/utils/protected";
+import { useRouter } from "next/navigation";
 
 const ProductDetails = ({ productDetails }: { productDetails: any }) => {
   const [currentImage, setCurrentImage] = useState(
-    productDetails?.images[0]?.url
+    productDetails?.images[0]?.url[0]
   );
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -39,7 +41,7 @@ const ProductDetails = ({ productDetails }: { productDetails: any }) => {
   const [quantity, setQuantity] = useState(1);
   const [priceRange, setPriceRange] = useState([
     productDetails?.sale_price,
-    1199,
+    30000,
   ]);
 
   const [recommendedProducts, setRecommendedProducts] = useState([]);
@@ -57,7 +59,9 @@ const ProductDetails = ({ productDetails }: { productDetails: any }) => {
   const { user, isLoading } = useUser();
   const location = useLocationTracking();
   const deviceInfo = useDeviceTracking();
-
+    const [isConvoLoading,setIsLoading] = useState(false);
+  
+const router = useRouter();
   const prevImage = () => {
     if (currentIndex > 0) {
       setCurrentIndex(currentIndex - 1);
@@ -96,6 +100,25 @@ const ProductDetails = ({ productDetails }: { productDetails: any }) => {
   useEffect(() => {
     fetchFilteredProducts();
   }, [priceRange]);
+
+  const handleChat = async()=>{
+    if(isConvoLoading){
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+        const res = await axiosInstance.post("/chatting/api/create-user-conversationGroup",{sellerId:productDetails?.Shop?.sellerId},
+          isProtected
+        );
+        router.push(`/inbox/conversationId=${res.data.conversation.id}`);
+    } catch (error) {
+      console.log(error);
+    }finally{
+      setIsLoading(false);
+    }
+  }
 
   return (
     <div className="w-full bg-[#f5f5f5] py-5">
@@ -211,11 +234,11 @@ const ProductDetails = ({ productDetails }: { productDetails: any }) => {
             </div>
             <div className="mt-3">
               <span className="text-3xl font-bold text-orange-500">
-                ${productDetails?.sale_price}
+                ₹{productDetails?.sale_price}
               </span>
               <div className="flex gap-2 pb-2 text-lg border-b border-b-slate-200">
                 <span className="text-gray-400 line-through">
-                  ${productDetails?.regular_price}
+                  ₹{productDetails?.regular_price}
                 </span>
                 <span className="text-gray-500">-{discountPercentage}%</span>
               </div>
@@ -366,6 +389,7 @@ const ProductDetails = ({ productDetails }: { productDetails: any }) => {
                 </div>
                 <Link
                   href={"#"}
+                  onClick={() => handleChat()}
                   className="text-blue-500 text-sm flex items-center gap-1"
                 >
                   <MessageSquareText />

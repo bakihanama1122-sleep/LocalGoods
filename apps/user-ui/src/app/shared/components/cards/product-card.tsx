@@ -48,7 +48,7 @@ const ProductCard = ({
     })
 
   return (
-    <div className="w-full min-h-[350px] h-max bg-[#FFFDF6] rounded-lg relative">
+    <div className="w-full min-h-[350px] h-max bg-[#FFFDF6] rounded-lg relative z-10">
       {isEvent && (
         <div className="absolute top-2 left-2 bg-red-600 text-white text-[10px] font-semibold px-2 py-1 rounded-sm shadow-md">
           OFFER
@@ -62,8 +62,8 @@ const ProductCard = ({
       <Link href={`product/${product?.slug}`}>
         <img
           src={
-            product?.images[0]?.url ||
-            "https://www.google.com/imgres?q=product%20images&imgurl=https%3A%2F%2Fstatic.vecteezy.com%2Fsystem%2Fresources%2Fthumbnails%2F024%2F841%2F285%2Fsmall_2x%2Fwireless-headphone-isolated-on-transparent-background-high-quality-bluetooth-headphone-for-advertising-and-product-catalogs-generative-ai-png.png&imgrefurl=https%3A%2F%2Fwww.vecteezy.com%2Ffree-png%2Fproduct&docid=tYWSX8WmLvTNiM&tbnid=2abQS3QYH_pjDM&vet=12ahUKEwjjuJ_SipKQAxWHcGwGHTWXJVYQM3oECCcQAA..i&w=400&h=400&hcb=2&ved=2ahUKEwjjuJ_SipKQAxWHcGwGHTWXJVYQM3oECCcQAA"
+            product?.images?.[0]?.url[0] ||
+            "product_fallback.jpg"
           }
           alt={product?.title}
           width={300}
@@ -129,7 +129,7 @@ const ProductCard = ({
             onClick={()=>setOpen(!open)}
             />
         </div>
-        <div className= "relative z-0 bg-blue-300 rounded-full p-[6px] shadow-md">
+        <div className= "bg-blue-300 rounded-full p-[6px] shadow-md">
             <ShoppingBag
             className="cursor-pointer text-[#4b5563] hover:scale-110 transition"
             size={22}

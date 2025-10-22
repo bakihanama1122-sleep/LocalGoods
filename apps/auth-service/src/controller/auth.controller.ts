@@ -17,6 +17,8 @@ import {
 } from "../utils/auth.helper";
 import { setCookie } from "../utils/cookies/setCookies";
 import Stripe from "stripe";
+import {sendLog} from "../../../../packages/utils/logs/send-logs"
+
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion:"2025-09-30.clover"
@@ -54,6 +56,7 @@ export const verifyUser = async (
   next: NextFunction
 ) => {
   try {
+    
     const { email, otp, password, name } = req.body;
     if (!email || !otp || !password || !name) {
       return next(new ValidationError("All fields are required."));
@@ -66,6 +69,7 @@ export const verifyUser = async (
     }
     await verifyOtp(email, otp, next);
 
+    
     const hashedPassword = await bcrypt.hash(password, 10);
     await prisma.users.create({
       data: { name, email, password: hashedPassword },
@@ -100,7 +104,8 @@ export const loginUser = async (
     res.clearCookie("seller_access_token");
     res.clearCookie("seller_refresh_token");
     const accessToken = jwt.sign(
-      { id: user.id, role: "user" },
+      { id: user.id, role: "user",name: user.name, 
+    email: user.email, },
       process.env.ACCESS_TOKEN_SECRET as string,
       {
         expiresIn: "15m",
@@ -188,6 +193,11 @@ export const refreshToken = async (
 export const getUser = async (req: any, res: Response, next: NextFunction) => {
   try {
     const user = req.user;
+    await sendLog({
+      type:"success",
+      message:`USer data retrieved ${user?.email}`,
+      source:"auth-service"
+    })
     res.status(201).json({
       success: true,
       user,
@@ -397,8 +407,8 @@ export const createStripeConnectionLink = async (
 
     const accountLink = await stripe.accountLinks.create({
       account:account.id,
-      refresh_url:`http://localhost:3000/success`,
-      return_url:`http://localhost:3000/success`,
+      refresh_url:`http://localhost:3001/success`,
+      return_url:`http://localhost:3001/success`,
       type:"account_onboarding"
     })
 
@@ -718,5 +728,23 @@ export const loginAdmin = async (
 
   } catch (error) {
     return next(error);
+  }
+}
+
+export const getLayoutData = async (
+  req:Request,
+  res:Response,
+  next:NextFunction
+)=>{
+  try {
+    const layout = await prisma.site_config.findFirst();
+
+    res.status(200).json({
+      success:true,
+      layout,
+    });
+
+  } catch (error) {
+    next(error);    
   }
 }

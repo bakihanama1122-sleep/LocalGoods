@@ -259,7 +259,7 @@ export const createOrder = async (
           }
         }
 
-        await prisma.orders.create({
+        const order = await prisma.orders.create({
           data: {
             userId,
             shopId,
@@ -291,7 +291,7 @@ export const createOrder = async (
             totalAmount: coupon?.discountAmount
               ? totalAmount - coupon?.discountAmount
               : totalAmount,
-            trackingUrl: `https://localgoods.com/${sessionId}`,
+            trackingUrl: `http://localhost:3000/order/${order.id}`,
           }
         );
 
@@ -305,30 +305,30 @@ export const createOrder = async (
           },
         });
 
-        // for (const shop of sellerShops) {
-        //   const firstProduct = shopGrouped[shop.id][0];
-        //   const productTitle = firstProduct?.title || "new item";
+        for (const shop of sellerShops) {
+          const firstProduct = shopGrouped[shop.id][0];
+          const productTitle = firstProduct?.title || "new item";
 
-        //   await prisma.notifications.create({
-        //     data: {
-        //       title: "New Order Received",
-        //       message: `A customer just ordered ${productTitle} from your shop.`,
-        //       creatorId: userId,
-        //       receiverId: shop.sellerId,
-        //       redirect_link: `https://localgoods.com/order/${sessionId}`,
-        //     },
-        //   });
-        // }
+          await prisma.notifications.create({
+            data: {
+              title: "New Order Received",
+              message: `A customer just ordered ${productTitle} from your shop.`,
+              creatorId: userId,
+              receiverId: shop.sellerId,
+              redirect_link: `https://localgoods.com/order/${sessionId}`,
+            },
+          });
+        }
 
-        // await prisma.notifications.create({
-        //   data: {
-        //     title: "Platform order Alert.",
-        //     message: `A new order was placed by ${name}`,
-        //     creatorId: userId,
-        //     receiverId: "admin",
-        //     redirect_link: `https://localgoods.com/order/${sessionId}`,
-        //   },
-        // });
+        await prisma.notifications.create({
+          data: {
+            title: "Platform order Alert.",
+            message: `A new order was placed by ${name}`,
+            creatorId: userId,
+            receiverId: "admin",
+            redirect_link: `/order/${order.id}`,
+          },
+        });
 
         await redis.del(sessionKey);
       }

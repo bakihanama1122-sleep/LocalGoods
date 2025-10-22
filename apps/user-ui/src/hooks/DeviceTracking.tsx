@@ -1,21 +1,27 @@
 "use client"
 
-import { useEffect,useState } from "react"
-import {UAParser} from "ua-parser-js"
+import { useEffect, useState } from "react";
+import { UAParser } from "ua-parser-js";
 
 const useDeviceTracking = () => {
-    const [deviceInfo,setDeviceInfo] = useState("");
+  const [deviceInfo, setDeviceInfo] = useState<string>("Desktop - Unknown OS - Unknown Browser");
 
-    useEffect(()=>{
-        const parser = new UAParser;
-        const result = parser.getResult();
+  useEffect(() => {
+    try {
+      const parser = new UAParser();
+      const result = parser.getResult();
 
-        setDeviceInfo(
-            `${result.device.type || "Desktop"} - ${result.os.name} ${result.os.version} - ${result.browser.name} ${result.browser.version}`
-        );
-    },[]);
+      const deviceType = result.device.type || "Desktop";
+      const os = `${result.os.name || "Unknown OS"} ${result.os.version || ""}`.trim();
+      const browser = `${result.browser.name || "Unknown Browser"} ${result.browser.version || ""}`.trim();
 
-    return deviceInfo;
+      setDeviceInfo(`${deviceType} - ${os} - ${browser}`);
+    } catch (err) {
+      console.error("Device tracking failed:", err);
+    }
+  }, []);
+
+  return deviceInfo;
 };
 
 export default useDeviceTracking;

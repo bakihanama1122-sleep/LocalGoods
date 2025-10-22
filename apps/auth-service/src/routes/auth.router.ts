@@ -1,5 +1,5 @@
 import express,{Router} from "express";
-import { addUserAddress, createShop, createStripeConnectionLink, deleteUserAddress, getAdmin, getSeller, getUser, getUserAddresses, loginAdmin, loginSeller, loginUser, refreshToken, registerSeller, resetUserPassword, updateUserPassword, userForgotPassword, userRegistration, verifySeller, verifyUser, verifyUserForgotPassword } from "../controller/auth.controller";
+import { addUserAddress, createShop, createStripeConnectionLink, deleteUserAddress, getAdmin, getLayoutData, getSeller, getUser, getUserAddresses, loginAdmin, loginSeller, loginUser, refreshToken, registerSeller, resetUserPassword, updateUserPassword, userForgotPassword, userRegistration, verifySeller, verifyUser, verifyUserForgotPassword } from "../controller/auth.controller";
 import isAuthenticated from "../../../../packages/middleware/isAuthenticated"
 import { isAdmin, isSeller } from "../../../../packages/middleware/authorizeRoles";
 
@@ -28,7 +28,7 @@ router.get("/logged-in-admin",isAuthenticated,isAdmin,getAdmin);
 router.get("/shipping-addresses",isAuthenticated,getUserAddresses);
 router.post("/add-address",isAuthenticated,addUserAddress);
 router.delete("/delete-address/:addressId",isAuthenticated,deleteUserAddress);
-
+router.get("/get-layouts",getLayoutData);
 
 
 export default router;

@@ -18,7 +18,7 @@ const page = () => {
     const searchParams = useSearchParams();
     const router = useRouter();
 
-    const sessionId = searchParams.get("SessionId");
+    const sessionId = searchParams.get("sessionId");
 
     useEffect(()=>{
         const fetchSessionAndClientSecret = async()=>{
@@ -46,7 +46,7 @@ const page = () => {
 
                 setCartItem(cart);
                 setCoupon(coupon);
-                const sellerStripeAccountId = sellers[0].stripeAccountOd;
+                const sellerStripeAccountId = sellers[0].stripeAccountId;
 
                 const intentRes = await axiosInstance.post(
                     "/order/api/create-payment-intent",

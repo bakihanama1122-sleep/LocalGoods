@@ -9,11 +9,14 @@ import HeaderBottom from "./HeaderBottom";
 import useUser from "apps/user-ui/src/hooks/useUser";
 import { useStore } from "apps/user-ui/src/store";
 import { useAuthStore } from "apps/user-ui/src/store/authStore";
+import Image from "next/image";
+import useLayout from "apps/user-ui/src/hooks/useLayout";
 
 const Header = () => {
   const { user, isLoading } = useUser();
   const { cart, wishlist, clearAll } = useStore();
   const { isLoggedIn, setLoggedIn } = useAuthStore();
+  const {layout } = useLayout();
 
   // Keep Zustand state in sync with authentication state
   useEffect(() => {
@@ -31,10 +34,15 @@ const Header = () => {
   return (
     <div className="w-full bg-white">
       <div className="w-[80%] py-5 m-auto flex items-center justify-between">
-        {/* Logo */}
         <div>
           <Link href={"/"}>
-            <span className="text-3xl font-normal">LocalGoods</span>
+            <Image
+            src={layout?.logo || "https://drive.google.com/file/d/13XDWM1-6EUHPjhyq7KaURBT6mZ376UB6/view?usp=sharing"}
+            width={300}
+            height={100}
+            alt=""
+            className="h-[70px] ml-[-50px] mb-[-30px] onjecy-cover"
+            />
           </Link>
         </div>
 

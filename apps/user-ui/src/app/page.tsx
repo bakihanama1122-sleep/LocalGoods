@@ -28,7 +28,7 @@ const Page = () => {
       const res = await axiosInstance.get(
         "/product/api/get-all-products?page=10&limit=10&type=latest"
       );
-      return res.data.products;
+      return res.data.top10Products;
     },
     staleTime: 1000 * 60 * 2,
   });

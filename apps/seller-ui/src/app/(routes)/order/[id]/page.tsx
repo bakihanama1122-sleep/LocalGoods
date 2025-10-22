@@ -164,7 +164,7 @@ const Page = () => {
                     </p>
                     <p>
                         <span className="font-semibold">Total Paid:</span>{" "}
-                        <span className="font-medium">{order.total.toFixed(2)}</span>
+                        <span className="font-medium">₹{order.total.toFixed(2)}</span>
                     </p>
 
                     {order.discountAmount>0 && (
