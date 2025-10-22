@@ -121,3 +121,15 @@ This document outlines the comprehensive Product Information Management System d
 - **Options**: Yes/No
 - **Default Value**: "Yes"
 - **Purpose**: Payment method availability configuration
+
+### 6. Product Variants
+
+#### Size Selector
+- **Component**: Custom reusable component with form integration
+- **Implementation**: Integrated through React Hook Form Controller
+- **Purpose**: Handle products with multiple size variants
+
+#### Color Selector
+- **Component**: Custom component for color management
+- **Features**: Visual color picker interface
+- **Integration**: Connected to form state through Controller
