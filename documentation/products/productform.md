@@ -314,3 +314,30 @@ ImageKit uses URL-based transformations, allowing real-time image modifications 
 - **Chain Transformations**: Multiple effects can be applied sequentially
 - **Non-Destructive**: Original image remains unchanged on CDN
 - **Instant Preview**: URL modification provides immediate visual feedback
+
+## Discount Code Integration
+
+### Data Fetching
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  React Query: Discount Codes                             │
+├─────────────────────────────────────────────────────────┤
+│                                                           │
+│  Query Key: ["shop-discounts"]                           │
+│  Endpoint: /product/api/get-discount-codes              │
+│                                                           │
+│  Response Structure:                                     │
+│  {                                                       │
+│    discount_codes: [                                    │
+│      {                                                  │
+│        id: string                                       │
+│        public_name: string                              │
+│        discountValue: number                            │
+│        discountType: "percentage" | "fixed"            │
+│      }                                                  │
+│    ]                                                    │
+│  }                                                      │
+│                                                         │
+└─────────────────────────────────────────────────────────┘
+```
