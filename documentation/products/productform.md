@@ -14,3 +14,14 @@ This document outlines the comprehensive Product Information Management System d
 - **Image Processing**: ImageKit CDN with AI transformations
 - **Rich Text Editing**: React Quill
 - **HTTP Client**: Axios
+
+## Form Structure & Data Collection Strategy
+
+### 1. Product Identification Fields
+
+#### Product Title
+- **Field Type**: Text input (required)
+- **Validation Strategy**: 
+  - Mandatory field enforced through `react-hook-form` validation
+  - Empty submissions prevented at form level
+- **Purpose**: Primary identifier for product listing
