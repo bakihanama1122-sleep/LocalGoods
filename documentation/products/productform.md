@@ -268,3 +268,41 @@ ImageKit uses URL-based transformations, allowing real-time image modifications 
 | Brighten | `e-brightness:20` | Increase brightness |
 | Contrast | `e-contrast:20` | Adjust contrast levels |
 | Saturation | `e-saturation:30` | Modify color saturation |
+
+#### Transformation Application Process
+
+```
+┌───────────────────────────────────────────────────────────┐
+│  Enhancement Modal Workflow                               │
+├───────────────────────────────────────────────────────────┤
+│                                                           │
+│  User clicks on uploaded image                            │
+│         │                                                 │
+│         ▼                                                 │
+│  Modal opens with image preview                           │
+│         │                                                 │
+│         ▼                                                 │
+│  User selects enhancement (e.g., "Remove BG")             │
+│         │                                                 │
+│         ▼                                                 │
+│  applyTransformation(effect) function                     │
+│         │                                                 │
+│         ├──▶ Check if URL has existing ?tr= parameter    │
+│         │                                                 │
+│         ├──▶ IF exists: Insert effect before existing    │
+│         │    transformedUrl = url.replace('?tr=',         │
+│         │                      '?tr=e-removedotbg,')      │
+│         │                                                 │
+│         └──▶ IF not: Append new parameter                │
+│              transformedUrl = url + '?tr=e-removedotbg'   │
+│                                                           │
+│         ▼                                                 │
+│  Update selected image preview                            │
+│  Update images array at selectedImageIndex                │
+│         │                                                 │
+│         ▼                                                 │
+│  ImageKit CDN automatically applies transformation        │
+│  Returns modified image at new URL                        │
+│                                                           │
+└───────────────────────────────────────────────────────────┘
+```
