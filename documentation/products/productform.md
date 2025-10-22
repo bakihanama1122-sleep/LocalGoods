@@ -246,3 +246,25 @@ This document outlines the comprehensive Product Information Management System d
 │                                                           │
 └──────────────────────────────────────────────────────────┘
 ```
+### AI-Powered Image Enhancement System
+
+#### ImageKit URL Transformation Architecture
+
+ImageKit uses URL-based transformations, allowing real-time image modifications without re-uploading files.
+
+**URL Structure**: `https://ik.imagekit.io/account/image.jpg?tr=transformation1,transformation2`
+
+#### Available AI Enhancements
+
+| Enhancement | Effect Code | Description |
+|-------------|-------------|-------------|
+| Remove Background | `e-removedotbg` | AI-powered background removal |
+| Drop Shadow | `e-dropshadow` | Adds depth with shadow effect |
+| Retouch | `e-retouch` | Automatic image enhancement |
+| Upscale | `e-upscale` | AI upscaling for higher resolution |
+| Grayscale | `e-grayscale` | Convert to black and white |
+| Blur | `e-blur:10` | Apply blur with intensity |
+| Sharpen | `e-sharpen` | Enhance image sharpness |
+| Brighten | `e-brightness:20` | Increase brightness |
+| Contrast | `e-contrast:20` | Adjust contrast levels |
+| Saturation | `e-saturation:30` | Modify color saturation |
