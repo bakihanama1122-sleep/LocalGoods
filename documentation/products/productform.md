@@ -43,3 +43,14 @@ This document outlines the comprehensive Product Information Management System d
 - **Field Type**: Comma-separated text input (required)
 - **Format**: Values separated by commas (e.g., "antique, wooden, handcrafted")
 - **Purpose**: Enhanced searchability and product categorization
+
+### 2. Product Descriptions
+
+#### Short Description
+- **Field Type**: Textarea (required)
+- **Validation Logic**:
+  - Maximum word count: 100 words
+  - Real-time word counting validation
+  - Custom validator calculates words using `split(/\s+/)` method
+- **Purpose**: Quick product overview displayed in listing pages
+- **Error Handling**: Dynamic word count feedback showing current count vs. limit
