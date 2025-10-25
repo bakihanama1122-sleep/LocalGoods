@@ -1,5 +1,5 @@
 import {useElements,useStripe,PaymentElement} from '@stripe/react-stripe-js';
-import { CheckCircle, Loader2, XCircle } from 'lucide-react';
+import { CheckCircle, Loader2, XCircle, CreditCard, Shield, Package, ShoppingCart } from 'lucide-react';
 import React, { useState } from "react";
 
 const CheckoutForm = ({
@@ -19,8 +19,6 @@ const CheckoutForm = ({
     const [loading,setLoading] = useState(false);
     const [status,setStatus] = useState<"success"|"failed"|null>(null);
     const [errorMsg,setErrorMsg] = useState<string|null>(null);
-
-
 
     const total = cartItems.reduce(
         (sum,item)=>sum+item.sale_price * item.quantity,
@@ -46,89 +44,147 @@ const CheckoutForm = ({
 
         if(result.error){
             setStatus("failed");
-            setErrorMsg(result.error.message || "somethign went wrong.");
+            setErrorMsg(result.error.message || "Something went wrong.");
         }else{
             setStatus("success");
         }
         setLoading(false);
     }
 
-  return (<div className='flex justify-center items-center min-h-[80vh] px-4 my-10'>
-    <form
-    className='bg-white w-full max-w-lg p-8 rounded-md shadow space-y-6'
-    onSubmit={handleSubmit}
-    >
-        <h2 className='text-3xl font-bold text-center mb-2'>
-            Secure Payment Checkout
-        </h2>
-
-        <div className='bg-gray-100 p-4 rounded-md text-sm text-gray-700 space-y-2'>
+  return (
+    <div className="max-w-4xl mx-auto">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Order Summary */}
+        <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+            <ShoppingCart size={24} />
+            Order Summary
+          </h2>
+          
+          <div className="space-y-4">
             {cartItems.map((item,idx)=>(
-                <div key={idx} className='flex justify-between text-sm pb-1'>
-                    <span>
-                        {item.quantity} * {item.title}
-                    </span>
-                    <span>
-                        ₹{(item.quantity*item.sale_price).toFixed(2)}
-                    </span>
+              <div key={idx} className="flex items-center justify-between py-3 border-b border-gray-100 last:border-b-0">
+                <div className="flex-1">
+                  <h3 className="font-medium text-gray-900 text-sm">{item.title}</h3>
+                  <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
                 </div>
+                <span className="font-semibold text-gray-900">
+                  ₹{(item.quantity*item.sale_price).toFixed(2)}
+                </span>
+              </div>
             ))}
+          </div>
 
-            <div
-            className='flex justify-between font-semibold pt-2 border-t border-t-gray-300'
-            >
-                
-                {!! coupon?.discountAmount && (
-                    <>
-                    <span>Discount</span>
-                    <span className='text-green-600'>
-                        ₹{(coupon?.discountAmount).toFixed(2)}
-                    </span>
-                    </>
-                )}
+          <div className="mt-6 space-y-3">
+            {coupon?.discountAmount && (
+              <div className="flex justify-between items-center py-2 bg-green-50 rounded-lg px-3">
+                <span className="text-green-700 font-medium">Discount Applied</span>
+                <span className="text-green-700 font-semibold">
+                  -₹{coupon.discountAmount.toFixed(2)}
+                </span>
+              </div>
+            )}
+            
+            <div className="flex justify-between items-center py-3 border-t border-gray-200">
+              <span className="text-lg font-bold text-gray-900">Total</span>
+              <span className="text-xl font-bold text-gray-900">
+                ₹{(total - (coupon?.discountAmount || 0)).toFixed(2)}
+              </span>
             </div>
-            <div className='flex justify-between font-semibold mt-2'>
-                <span>Total</span>
-                <span>₹{(total- (coupon?.discountAmount || 0)).toFixed(2)}</span>
+          </div>
+
+          {/* Security Features */}
+          <div className="mt-8 bg-gray-50 rounded-lg p-4">
+            <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+              <Shield size={18} />
+              Secure Payment
+            </h3>
+            <div className="space-y-2 text-sm text-gray-600">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span>256-bit SSL encryption</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span>PCI DSS compliant</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span>Your payment information is secure</span>
+              </div>
             </div>
+          </div>
         </div>
 
-        <PaymentElement/>
+        {/* Payment Form */}
+        <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+            <CreditCard size={24} />
+            Payment Details
+          </h2>
 
-        <button
-        type='submit'
-        disabled={!stripe || loading }
-        className='w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-500'
-        >
-            {loading && <Loader2 className='animate-spin w-5 h-5'/>}
-            {loading? "Processing...":"PAy Now"}
-        </button>
-
-        {errorMsg && (
-            <div className='flex items-center gap-2 text-red-600 text-sm justify-center'>
-                <XCircle className='w-5 h-5'/>
-                {errorMsg}
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="bg-gray-50 rounded-lg p-4">
+              <PaymentElement />
             </div>
-        )}
 
-        {status === "success" && (
-            <div className='flex items-center gap-2 text-green-600 text-sm justify-center'>
-                <CheckCircle className='w-5 h-5'/>
-                Payment successful!
+            <button
+              type="submit"
+              disabled={!stripe || loading}
+              className={`w-full py-3 px-6 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 ${
+                !stripe || loading
+                  ? "bg-gray-400 text-white cursor-not-allowed"
+                  : "bg-gray-900 text-white hover:bg-gray-800"
+              }`}
+            >
+              {loading && <Loader2 className="animate-spin w-5 h-5" />}
+              {loading ? "Processing Payment..." : "Complete Payment"}
+            </button>
+
+            {errorMsg && (
+              <div className="flex items-center gap-2 text-red-600 text-sm bg-red-50 p-3 rounded-lg">
+                <XCircle className="w-5 h-5 flex-shrink-0" />
+                <span>{errorMsg}</span>
+              </div>
+            )}
+
+            {status === "success" && (
+              <div className="flex items-center gap-2 text-green-600 text-sm bg-green-50 p-3 rounded-lg">
+                <CheckCircle className="w-5 h-5 flex-shrink-0" />
+                <span>Payment successful! Redirecting...</span>
+              </div>
+            )}
+
+            {status === "failed" && (
+              <div className="flex items-center gap-2 text-red-600 text-sm bg-red-50 p-3 rounded-lg">
+                <XCircle className="w-5 h-5 flex-shrink-0" />
+                <span>Payment failed. Please try again.</span>
+              </div>
+            )}
+          </form>
+
+          {/* Payment Methods */}
+          <div className="mt-8 pt-6 border-t border-gray-200">
+            <h3 className="font-semibold text-gray-900 mb-3">Accepted Payment Methods</h3>
+            <div className="flex items-center gap-3 text-sm text-gray-600">
+              <div className="flex items-center gap-1">
+                <CreditCard size={16} />
+                <span>Cards</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Package size={16} />
+                <span>UPI</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Shield size={16} />
+                <span>Net Banking</span>
+              </div>
             </div>
-        )}
-
-        {status === "failed" && (
-            <div className='flex items-center gap-2 text-red-600 text-sm justify-center'>
-                <XCircle className='w-5 h-5'/>
-                Payment failed. Please try again.
-            </div>
-        )}
-
-    </form>
-    
-
-  </div>);
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default CheckoutForm;
