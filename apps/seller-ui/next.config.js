@@ -17,7 +17,11 @@ const nextConfig = {
     remotePatterns:[
       {
         hostname:"ik.imagekit.io"
-      },
+      }
+      ,{
+        protocol:'https',
+        hostname:'res.cloudinary.com'
+      }
     ]
   }
 };

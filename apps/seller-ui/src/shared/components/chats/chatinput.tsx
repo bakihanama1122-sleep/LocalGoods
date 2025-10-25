@@ -39,10 +39,10 @@ const ChatInput = ({
   return (
     <form
       onSubmit={onSendMessage}
-      className="border-t border-t-gray-200 bg-white px-4 py-3 flex items-center gap-2 relative"
+      className="border-t border-t-gray-700 bg-gray-800 px-4 py-3 flex items-center gap-2 relative"
     >
-      <label className="cursor-pointer p-2 hover:bg-gray-100 rounded-md">
-        <ImageIcon className="w-5 h-5 text-gray-600" />
+      <label className="cursor-pointer p-2 hover:bg-gray-700 rounded-md">
+        <ImageIcon className="w-5 h-5 text-gray-300" />
         <input
           type="file"
           accept="image/*"
@@ -55,9 +55,9 @@ const ChatInput = ({
         <button
         type="button"
         onClick={()=>setShowEmoji((prev)=>!prev)}
-        className="p-2 hover:bg-gray-100 rounded-md"
+        className="p-2 hover:bg-gray-700 rounded-md"
         >
-            <Smile className="w-5 h-5 text-gray-600"/>
+            <Smile className="w-5 h-5 text-gray-300"/>
         </button>
         {showEmoji &&(
             <div className="absolute bottom-12 left-0 z-50">
@@ -71,7 +71,7 @@ const ChatInput = ({
       value={message}
         onChange={(e)=>setMessage(e.target.value)}
         placeholder="Type your message ..."
-        className="flex-1 px-4 py-2 text-sm border outline-none border-gray-200 rounded-md"
+        className="flex-1 px-4 py-2 text-sm border outline-none border-gray-600 rounded-md bg-gray-700 text-white placeholder-gray-400"
       />
       <button type="submit"
       className="bg-blue-600 hover:bg-blue-700 transition text-white p-2 rounded-md"

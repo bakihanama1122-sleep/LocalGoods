@@ -19,18 +19,20 @@ interface ShopCardProps {
 
 const ShopCard: React.FC<ShopCardProps> = ({ shop }) => {
   return (
-    <div className="w-full rounded-md cursor-pointer bg-white border-gray-200 shadow-sm overflow-hidden transition">
-      <div className="h-[120px] w-full relative">
+    <div className="group bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden">
+      {/* Cover Banner */}
+      <div className="h-32 w-full relative overflow-hidden bg-gray-100">
         <Image
           src={shop?.coverBanner || "/store_banner_fallback.jpg"}
           alt="cover"
           fill
-          className="object-cover w-full h-full"
+          className="object-cover group-hover:scale-105 transition-transform duration-300"
         />
       </div>
 
-      <div className="relative flex justify-center -mt-8">
-        <div className="w-16 h-16 rounded-full border-4 border-white overflow-hidden shadow bg-white">
+      {/* Avatar */}
+      <div className="relative flex justify-center -mt-8 mb-4">
+        <div className="w-16 h-16 rounded-full border-4 border-white overflow-hidden shadow-lg bg-white">
           <Image
             src={shop.avatar || "/store_fallback.png"}
             alt={shop.name}
@@ -41,44 +43,48 @@ const ShopCard: React.FC<ShopCardProps> = ({ shop }) => {
         </div>
       </div>
 
-      <div className="px-4 pb-4 pt-2 text-center">
-        <h3 className="text-base font-semibold text-gray-800">
+      {/* Content */}
+      <div className="px-4 pb-4 text-center">
+        <h3 className="text-lg font-semibold text-gray-900 mb-1">
           {shop?.name}
         </h3>
-        <p className="text-xs text-gray-500 mt-0.5">
+        
+        <p className="text-sm text-gray-500 mb-3">
           {shop?.followers?.length ?? 0} followers
         </p>
-        <div className="flex items-center justify-center text-xs text-gray-500 mt-2 gap-4 flex-wrap">
-          {shop.address &&(
-            <span className="flex items-center gap-1 max-w-[120px]">
-              <MapPin className="w-4 h-4 shrink-0"/>
-              <span className="truncate">{shop.address}</span>
+
+        {/* Location and Rating */}
+        <div className="flex items-center justify-center gap-4 mb-3 text-sm text-gray-600">
+          {shop.address && (
+            <span className="flex items-center gap-1">
+              <MapPin className="w-4 h-4" />
+              <span className="truncate max-w-[120px]">{shop.address}</span>
             </span>
           )}
 
           <span className="flex items-center gap-1">
-            <Star className="w-4 h-4 text-yellow-600 fill-yellow-400" />
+            <Star className="w-4 h-4 text-yellow-500 fill-yellow-400" />
             {shop.rating ?? "N/A"}
           </span>
         </div>
 
+        {/* Category */}
         {shop.category && (
-          <div className="mt-3 flex flex-wrap justify-center gap-2 text-xs">
-            <span className="bg-blue-50 capitalize text-blue-600 px-2 py-0.5 rounded-full font-medium">
+          <div className="mb-4">
+            <span className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm font-medium">
               {shop.category}
             </span>
           </div>
         )}
 
-        <div className="mt-4">
-          <Link
+        {/* Visit Shop Button */}
+        <Link
           href={`/shop/${shop.id}`}
-          className="inline-flex 600 items-center text-sm text-blue-600 font-medium hover:underline hover:text-blue-700 transition"
-          >
-            Visit Shop 
-            <ArrowUpRight className="w-4 h-4 ml-1"/>
-          </Link>
-        </div>
+          className="inline-flex items-center justify-center w-full bg-gray-900 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-800 transition-colors"
+        >
+          Visit Shop
+          <ArrowUpRight className="w-4 h-4 ml-2" />
+        </Link>
       </div>
     </div>
   );

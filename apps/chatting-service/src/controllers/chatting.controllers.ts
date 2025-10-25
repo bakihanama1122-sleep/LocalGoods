@@ -338,7 +338,7 @@ export const fetchSellerMessages = async(
         const userParticipant = await prisma.participant.findFirst({
             where:{
                 conversationId,
-                sellerId:{not:null},
+                userId:{not:null},  // ✅ Fixed: Should be userId, not sellerId
             },
         });
 
@@ -356,26 +356,26 @@ export const fetchSellerMessages = async(
             const redisKey = `online:user:user_${userParticipant.userId}`;
             const redisResult = await redis.get(redisKey);
             isOnline = !!redisResult;
-
-            const messages = await prisma.message.findMany({
-                where:{conversationId},
-                orderBy:{createdAt:"desc"},
-                skip:(page-1)*pageSize,
-                take:pageSize,
-            })
-
-            return res.status(200).json({
-                messages,
-                seller:{
-                    id:user?.id || null,
-                    name:user?.name || "Unkown",
-                    avatar:user?.avatar || null,
-                    isOnline,
-                },
-                currentPage:page,
-                hasMore:messages.length===pageSize,
-            });
         }
+
+        const messages = await prisma.message.findMany({
+            where:{conversationId},
+            orderBy:{createdAt:"desc"},
+            skip:(page-1)*pageSize,
+            take:pageSize,
+        })
+
+        return res.status(200).json({
+            messages,
+            user:{  // ✅ Fixed: Should be user, not seller
+                id:user?.id || null,
+                name:user?.name || "Unknown",
+                avatar:user?.avatar || null,
+                isOnline,
+            },
+            currentPage:page,
+            hasMore:messages.length===pageSize,
+        });
     } catch (error) {
         return next(error);
     }

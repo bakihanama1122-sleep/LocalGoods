@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 
 const WebSocketContext = createContext<any>(null);
 
@@ -19,17 +19,21 @@ export const WebSocketProvider = ({
 
   useEffect(() => {
     console.log("WS useEffect running. User ID:", user?.id);
-    if (!user?.id || ws) {
-      // Also prevent re-connecting if ws already exists
-      console.log("RETURNING FRoM WEBSOCKET USEEFFECT")
+    if (!user?.id) {
+      console.log("No user ID, skipping WebSocket connection");
       return;
     }
 
+    // Check if WebSocket URI is available
+    const wsUri = process.env.NEXT_PUBLIC_CHATTING_WEBSOCKET_URI;
+    if (!wsUri) {
+      console.error("❌ NEXT_PUBLIC_CHATTING_WEBSOCKET_URI is not defined!");
+      return;
+    }
 
-    const newSocket = new WebSocket(process.env.NEXT_PUBLIC_CHATTING_WEBSOCKET_URI!);
+    console.log("Creating WebSocket connection to:", wsUri);
+    const newSocket = new WebSocket(wsUri);
     
-    // ✅ STEP 2: Update the state with the new socket instance.
-    // This triggers a re-render and updates the context value.
     setWs(newSocket);
     console.log("New WebSocket instance created.");
 
@@ -42,15 +46,13 @@ export const WebSocketProvider = ({
     newSocket.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
+        console.log("Received WS Message:", data);
+        
         if (data.type === "UNSEEN_COUNT_UPDATE") {
-
-          console.log("Received WS Message:", data);
-
-        if (data.type === "NEW_MESSAGE") {
-          setLastMessage(data.payload); // Update state for all components
-        }
           const [conversationId, count] = data.payload;
           setUnreadCounts((prev) => ({ ...prev, [conversationId]: count }));
+        } else if (data.type === "NEW_MESSAGE") {
+          setLastMessage(data.payload); // Update state for all components
         }
       } catch (e) {
         console.warn("Invalid WS message:", event.data);
@@ -69,8 +71,9 @@ export const WebSocketProvider = ({
 
     return () => {
       console.log("🔌 Cleaning up WebSocket...");
-      console.error("⛔️ WEBSOCKET PROVIDER UNMOUNTING! Cleaning up connection...");
-      newSocket.close();
+      if (newSocket.readyState === WebSocket.OPEN) {
+        newSocket.close();
+      }
       setWs(null);
       setWsReady(false);
     };

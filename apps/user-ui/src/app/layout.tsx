@@ -4,6 +4,8 @@ import Header from './shared/widgets';
 import {Poppins,Roboto} from "next/font/google";
 import { getUserSession } from "../utils/session";
 import { WebSocketProvider } from '../context/web-socket-context';
+import ConditionalFooter from './components/ConditionalFooter';
+
 
 
 
@@ -37,6 +39,8 @@ export default async function RootLayout({
         <Providers>
         <Header/>
         {children}
+        <ConditionalFooter />
+
         </Providers>
         {/* </WebSocketProvider> */}
       </body>

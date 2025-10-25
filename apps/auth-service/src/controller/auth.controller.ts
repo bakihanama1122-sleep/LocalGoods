@@ -17,7 +17,7 @@ import {
 } from "../utils/auth.helper";
 import { setCookie } from "../utils/cookies/setCookies";
 import Stripe from "stripe";
-import {sendLog} from "../../../../packages/utils/logs/send-logs"
+// import {sendLog} from "../../../../packages/utils/logs/send-logs"
 
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -181,7 +181,7 @@ export const refreshToken = async (
     if(decoded.role==="user")
       setCookie(res, "access_token", newAccessToken);
     else if(decoded.role === "seller")
-      setCookie(res, "seller_access_token", newAccessToken);
+      setCookie(res, "seller-access-token", newAccessToken);
 
     req.role = decoded.role;
     return res.status(201).json({ success: true });
@@ -193,11 +193,11 @@ export const refreshToken = async (
 export const getUser = async (req: any, res: Response, next: NextFunction) => {
   try {
     const user = req.user;
-    await sendLog({
-      type:"success",
-      message:`USer data retrieved ${user?.email}`,
-      source:"auth-service"
-    })
+    // await sendLog({
+    //   type:"success",
+    //   message:`USer data retrieved ${user?.email}`,
+    //   source:"auth-service"
+    // })
     res.status(201).json({
       success: true,
       user,
@@ -407,7 +407,7 @@ export const createStripeConnectionLink = async (
 
     const accountLink = await stripe.accountLinks.create({
       account:account.id,
-      refresh_url:`http://localhost:3001/success`,
+      refresh_url:`http://localhost:3001/signup`,
       return_url:`http://localhost:3001/success`,
       type:"account_onboarding"
     })

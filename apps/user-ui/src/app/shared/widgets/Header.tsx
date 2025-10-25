@@ -16,7 +16,7 @@ const Header = () => {
   const { user, isLoading } = useUser();
   const { cart, wishlist, clearAll } = useStore();
   const { isLoggedIn, setLoggedIn } = useAuthStore();
-  const {layout } = useLayout();
+  const { layout } = useLayout();
 
   // Keep Zustand state in sync with authentication state
   useEffect(() => {
@@ -32,98 +32,104 @@ const Header = () => {
   }, [user, isLoading, setLoggedIn, clearAll]);
 
   return (
-    <div className="w-full bg-white">
-      <div className="w-[80%] py-5 m-auto flex items-center justify-between">
-        <div>
-          <Link href={"/"}>
-            <Image
-            src={layout?.logo || "https://drive.google.com/file/d/13XDWM1-6EUHPjhyq7KaURBT6mZ376UB6/view?usp=sharing"}
-            width={300}
-            height={100}
-            alt=""
-            className="h-[70px] ml-[-50px] mb-[-30px] onjecy-cover"
-            />
-          </Link>
-        </div>
-
-        {/* Search Bar */}
-        <div className="w-[50%] relative">
-          <input
-            type="text"
-            placeholder="Search for products..."
-            className="w-full px-4 font-Poppins font-medium border-[2.5px] border-[#3489ff] outline-none h-[55px] rounded-md"
-          />
-          <div className="w-[60px] cursor-pointer flex items-center justify-center h-[55px] bg-[#3489FF] absolute top-0 right-0 rounded-r-md">
-            <Search color="#fff" />
+    <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          
+          {/* Logo */}
+          <div className="flex-shrink-0">
+            <Link href="/" className="flex items-center">
+              <Image
+                src={layout?.logo || "https://drive.google.com/file/d/13XDWM1-6EUHPjhyq7KaURBT6mZ376UB6/view?usp=sharing"}
+                width={200}
+                height={60}
+                alt="LocalGoods Logo"
+                className="h-12 w-auto"
+              />
+            </Link>
           </div>
-        </div>
 
-        {/* Profile, Wishlist & Cart */}
-        <div className="flex items-center gap-8 pb-2">
-          {/* Profile Section */}
-          <div className="flex items-center gap-2">
-            {!isLoading && isLoggedIn && user ? (
-              <>
-                <Link href="/profile" className="flex items-center gap-2">
-                  <ProfileIcon />
-                  <div>
-                    <span className="block font-medium">Hello,</span>
-                    <span className="font-semibold">
-                      {user?.name?.split(" ")[0]}
-                    </span>
+          {/* Search Bar */}
+          <div className="flex-1 max-w-2xl mx-8">
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Search className="h-5 w-5 text-gray-400" />
+              </div>
+              <input
+                type="text"
+                placeholder="Search for antiques, handmade goods, vintage items..."
+                className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-2 focus:ring-amber-500 focus:border-transparent text-sm"
+              />
+            </div>
+          </div>
+
+          {/* Right Side Actions */}
+          <div className="flex items-center space-x-6">
+            
+            {/* Profile Section */}
+            <div className="flex items-center">
+              {!isLoading && isLoggedIn && user ? (
+                <Link href="/profile" className="flex items-center space-x-3 group">
+                  <div className="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center">
+                    <ProfileIcon />
+                  </div>
+                  <div className="hidden sm:block">
+                    <p className="text-sm font-medium text-gray-900">Hello, {user?.name?.split(" ")[0]}</p>
+                    <p className="text-xs text-gray-500">View Profile</p>
                   </div>
                 </Link>
-              </>
-            ) : (
-              <>
-                <Link
-                  href="/login"
-                  className="border-2 w-[50px] h-[50px] flex items-center justify-center rounded-full border-[#010f1c1a]"
-                >
-                  <ProfileIcon />
+              ) : (
+                <Link href="/login" className="flex items-center space-x-3 group">
+                  <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                    <ProfileIcon />
+                  </div>
+                  <div className="hidden sm:block">
+                    <p className="text-sm font-medium text-gray-900">
+                      {isLoading ? "..." : "Sign In"}
+                    </p>
+                    <p className="text-xs text-gray-500">Account</p>
+                  </div>
                 </Link>
-                <Link href="/login">
-                  <span className="block font-medium">Hello,</span>
-                  <span className="font-semibold">
-                    {isLoading ? "..." : "Sign in"}
-                  </span>
-                </Link>
-              </>
-            )}
-          </div>
+              )}
+            </div>
 
-          {/* Wishlist & Cart (only show if logged in) */}
-          {isLoggedIn && user && (
-            <div className="flex items-center gap-5">
-              <Link href="/wishlist" className="relative">
-                <HeartIcon />
-                {wishlist?.length > 0 && (
-                  <div className="w-6 h-6 border-2 border-white bg-red-500 rounded-full flex items-center justify-center absolute top-[-10px] right-[-10px]">
-                    <span className="text-white font-medium text-sm">
+            {/* Wishlist & Cart (only show if logged in) */}
+            {isLoggedIn && user && (
+              <div className="flex items-center space-x-4">
+                <Link href="/wishlist" className="relative p-2 text-gray-600 hover:text-gray-900 transition-colors">
+                  <HeartIcon />
+                  {wishlist?.length > 0 && (
+                    <span className="absolute -top-1 -right-1 h-5 w-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
                       {wishlist.length}
                     </span>
-                  </div>
-                )}
-              </Link>
+                  )}
+                </Link>
 
-              <Link href="/cart" className="relative">
-                <ShoppingCart />
-                {cart?.length > 0 && (
-                  <div className="w-6 h-6 border-2 border-white bg-red-500 rounded-full flex items-center justify-center absolute top-[-10px] right-[-10px]">
-                    <span className="text-white font-medium text-sm">
+                <Link href="/cart" className="relative p-2 text-gray-600 hover:text-gray-900 transition-colors">
+                  <ShoppingCart className="h-6 w-6" />
+                  {cart?.length > 0 && (
+                    <span className="absolute -top-1 -right-1 h-5 w-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
                       {cart.length}
                     </span>
-                  </div>
-                )}
-              </Link>
-            </div>
-          )}
+                  )}
+                </Link>
+              </div>
+            )}
+
+            {/* Sell Button */}
+            <Link
+              href="/sell"
+              className="hidden sm:inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-amber-600 hover:bg-amber-700 transition-colors"
+            >
+              Sell Items
+            </Link>
+          </div>
         </div>
       </div>
-
-      <div className="border-b border-b-slate-200" />
+      
+      {/* Navigation Bar */}
       <HeaderBottom />
-    </div>
+    </header>
   );
 };
 

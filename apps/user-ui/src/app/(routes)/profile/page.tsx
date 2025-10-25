@@ -1,7 +1,6 @@
 'use client'
-import useUser from 'apps/user-ui/src/hooks/useUser'
-import { BadgeCheck, Bell, CheckCircle, Clock, Gift, Inbox, Loader2, Lock, LogOut, MapPin, Pencil, PhoneCall, Receipt, Settings, ShoppingBag, TrainTrack, User } from 'lucide-react';
-import React, { act, useEffect, useState } from 'react'
+import { BadgeCheck, Bell, CheckCircle, Clock, Gift, Inbox, Loader2, Lock, LogOut, MapPin, Pencil, PhoneCall, Receipt, Settings, ShoppingBag, TrainTrack, User, Upload } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react'
 import StatCard from '../../shared/components/cards/stat.card';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -18,10 +17,13 @@ const page = () => {
     const searchParams = useSearchParams();
     const router = useRouter();
     const queryClient = useQueryClient();
+    console.log("CAME TO PRofile page")
 
     const {user,isLoading} = useRequiredAuth();
     const queryTab = searchParams.get("active") || "Profile"
     const [activeTab,setActiveTab] = useState(queryTab);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [isUploading, setIsUploading] = useState(false);
 
     const {data:orders = []}= useQuery({
         queryKey:['user-orders'],
@@ -55,27 +57,81 @@ const page = () => {
         });
     };
 
-     const markAsRead = async(notificationId:string)=>{
-    await axiosInstance.post("/seller/api/mark-notification-as-read",{
-      notificationId,
-    });
+    const handlePhotoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
 
-    const {data:notifications,isLoading:notificationsLoading} = useQuery({
-        queryKey:["notifications"],
-        queryFn:async()=>{
-            const res = await axiosInstance.get("admin/api/get-user-notifications");
-            return res.data.notifications;
-        },
-    })
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+            alert('Please select a valid image file');
+            return;
+        }
+
+        // Validate file size (max 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            alert('File size must be less than 5MB');
+            return;
+        }
+
+        setIsUploading(true);
+        const formData = new FormData();
+        formData.append('avatar', file);
+
+        try {
+            const response = await axiosInstance.post('/api/upload-avatar', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+            
+            if (response.data.success) {
+                // Update user data in cache
+                queryClient.setQueryData(['user'], (oldUser: any) => ({
+                    ...oldUser,
+                    avatar: response.data.avatarUrl
+                }));
+                
+                // Invalidate user query to refetch
+                queryClient.invalidateQueries({queryKey: ["user"]});
+            }
+        } catch (error) {
+            console.error('Error uploading avatar:', error);
+            alert('Failed to upload photo. Please try again.');
+        } finally {
+            setIsUploading(false);
+        }
+    };
+
+    const triggerFileUpload = () => {
+        fileInputRef.current?.click();
+    };
+
+    // Notifications query should be here
+const { data: notifications = [], isLoading: notificationsLoading } = useQuery({
+  queryKey: ["notifications"],
+  queryFn: async () => {
+    const res = await axiosInstance.get("admin/api/get-user-notifications");
+    return res.data.notifications;
+  },
+});
+
+// Then define markAsRead as a normal async function
+const markAsRead = async (notificationId: string) => {
+  await axiosInstance.post("/seller/api/mark-notification-as-read", {
+    notificationId,
+  });
+  // Optionally re-fetch notifications after marking as read
+  queryClient.invalidateQueries({ queryKey: ["notifications"] });
+};
 
   return (
-    <div className='bg-gray-50 p-6 pb-14'>
-        <div className='md:max-w-7xl mx-auto'>
-            <div className='text-center mb-10'>
-                <h1 className='text-3xl font-bold text-gray-800'>
+    <div className='min-h-screen bg-gray-50'>
+        <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12'>
+            <div className='text-center mb-12'>
+                <h1 className='text-3xl font-bold text-gray-900 mb-2'>
                 Welcome back,
                 
-                <span className='text-blue-600'>
+                <span className='text-amber-600'>
                 {isLoading?(
                     <Loader2 className='inline animate-spin w-5 h-5'/>
                 ):(
@@ -83,6 +139,7 @@ const page = () => {
                 )}
                 </span>{" "}👋
                 </h1>
+                <p className='text-gray-600'>Manage your account and explore new features</p>
             </div>
             <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6'>
                 <StatCard
@@ -102,7 +159,7 @@ const page = () => {
                 />
             </div>
             <div className='mt-10 flex flex-col md:flex-row gap-6'>
-                <div className='bg-white p-4 rounded-md shadow-md border border-gray-100 w-full md:w-1/5'>
+                <div className='bg-white p-6 rounded-lg shadow-sm border border-gray-200 w-full md:w-1/5'>
                     <nav className='space-y-2'>
                         <NavItems
                         label="Profile"
@@ -149,25 +206,54 @@ const page = () => {
                     </nav>
                 </div>
 
-                <div className='bg-white p-6 rounded-md shadow-sm border border-gray-100 w-full md:w-[55%]'>
-                    <h2 className='text-xl font-semibold text-gray-800 mb-4'>
+                <div className='bg-white p-6 rounded-lg shadow-sm border border-gray-200 w-full md:w-[55%]'>
+                    <h2 className='text-xl font-semibold text-gray-900 mb-4'>
                         {activeTab}
                     </h2>
                     {activeTab==="Profile" && !isLoading && user ? (
-                        <div className='space-y-4 text-sm text-gray-700'>
-                            <div className='flex items-center gap-3'>
-                                <Image
-                                src={user?.avatar || ""}
-                                alt="profile"
-                                width={60}
-                                height={60}
-                                className='w-16 h-16 rounded-full border-gray-200'
+                        <div className='space-y-6 text-sm text-gray-700'>
+                            <div className='flex items-center gap-4'>
+                                <div className='relative'>
+                                    <Image
+                                    src={user?.avatar || "https://res.cloudinary.com/duqrxy27h/image/upload/v1761314606/user-default_zmngxs.png"}
+                                    alt="profile"
+                                    width={80}
+                                    height={80}
+                                    className='w-20 h-20 rounded-full border-2 border-gray-200 object-cover'
+                                    />
+                                    <div className='absolute -bottom-1 -right-1 w-6 h-6 bg-amber-600 rounded-full flex items-center justify-center'>
+                                        {isUploading ? (
+                                            <Loader2 className='w-3 h-3 text-white animate-spin'/>
+                                        ) : (
+                                            <Pencil className='w-3 h-3 text-white'/>
+                                        )}
+                                    </div>
+                                </div>
+                                <div className='flex flex-col gap-2'>
+                                    <button
+                                    onClick={triggerFileUpload}
+                                    disabled={isUploading}
+                                    className='flex items-center gap-2 text-amber-600 hover:text-amber-700 text-sm font-medium px-4 py-2 bg-amber-50 hover:bg-amber-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
+                                    >
+                                        {isUploading ? (
+                                            <>
+                                                <Loader2 className='w-4 h-4 animate-spin'/> Uploading...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Upload className='w-4 h-4'/> Change Photo
+                                            </>
+                                        )}
+                                    </button>
+                                    <span className='text-xs text-gray-500'>Click to update your profile picture</span>
+                                </div>
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handlePhotoUpload}
+                                    className="hidden"
                                 />
-                                <button
-                                className='flex items-center gap-1 text-blue-500 text-xs font-medium'
-                                >
-                                    <Pencil className='w-4 h-4'/> Change Photo
-                                </button>
                             </div>
                             <p>
                                 <span className='font-semibold'>
@@ -249,26 +335,31 @@ const page = () => {
                     Icon={Gift}
                     title="Referral Program"
                     description="Invite friends and earn rewards."
+                    comingSoon={true}
                     />
                     <QuickActionCard
                     Icon={BadgeCheck}
                     title="Your Badges"
-                    description="View your earned achivements."
+                    description="View your earned achievements."
+                    comingSoon={true}
                     />
                     <QuickActionCard
                     Icon={Settings}
                     title="Account Settings"
-                    description="Manage your preference and security."
+                    description="Manage your preferences and security."
+                    comingSoon={true}
                     />
                     <QuickActionCard
                     Icon={Receipt}
                     title="Billing History"
                     description="Check your recent payments."
+                    comingSoon={true}
                     />
                     <QuickActionCard
                     Icon={PhoneCall}
-                    title="Support center"
+                    title="Support Center"
                     description="Need help? Contact support."
+                    comingSoon={true}
                     />
                 </div>
             </div>
@@ -282,15 +373,15 @@ const NavItems = ({label,Icon,active,danger,onClick}:any)=>(
     onClick={onClick}
     className={`w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition ${
         active
-        ? "bg-blue-100 text-blue-600"
+        ? "bg-amber-50 text-amber-600"
         : danger
         ? "text-red-500 hover:bg-red-50"
-        : "text-gray-700 hover:bg-gray-100"
+        : "text-gray-700 hover:bg-gray-50"
     }`}
     >
         <Icon className="w-4 h-4"/>
         {label}
     </button>
 )
-}
+
 export default page

@@ -10,11 +10,27 @@ const app = express();
 app.use(express.json())
 app.use(cookieParser());
 
-const corsOptions = {
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000', // Allow your front-end origin
-  credentials: true, // Allow cookies to be sent
-};
-app.use(cors(corsOptions));
+
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'http://localhost:3002',
+];
+
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  })
+);
 
 app.get('/', (req, res) => {
   res.send({ message: 'Welcome to chatting-service!' });

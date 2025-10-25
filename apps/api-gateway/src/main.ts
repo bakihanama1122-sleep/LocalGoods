@@ -76,12 +76,60 @@ app.get("/gateway-health", (req, res) => {
 });
 
 
-app.use("/chatting", proxy("http://localhost:6006"));
-app.use("/admin", proxy("http://localhost:6005"));
-app.use("/order", proxy("http://localhost:6004"));
-app.use("/seller", proxy("http://localhost:6003"));
-app.use("/product", proxy("http://localhost:6002"));
-app.use("/", proxy("http://localhost:6001"));
+app.use("/chatting", proxy("http://localhost:6006", {
+  proxyReqOptDecorator: function(proxyReqOpts, srcReq) {
+    // Forward cookies
+    if (srcReq.headers.cookie) {
+      proxyReqOpts.headers.cookie = srcReq.headers.cookie;
+    }
+    return proxyReqOpts;
+  }
+}));
+app.use("/admin", proxy("http://localhost:6005", {
+  proxyReqOptDecorator: function(proxyReqOpts, srcReq) {
+    // Forward cookies
+    if (srcReq.headers.cookie) {
+      proxyReqOpts.headers.cookie = srcReq.headers.cookie;
+    }
+    return proxyReqOpts;
+  }
+}));
+app.use("/order", proxy("http://localhost:6004", {
+  proxyReqOptDecorator: function(proxyReqOpts, srcReq) {
+    // Forward cookies
+    if (srcReq.headers.cookie) {
+      proxyReqOpts.headers.cookie = srcReq.headers.cookie;
+    }
+    return proxyReqOpts;
+  }
+}));
+app.use("/seller", proxy("http://localhost:6003", {
+  proxyReqOptDecorator: function(proxyReqOpts, srcReq) {
+    // Forward cookies
+    if (srcReq.headers.cookie) {
+      proxyReqOpts.headers.cookie = srcReq.headers.cookie;
+    }
+    return proxyReqOpts;
+  }
+}));
+app.use("/product", proxy("http://localhost:6002", {
+  proxyReqOptDecorator: function(proxyReqOpts, srcReq) {
+    // Forward cookies
+    if (srcReq.headers.cookie) {
+      proxyReqOpts.headers.cookie = srcReq.headers.cookie;
+    }
+    return proxyReqOpts;
+  }
+}));
+app.use("/", proxy("http://localhost:6001", {
+  proxyReqOptDecorator: function(proxyReqOpts, srcReq) {
+    // Forward cookies
+    if (srcReq.headers.cookie) {
+      proxyReqOpts.headers.cookie = srcReq.headers.cookie;
+    }
+    return proxyReqOpts;
+  }
+}));
 
 const port = process.env.PORT || 8081;
 const server = app.listen(port, () => {

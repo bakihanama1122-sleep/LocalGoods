@@ -7,12 +7,13 @@ const fetchSeller = async()=>{
     return response.data.seller;
 }
 
-const useSeller=()=>{
+const useSeller=(options?: {enabled?: boolean})=>{
     const {data:seller,isLoading,isError,refetch} = useQuery({
         queryKey:["seller"],
         queryFn:fetchSeller,
         staleTime: 1000*60*5,
         retry: 1,
+        enabled: options?.enabled !== false, // Default to true if not specified
     });
 
     return {seller,isLoading,isError,refetch};

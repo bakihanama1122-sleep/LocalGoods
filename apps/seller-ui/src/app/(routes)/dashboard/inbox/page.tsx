@@ -13,43 +13,113 @@ const ChatPage = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const messageContainerRef = useRef<HTMLDivElement | null>(null);
-  const { seller, isLoading: sellerLoading } = useSeller();
+  const { seller } = useSeller();
   const conversationId = searchParams.get("conversationId");
   const { ws } = useWebSocket();
   const queryClient = useQueryClient();
 
+  // Debug seller and conversationId
+  console.log("🔍 Seller:", seller);
+  console.log("🔍 Seller ID:", seller?.id);
+  console.log("🔍 Current conversationId from URL:", conversationId);
+  console.log("🔍 URL search params:", searchParams.toString());
+
   const [chats, setChats] = useState<any[]>([]);
   const [selectedChat, setSelectedChat] = useState<any | null>(null);
   const [message, setMessage] = useState("");
-  const [hasFetchedOnce, setHasFetchedOnce] = useState(false);
 
-  const { data: messages = [] } = useQuery({
+  const { data: messages = [], isLoading: messagesLoading, error: messagesError } = useQuery({
     queryKey: ["messages", conversationId],
     queryFn: async () => {
-      if (!conversationId || hasFetchedOnce) return [];
-      const res = await axiosInstance.get(
-        `chatting/api/get-seller-messages/${conversationId}?page=1`
-      );
-      setHasFetchedOnce(true);
-      return res.data.messages.reverse();
+      console.log("🔍 Fetching messages for conversationId:", conversationId);
+      console.log("🔍 Query enabled:", !!conversationId);
+      if (!conversationId) {
+        console.log("❌ No conversationId, returning empty array");
+        return [];
+      }
+      
+      try {
+        console.log("🌐 Making API call to:", `chatting/api/get-seller-messages/${conversationId}?page=1`);
+        console.log("⏰ API call started at:", new Date().toISOString());
+        
+        const res = await axiosInstance.get(
+          `chatting/api/get-seller-messages/${conversationId}?page=1`
+        );
+        
+        console.log("⏰ API call completed at:", new Date().toISOString());
+        console.log("✅ Messages API response:", res.data);
+        console.log("✅ Messages count:", res.data.messages?.length || 0);
+        console.log("✅ Full response status:", res.status);
+        
+        if (!res.data.messages || res.data.messages.length === 0) {
+          console.log("⚠️ No messages found in response");
+          return [];
+        }
+        
+        return res.data.messages.reverse();
+      } catch (error: any) {
+        console.error("❌ Error fetching messages:", error);
+        console.error("❌ Error response:", error.response?.data);
+        console.error("❌ Error status:", error.response?.status);
+        console.error("❌ Error message:", error.message);
+        throw error;
+      }
     },
     enabled: !!conversationId,
     staleTime: 2 * 60 * 1000,
+    retry: 1,
+    retryDelay: 1000,
   });
+
+  // Debug query state
+  console.log("🔍 Query Debug - conversationId:", conversationId, "enabled:", !!conversationId, "messagesLoading:", messagesLoading, "messagesError:", messagesError);
 
   const { data: conversations, isLoading } = useQuery({
     queryKey: ["conversations"],
     queryFn: async () => {
-      const res = await axiosInstance.get(
-        "/chatting/api/get-seller-conversations"
-      );
-      return res.data.conversations;
+      console.log("🔍 Fetching conversations...");
+      try {
+        const res = await axiosInstance.get(
+          "/chatting/api/get-seller-conversations"
+        );
+        console.log("✅ Conversations API response:", res.data);
+        return res.data.conversations;
+      } catch (error) {
+        console.error("❌ Error fetching conversations:", error);
+        throw error;
+      }
     },
+    enabled: !!seller?.id, // Only run when seller is available
   });
 
+  // Debug conversations query state
+  console.log("🔍 Conversations Debug - seller:", seller?.id, "conversationsEnabled:", !!seller?.id, "conversationsLoading:", isLoading, "conversations:", conversations);
+
   useEffect(() => {
-    if (conversations) setChats(conversations);
+    if (conversations) {
+      console.log("📋 Conversations loaded:", conversations);
+      console.log("📋 First conversation structure:", conversations[0]);
+      setChats(conversations);
+    }
   }, [conversations]);
+
+  // Debug logging for key state changes
+  useEffect(() => {
+    console.log("📊 Current state - conversationId:", conversationId, "messages.length:", messages.length, "selectedChat:", selectedChat?.conversationId);
+  }, [conversationId, messages.length, selectedChat]);
+
+  // Track conversationId changes
+  useEffect(() => {
+    console.log("🔄 conversationId changed to:", conversationId);
+    console.log("🔄 conversationId type:", typeof conversationId);
+    console.log("🔄 conversationId truthy:", !!conversationId);
+    if (conversationId) {
+      console.log("✅ conversationId is set, query should be enabled");
+      console.log("✅ Messages query should now run for conversationId:", conversationId);
+    } else {
+      console.log("❌ conversationId is null/undefined, query will be disabled");
+    }
+  }, [conversationId]);
 
   const scrollToBottom = () => {
     requestAnimationFrame(() => {
@@ -69,8 +139,10 @@ const ChatPage = () => {
   }, [conversationId, messages.length]);
 
   useEffect(() => {
+    console.log("🔄 useEffect triggered - conversationId:", conversationId, "chats.length:", chats.length);
     if (conversationId && chats.length > 0) {
       const chat = chats.find((c) => c.conversationId === conversationId);
+      console.log("🎯 Found chat:", chat);
       setSelectedChat(chat || null);
     }
   }, [conversationId, chats]);
@@ -84,18 +156,37 @@ const ChatPage = () => {
       if (data.type === "NEW_MESSAGE") {
         const newMsg = data?.payload;
 
+        // Skip if this is a message from the current seller (to prevent duplicates)
+        if (newMsg.senderId === seller?.id || newMsg.fromUserId === seller?.id) {
+          return;
+        }
+
         if (newMsg.conversationId === conversationId) {
           queryClient.setQueryData(
             ["messages", conversationId],
-            (old: any = []) => [
-              ...old,
-              {
-                content: newMsg.mesaageBody || newMsg.content || "",
-                senderType: newMsg.senderType,
-                seen: false,
-                createdAt: newMsg.createdAt || new Date().toISOString(),
-              },
-            ]
+            (old: any = []) => {
+              // Check if message already exists to prevent duplicates
+              const messageExists = old.some((msg: any) => 
+                msg.id === newMsg.id || 
+                (msg.content === newMsg.content && 
+                 msg.createdAt === newMsg.createdAt &&
+                 msg.senderType === newMsg.senderType)
+              );
+              
+              if (messageExists) {
+                return old;
+              }
+              
+              return [
+                ...old,
+                {
+                  content: newMsg.messageBody || newMsg.content || "",
+                  senderType: newMsg.senderType,
+                  seen: false,
+                  createdAt: newMsg.createdAt || new Date().toISOString(),
+                },
+              ];
+            }
           );
           scrollToBottom();
         }
@@ -103,7 +194,7 @@ const ChatPage = () => {
         setChats((prevChats) =>
           prevChats.map((chat) =>
             chat.conversationId === newMsg.conversationId
-              ? { ...chat, lastMessage: newMsg.content }
+              ? { ...chat, lastMessage: newMsg.content || newMsg.messageBody }
               : chat
           )
         );
@@ -120,16 +211,27 @@ const ChatPage = () => {
         );
       }
     };
-  }, [ws, conversationId]);
+  }, [ws, conversationId, seller?.id]);
 
   const handleChatSelect = (chat: any) => {
-    setHasFetchedOnce(false);
+    console.log("🖱️ Chat selected:", chat);
+    console.log("🖱️ Chat conversationId:", chat.conversationId);
+    console.log("🖱️ Current conversationId before selection:", conversationId);
+    console.log("🔄 Invalidating queries for conversationId:", chat.conversationId);
+    
+    // Invalidate the messages query to force refetch
+    queryClient.invalidateQueries({ queryKey: ["messages", chat.conversationId] });
+    
     setChats((prev) =>
       prev.map((c) =>
         c.conversationId === chat.conversationId ? { ...c, unreadCount: 0 } : c
       )
     );
-    router.push(`?conversationId=${chat.conversationId}`);
+    
+    console.log("🔄 Navigating to URL with conversationId:", chat.conversationId);
+    const newUrl = `/dashboard/inbox?conversationId=${chat.conversationId}`;
+    console.log("🔄 New URL:", newUrl);
+    router.push(newUrl);
 
     if (ws && ws.readyState === WebSocket.OPEN) {
       ws.send(
@@ -143,22 +245,50 @@ const ChatPage = () => {
 
   const handleSend = (e: any) => {
     e.preventDefault();
+    
+    console.log("📤 Attempting to send message...");
+    console.log("📤 selectedChat:", selectedChat);
+    console.log("📤 seller:", seller);
+    console.log("📤 message:", message);
+    
     if (
       !message.trim() ||
       !selectedChat ||
       !ws ||
       ws.readyState !== WebSocket.OPEN
     ) {
+      console.log("❌ Send blocked - missing requirements");
+      return;
+    }
+
+    if (!selectedChat?.user?.id) {
+      console.error("❌ selectedChat.user.id is null/undefined:", selectedChat?.user);
       return;
     }
 
     const payload = {
+      type: "NEW_MESSAGE",
       fromUserId: seller?.id,
       toUserId: selectedChat?.user?.id,
       conversationId: selectedChat?.conversationId,
       messageBody: message,
-      senderType: "user",
+      senderType: "seller",
     };
+    
+    console.log("📤 Sending payload:", payload);
+
+    // Add message to UI immediately for better UX
+    const tempMessageId = `temp_${Date.now()}_${Math.random()}`;
+    queryClient.setQueryData(["messages", selectedChat.conversationId], (old: any = []) => [
+      ...old,
+      {
+        id: tempMessageId,
+        content: message,
+        senderType: "seller",
+        seen: false,
+        createdAt: new Date().toISOString(),
+      },
+    ]);
 
     ws?.send(JSON.stringify(payload));
 
@@ -166,16 +296,21 @@ const ChatPage = () => {
     scrollToBottom();
   };
 
-  const getLastMessage = (chat: any) =>
-    chat.messages.length > 0
-      ? chat.messages[chat.messages.length - 1].text
-      : "";
 
-  const getUnseenCount = (chat: any) =>
-    chat.messages.filter((m: any) => !m.seen && m.from !== "seller").length;
+  const testQuery = () => {
+    console.log("🧪 Testing query manually...");
+    queryClient.invalidateQueries({ queryKey: ["messages", conversationId] });
+  };
 
   return (
     <div className="w-full">
+      {/* Temporary test button */}
+      <div className="p-4 bg-red-500 text-white">
+        <button onClick={testQuery} className="bg-white text-red-500 px-4 py-2 rounded">
+          Test Query (Remove this button later)
+        </button>
+        <span className="ml-4">conversationId: {conversationId || "null"}</span>
+      </div>
       <div className="flex h-screen shadow-inner overflow-hidden bg-gray-950 text-white">
         <div className="w-[320px] border-r border-gray-800 bg-gray-950">
           <div className="p-4 border-b border-gray-800 text-lg font-semibold">
@@ -213,7 +348,7 @@ const ChatPage = () => {
                             {chat.user?.name}
                           </span>
                           {chat.user?.isOnline && (
-                            <span className="w-2 h-2 rounded-fulll bg-green-500" />
+                            <span className="w-2 h-2 rounded-full bg-green-500" />
                           )}
                         </div>
                         <div className="flex items-center justify-between">
@@ -257,7 +392,7 @@ const ChatPage = () => {
               </div>
 
               <div
-                className="flex-1 overflow-y-auto px-6 py-6 spaqce-y-4 text-sm"
+                className="flex-1 overflow-y-auto px-6 py-6 space-y-4 text-sm"
                 ref={messageContainerRef}
               >
                 {messages.map((msg: any, idx: number) => (
@@ -267,7 +402,7 @@ const ChatPage = () => {
                       msg.senderType === "seller"
                         ? "items-end ml-auto"
                         : "items-start"
-                    } mx-w-[80%]`}
+                    } max-w-[80%]`}
                   >
                     <div
                       className={`${
@@ -296,6 +431,7 @@ const ChatPage = () => {
                 message={message}
                 setMessage={setMessage}
                 onSendMessage={handleSend}
+                
               />
             </>
           ) : (

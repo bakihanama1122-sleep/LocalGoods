@@ -5,8 +5,7 @@ import useLocationTracking from "apps/user-ui/src/hooks/useLocationTracking";
 import useUser from "apps/user-ui/src/hooks/useUser";
 import { useStore } from "apps/user-ui/src/store";
 import axiosInstance from "apps/user-ui/src/utils/axiosInstance";
-import axios from "axios";
-import { Loader2 } from "lucide-react";
+import { Loader2, ShoppingCart, Trash2, Plus, Minus, MapPin, CreditCard, Tag } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -138,212 +137,258 @@ const CartPage = () => {
   }, [addresses, selectedAddressId]);
 
   return (
-    <div className="w-full bg-white">
-      <div className="md:w-[80%] w-[95%] mx-auto min-h-screen">
-        <h1 className="md:pt-[50px] font-medium text-[44px] leading-[1] mb-[16px] font-jost">
-          Shopping Cart
-        </h1>
-        <Link href={"/"} className="text-[#55585b] hover:underline">
-          Home
-        </Link>
-        <span className="inline-block p-[1.5px] mx-1 bg-[#a8acb0] "></span>
-        <span className="text-[#55585b]">Cart</span>
+    <div className="min-h-screen bg-gray-50">
+      {/* Header Section */}
+      <div className="bg-white border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="flex items-center space-x-2 text-sm text-gray-600 mb-4">
+            <Link href={"/"} className="hover:text-gray-900 transition-colors">
+              Home
+            </Link>
+            <span>/</span>
+            <span className="text-gray-900 font-medium">Shopping Cart</span>
+          </div>
+          
+          <div className="flex items-center space-x-3">
+            <ShoppingCart className="w-8 h-8 text-gray-900" />
+            <h1 className="text-3xl font-bold text-gray-900">
+              Shopping Cart
+            </h1>
+            <span className="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-sm font-medium">
+              {cart.length} {cart.length === 1 ? 'item' : 'items'}
+            </span>
+          </div>
+        </div>
+      </div>
 
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {cart.length === 0 ? (
-          <div className="text-center text-gray-600 text-lg">
-            Your cart is empty! start adding products.
+          <div className="text-center py-16">
+            <ShoppingCart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <h2 className="text-2xl font-semibold text-gray-900 mb-2">Your cart is empty</h2>
+            <p className="text-gray-600 mb-8">Start adding products to see them here</p>
+            <Link 
+              href="/"
+              className="inline-flex items-center px-6 py-3 bg-gray-900 text-white font-medium rounded-lg hover:bg-gray-800 transition-colors"
+            >
+              Continue Shopping
+            </Link>
           </div>
         ) : (
-          <div className="lg:flex items-start gap-10">
-            <table className="w-full lg:w-[70%] border-collapse">
-              <thead className="bg-[#f1f3f4] rounded">
-                <tr>
-                  <th className="py-3 text-center align-middle pl-6">
-                    Product
-                  </th>
-                  <th className="py-3 text-center align-middle">Price</th>
-                  <th className="py-3 text-center align-middle">Quantity</th>
-                  <th className="py-3 text-center align-middle"></th>
-                </tr>
-              </thead>
-              <tbody>
-                {cart?.map((item: any) => (
-                  <tr key={item.id} className="border-b border-b-[#0000000e]">
-                    <td className="flex items-center gap-4 p-4">
-                      <Image
-                        src={item?.images[0]?.url}
-                        alt={item.title}
-                        width={80}
-                        height={80}
-                        className="rounded"
-                      />
-                      <div className="flex flex-col">
-                        <span className="font-medium">{item.title}</span>
-                        {item?.selectedOptions && (
-                          <div className="text-sm text-gray-500">
-                            {item?.selectedOptions?.color && (
-                              <span>
-                                Color:{}
-                                <span
-                                  style={{
-                                    backgroundColor:
-                                      item?.selectedOptions?.colo,
-                                    width: "12px",
-                                    height: "12px",
-                                    borderRadius: "100%",
-                                    display: "inline-block",
-                                  }}
-                                />
-                              </span>
-                            )}
-                            {item?.selectedOptions.size && (
-                              <span className="ml-2">
-                                Size:{item?.selectedOptions?.size}
+          <div className="lg:grid lg:grid-cols-3 lg:gap-8">
+            {/* Cart Items */}
+            <div className="lg:col-span-2">
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                <div className="px-6 py-4 border-b border-gray-200">
+                  <h2 className="text-lg font-semibold text-gray-900">Cart Items</h2>
+                </div>
+                
+                <div className="divide-y divide-gray-200">
+                  {cart?.map((item: any) => (
+                    <div key={item.id} className="p-6">
+                      <div className="flex items-start space-x-4">
+                        {/* Product Image */}
+                        <div className="flex-shrink-0">
+                          <Image
+                            src={item?.images?.[0]?.url?.[0] || item?.images?.[0]?.url || item?.image || '/placeholder-image.jpg'}
+                            alt={item.title}
+                            width={100}
+                            height={100}
+                            className="rounded-lg object-cover"
+                            onError={(e) => {
+                              e.currentTarget.src = '/placeholder-image.jpg';
+                            }}
+                          />
+                        </div>
+                        
+                        {/* Product Details */}
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-lg font-medium text-gray-900 mb-2">
+                            {item.title}
+                          </h3>
+                          
+                          {item?.selectedOptions && (
+                            <div className="flex items-center space-x-4 text-sm text-gray-600 mb-3">
+                              {item?.selectedOptions?.color && (
+                                <div className="flex items-center space-x-2">
+                                  <span>Color:</span>
+                                  <div
+                                    className="w-4 h-4 rounded-full border border-gray-300"
+                                    style={{ backgroundColor: item?.selectedOptions?.color }}
+                                  />
+                                </div>
+                              )}
+                              {item?.selectedOptions.size && (
+                                <div className="flex items-center space-x-2">
+                                  <span>Size:</span>
+                                  <span className="font-medium">{item?.selectedOptions?.size}</span>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                          
+                          {/* Price */}
+                          <div className="mb-4">
+                            {item?.id === discountedProductId ? (
+                              <div className="flex items-center space-x-3">
+                                <span className="text-lg font-semibold text-green-600">
+                                  ₹{((item.sale_price * (100 - discountPercent)) / 100).toFixed(2)}
+                                </span>
+                                <span className="text-sm text-gray-500 line-through">
+                                  ₹{item.sale_price.toFixed(2)}
+                                </span>
+                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                  {discountPercent}% OFF
+                                </span>
+                              </div>
+                            ) : (
+                              <span className="text-lg font-semibold text-gray-900">
+                                ₹{item.sale_price.toFixed(2)}
                               </span>
                             )}
                           </div>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-6 text-lg text-center">
-                      {item?.id === discountedProductId ? (
-                        <div className="flex flex-col items-center">
-                          <span className="line-through text-gray-500 text-sm">
-                            ₹{item.sale_price.toFixed(2)}
-                          </span>{" "}
-                          <span className="text-green-600 font-semibold">
-                            ₹
-                            {(
-                              (item.sale_price * (100 - discountPercent)) /
-                              100
-                            ).toFixed(2)}
-                          </span>
-                          <span className="text-xs text-green-700 bg-green-50">
-                            Discount Applied
-                          </span>
+                          
+                          {/* Quantity Controls */}
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-3">
+                              <span className="text-sm text-gray-600">Quantity:</span>
+                              <div className="flex items-center border border-gray-300 rounded-lg">
+                                <button
+                                  onClick={() => decreaseQuantity(item.id)}
+                                  className="p-2 hover:bg-gray-100 transition-colors"
+                                  disabled={item.quantity <= 1}
+                                >
+                                  <Minus className="w-4 h-4" />
+                                </button>
+                                <span className="px-4 py-2 text-sm font-medium min-w-[3rem] text-center">
+                                  {item?.quantity}
+                                </span>
+                                <button
+                                  onClick={() => increaseQuantity(item?.id)}
+                                  className="p-2 hover:bg-gray-100 transition-colors"
+                                >
+                                  <Plus className="w-4 h-4" />
+                                </button>
+                              </div>
+                            </div>
+                            
+                            <button
+                              onClick={() => removeItem(item?.id)}
+                              className="flex items-center space-x-2 text-red-600 hover:text-red-700 transition-colors"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                              <span className="text-sm font-medium">Remove</span>
+                            </button>
+                          </div>
                         </div>
-                      ) : (
-                        <span>₹{item.sale_price.toFixed(2)}</span>
-                      )}
-                    </td>
-                    <td>
-                      <div className="flex justify-center items-center border border-gray-200 rounded-[20px] w-[90px] p-[2px]">
-                        <button
-                          className="text-black cursor-pointer text-xl"
-                          onClick={() => decreaseQuantity(item.id)}
-                        >
-                          -
-                        </button>
-                        <span className="px-4">{item?.quantity}</span>
-                        <button
-                          className="text-black cursor-pointer text-xl"
-                          onClick={() => increaseQuantity(item?.id)}
-                        >
-                          +
-                        </button>
                       </div>
-                    </td>
-                    <td className="text-center">
-                      <button
-                        className="text-[#818487] cursor-pointer hover:text-[#ff1826] transition duration-200"
-                        onClick={() => removeItem(item?.id)}
-                      >
-                        Remove
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <div className="p-6 shadow-md w-full lg:w-[30%] bg-[#f9f9f9] rounded-lg">
-              {discountAmount > 0 && (
-                <div className="flex justify-between items-center text-[#010f1c] text-base font-medoum pb-1">
-                  <span className="font-jost">
-                    Discount ({discountPercent}%)
-                  </span>
-                  <span className="text-green-600">
-                    - ₹{discountAmount.toFixed(2)}
-                  </span>
+                    </div>
+                  ))}
                 </div>
-              )}
-              <div className="flex justify-between items-center text-[#010f1c] text-[20px] font-[550] pb-3">
-                <div className="font-jost">Subtotal</div>
-                <span>₹{(subtotal - discountAmount).toFixed(2)}</span>
               </div>
-              <hr className="my-4 text-slate-200" />
-              <div className="mb-4">
-                <h4 className="mb-[7px] font-[500] text-[15px]">
-                  Have a Coupon?
-                </h4>
-                <div className="flex">
-                  <input
-                    type="text"
-                    value={couponCode}
-                    onChange={(e: any) => setCouponCode(e.target.value)}
-                    placeholder="Enter coupon code"
-                    className="w-full p-2 border-gray-200 rounded-l-md focus:outline-none focus:border-blue-500"
-                  />
-                  <button
-                    className="bg-blue-500 cursor-pointer text-white px-4 rounded-r-md hover:bg-blue-600 transition-all"
-                    onClick={() => couponCodeApplyHandler()}
-                  >
-                    Apply
-                  </button>
-                  
-                </div>
-                {error && (
-                    <p className="text-sm pt-2 text-red-500">{error}</p>
-                  )}
-                <hr className="my-4 text-slate-200" />
+            </div>
 
-                <div className="mb-4">
-                  <h4 className="mb-[7px] font-medium text-[15px]">
-                    Select Shipping Address
-                  </h4>
-                  {addresses?.length !== 0 && (
+            {/* Order Summary */}
+            <div className="mt-8 lg:mt-0">
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sticky top-6">
+                <h2 className="text-lg font-semibold text-gray-900 mb-6">Order Summary</h2>
+                
+                {/* Coupon Section */}
+                <div className="mb-6">
+                  <div className="flex items-center space-x-2 mb-3">
+                    <Tag className="w-5 h-5 text-gray-600" />
+                    <h3 className="font-medium text-gray-900">Have a Coupon?</h3>
+                  </div>
+                  <div className="flex space-x-2">
+                    <input
+                      type="text"
+                      value={couponCode}
+                      onChange={(e: any) => setCouponCode(e.target.value)}
+                      placeholder="Enter coupon code"
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                    <button
+                      onClick={() => couponCodeApplyHandler()}
+                      className="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                    >
+                      Apply
+                    </button>
+                  </div>
+                  {error && (
+                    <p className="text-sm text-red-600 mt-2">{error}</p>
+                  )}
+                </div>
+
+                {/* Address Selection */}
+                <div className="mb-6">
+                  <div className="flex items-center space-x-2 mb-3">
+                    <MapPin className="w-5 h-5 text-gray-600" />
+                    <h3 className="font-medium text-gray-900">Shipping Address</h3>
+                  </div>
+                  {addresses?.length !== 0 ? (
                     <select
-                      className="w-full p-2 border border-gray-200 rounded-md focus"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       value={selectedAddressId}
                       onChange={(e) => setSelectedAddressId(e.target.value)}
                     >
                       {addresses?.map((address: any) => (
                         <option key={address.id} value={address.id}>
-                          {address.label} = {address.city}, {address.country}
+                          {address.label} - {address.city}, {address.country}
                         </option>
                       ))}
                     </select>
-                  )}
-                  {addresses.length === 0 && (
-                    <p className="text-sm text-slate-800">
-                      Please add an address from profile to create an order!
-                    </p>
+                  ) : (
+                    <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                      <p className="text-sm text-yellow-800">
+                        Please add a shipping address from your profile to create an order!
+                      </p>
+                    </div>
                   )}
                 </div>
 
-                <hr className="my-4 text-slate-200" />
-
-                <div className="mb-4">
-                  <h4 className="mb-[7px] font-[500] text-[15px]">
-                    Select Payment Method
-                  </h4>
-                  <select className="w-full p-2 border border-gray-200 rounded-md focus:">
+                {/* Payment Method */}
+                <div className="mb-6">
+                  <div className="flex items-center space-x-2 mb-3">
+                    <CreditCard className="w-5 h-5 text-gray-600" />
+                    <h3 className="font-medium text-gray-900">Payment Method</h3>
+                  </div>
+                  <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                     <option value="credit_card">Online Payment</option>
                     <option value="cash_on_delivery">Cash on Delivery</option>
                   </select>
                 </div>
-                <hr className="my-4 text-slate-200" />
-                <div className="flex justify-between items-center text-[#010f1c] text-[20px] font-[550] pb-3">
-                  <span className="font-jost">Total</span>
-                  <span>₹{(subtotal - discountAmount).toFixed(2)}</span>
+
+                {/* Price Breakdown */}
+                <div className="space-y-3 mb-6">
+                  <div className="flex justify-between text-gray-600">
+                    <span>Subtotal</span>
+                    <span>₹{subtotal.toFixed(2)}</span>
+                  </div>
+                  
+                  {discountAmount > 0 && (
+                    <div className="flex justify-between text-green-600">
+                      <span>Discount ({discountPercent}%)</span>
+                      <span>- ₹{discountAmount.toFixed(2)}</span>
+                    </div>
+                  )}
+                  
+                  <div className="border-t border-gray-200 pt-3">
+                    <div className="flex justify-between text-lg font-semibold text-gray-900">
+                      <span>Total</span>
+                      <span>₹{(subtotal - discountAmount).toFixed(2)}</span>
+                    </div>
+                  </div>
                 </div>
 
+                {/* Checkout Button */}
                 <button
                   onClick={createPaymentSession}
-                  disabled={loading}
-                  className="w-full flex items-center justify-center gap-2 cursor-pointer mt-4 py-3 bg-[#010f1c] text-white hover:bg=[#0989FF] transition-all rounded-lg"
+                  disabled={loading || addresses.length === 0}
+                  className="w-full flex items-center justify-center space-x-2 py-3 px-4 bg-gray-900 text-white font-medium rounded-lg hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
                 >
-                  {loading && <Loader2 className="animate-spin w-5 h-5" />}
-                  {loading ? "Redirectiong..." : "Proceed to checkout"}
+                  {loading && <Loader2 className="w-5 h-5 animate-spin" />}
+                  <span>{loading ? "Redirecting..." : "Proceed to Checkout"}</span>
                 </button>
               </div>
             </div>

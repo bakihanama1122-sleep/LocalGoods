@@ -352,6 +352,9 @@ model participant{
   unreadCount Int @default(0)
   muted Boolean @default(false)
   joinedAt DateTime @default(now())
+
+  @@index([conversationId, userId])  // ✅ Added index for participant queries
+  @@index([conversationId, sellerId])  // ✅ Added index for participant queries
 }
 
 model message {
@@ -365,4 +368,5 @@ model message {
   createdAt DateTime @default(now())
 
   @@unique([conversationId,senderId,content,createdAt])
+  @@index([conversationId, createdAt(sort: Desc)])  // ✅ Added index for message queries
 }
