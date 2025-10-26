@@ -6,68 +6,36 @@
   <img width="100%" src="./public/github_banner_2.png" alt="E-commerce Banner"/>
 </div>
 
-<p align="center">
+<!-- <p align="center">
   <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%" height="6"/>
 </p>
 
 <p align="center">
   <img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&size=32&duration=2500&pause=1000&color=0F766E&center=true&vCenter=true&width=800&lines=Shop+Local+🛍;Local+Goods,+Global+Love+🌏;Empowering+Local+Sellers+💼" alt="Typing Animation" />
-</p>
+</p> -->
 
-<p align="center">
+<!-- <p align="center">
   <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%" height="6"/>
-</p>
+</p> -->
 
 <p align="center">
   <b>🎓 Academic Project - Software Engineering Practice Course</b>
 </p>
 
----
-
-## 📊 Project Insights
-
-<table align="center">
-    <thead align="center">
-        <tr>
-            <td><b>🌟 Stars</b></td>
-            <td><b>🍴 Forks</b></td>
-            <td><b>🐛 Issues</b></td>
-            <td><b>🔔 Open PRs</b></td>
-            <td><b>🔕 Closed PRs</b></td>
-            <td><b>🛠 Languages</b></td>
-            <td><b>👥 Contributors</b></td>
-        </tr>
-     </thead>
-    <tbody>
-         <tr>
-            <td><img alt="Stars" src="https://img.shields.io/github/stars/AnilKumt/LocalGoods?style=flat&logo=github"/></td>
-            <td><img alt="Forks" src="https://img.shields.io/github/forks/AnilKumt/LocalGoods?style=flat&logo=github"/></td>
-            <td><img alt="Issues" src="https://img.shields.io/github/issues/AnilKumt/LocalGoods?style=flat&logo=github"/></td>
-            <td><img alt="Open PRs" src="https://img.shields.io/github/issues-pr/AnilKumt/LocalGoods?style=flat&logo=github"/></td>
-            <td><img alt="Closed PRs" src="https://img.shields.io/github/issues-pr-closed/AnilKumt/LocalGoods?style=flat&color=critical&logo=github"/></td>
-            <td><img alt="Languages Count" src="https://img.shields.io/github/languages/count/AnilKumt/LocalGoods?style=flat&color=green&logo=github"></td>
-            <td><img alt="Contributors Count" src="https://img.shields.io/github/contributors/AnilKumt/LocalGoods?style=flat&color=blue&logo=github"/></td>
-        </tr>
-    </tbody>
-</table>
 
 ---
 
 ## 🎯 About This Project
 
-> *🏺 Bridging tradition with technology*  
+> *Bridging tradition with technology*  
 > This e-commerce platform is designed to support local artisans, antique dealers, and heritage enthusiasts by providing a modern marketplace for traditional goods and cultural artifacts.
 
-*Key Features:*
+<!--*Key Features:*
 - 🛒 *Local Product Showcase* - Dedicated space for regional artisans
 - 🏛 *Antique Authentication* - heritage items
-<!-- - 📱 *Mobile-First Design* - Optimized for all devices
+ - 📱 *Mobile-First Design* - Optimized for all devices
 - 🔐 *Secure Transactions* - Safe payment processing
 - 🌍 *Community Driven* - Supporting local economies -->
-
-<p align="center">
-  <img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&size=24&duration=2500&pause=1000&color=DC2626&center=true&vCenter=true&width=600&lines=Built+with+Modern+Tech+Stack+💻;Nx+Monorepo+Architecture+🏗;Academic+Project+" alt="Tech Stack Animation"/>
-</p>
 
 ---
 
@@ -300,20 +268,6 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
     </td>
   </tr>
 </table>
-
-### Contributors
-<!-- readme: contributors -start -->
-<p align="center">
-    <img height="80" width="80" src="https://contrib.rocks/image?repo=AnilKumt/LocalGoods" alt="Contributors"/>
-</p>
-<!-- readme: contributors -end -->
-
----
-
-## Contact
-
-- *Issues*: [GitHub Issues](https://github.com/AnilKumt/LocalGoods/issues)
-- *Discussions*: [GitHub Discussions](https://github.com/AnilKumt/LocalGoods/discussions)
 
 ---
 
