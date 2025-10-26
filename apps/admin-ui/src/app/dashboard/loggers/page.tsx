@@ -1,81 +1,79 @@
-'use client'
-import { ChevronRight, Download, Link } from 'lucide-react';
-import React, { useEffect, useRef, useState } from 'react'
+"use client";
+import { ChevronRight, Download, Link } from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
 
 type LogType = "success" | "error" | "warning" | "info" | "debug";
 
 type LogItem = {
-  type:LogType;
-  message:string;
-  timestamp:string;
-  source?:string;
+  type: LogType;
+  message: string;
+  timestamp: string;
+  source?: string;
 };
 
-const typeColorMap: Record<LogType,string> = {
-  success:"text-green-400",
-  error:"text-red-400",
-  warning:"text-yellow-400",
-  info:"text-blue-300",
-  debug:"text-gray-400"
+const typeColorMap: Record<LogType, string> = {
+  success: "text-green-400",
+  error: "text-red-400",
+  warning: "text-yellow-400",
+  info: "text-blue-300",
+  debug: "text-gray-400",
 };
-
-
 
 const page = () => {
-  const [logs,setLogs] = useState<LogItem[]>([]);
-  const [filteredLogs,setFilteredLogs] = useState<LogItem[]>([]);
+  const [logs, setLogs] = useState<LogItem[]>([]);
+  const [filteredLogs, setFilteredLogs] = useState<LogItem[]>([]);
   const logContainerRef = useRef<HTMLDivElement | null>(null);
 
-  useEffect(()=>{
+  useEffect(() => {
     const socket = new WebSocket(process.env.NEXT_PUBLIC_SOCKET_URI!);
 
-    socket.onmessage = (event)=>{
+    socket.onmessage = (event) => {
       try {
         const parsed = JSON.parse(event.data);
-        setLogs((prev)=>[...prev,parsed]);
+        setLogs((prev) => [...prev, parsed]);
       } catch (error) {
-        console.error("Invalid log format",error);
+        console.error("Invalid log format", error);
       }
-    }
+    };
 
-    return ()=>socket.close();
-  },[]);
+    return () => socket.close();
+  }, []);
 
-  useEffect(()=>{
+  useEffect(() => {
     setFilteredLogs(logs);
 
-    if(logContainerRef.current){
+    if (logContainerRef.current) {
       logContainerRef.current.scrollTop = logContainerRef.current.scrollHeight;
     }
-  },[logs]);
+  }, [logs]);
 
-  useEffect(()=>{
-    const handleKeyPress = (e:KeyboardEvent)=>{
-      if(e.key==="1"){
-        setFilteredLogs(logs.filter((log)=>log.type==="error"));
-      }else if(e.key==="2"){
-        setFilteredLogs(logs.filter((log)=>log.type==="success"))
-      }else if(e.key==="0"){
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (e.key === "1") {
+        setFilteredLogs(logs.filter((log) => log.type === "error"));
+      } else if (e.key === "2") {
+        setFilteredLogs(logs.filter((log) => log.type === "success"));
+      } else if (e.key === "0") {
         setFilteredLogs(logs);
       }
     };
 
-    window.addEventListener("keydown",handleKeyPress);
+    window.addEventListener("keydown", handleKeyPress);
 
-    return ()=> window.removeEventListener("keydown",handleKeyPress);
-  },[logs]);
+    return () => window.removeEventListener("keydown", handleKeyPress);
+  }, [logs]);
 
   const downloadLogs = () => {
     const content = filteredLogs
-    .map(
-      (log)=>
-        `[${new Date(log.timestamp).toLocaleTimeString()}] ${
-          log.source
-        } [${log.type.toUpperCase()}] ${log.message}`
-    )
-    .join("/n");
+      .map(
+        (log) =>
+          `[${new Date(log.timestamp).toLocaleTimeString()}] ${
+            log.source
+          } [${log.type.toUpperCase()}] ${log.message}`
+      )
+      .join("/n");
 
-    const blob = new Blob([content],{type:"text/plain"});
+    const blob = new Blob([content], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -84,16 +82,15 @@ const page = () => {
     URL.revokeObjectURL(url);
   };
 
-
   return (
-    <div className='w-full min-h-screen p-8 bg0black text-white text-sm'>
+    <div className="w-full min-h-screen p-8 bg0black text-white text-sm">
       <div className="flex justify-between items-center mb-3">
         <h2 className="text-xl font-bold tracking-wide">Application Logs</h2>
         <button
           onClick={downloadLogs}
           className="text-xs px-3 flex items-center justify-center gap-1 py-2 bg-gray-"
         >
-          <Download size={18}/> Download Logs
+          <Download size={18} /> Download Logs
         </button>
       </div>
 
@@ -108,28 +105,34 @@ const page = () => {
       </div>
 
       <div
-      ref={logContainerRef}
-      className='"bg-black font-mono border-gray-800 rounded-md p-4 h-[600px]'
+        ref={logContainerRef}
+        className='"bg-black font-mono border-gray-800 rounded-md p-4 h-[600px]'
       >
-        {filteredLogs.length===0?(
-          <p className='text-gray-500'>Waiting for logs...</p>
-        ):(
-          filteredLogs.map((log,idx)=>(
-            <div key={idx} className='whitespace-pre-wrap'>
-              <span className='text-gray-500'>
-              [{new Date(log.timestamp).toLocaleTimeString()}]
-              </span>{" "}
-              <span className='text-purple-400'>{log.source}</span>{" "}
-              <span className={typeColorMap[log.type]}>
-                [{log.type.toUpperCase()}]
-              </span>{" "}
-              <span>{log.message}</span>
-            </div>
-          ))
+        {filteredLogs.length === 0 ? (
+          <p className="text-gray-500">Waiting for logs...</p>
+        ) : (
+          filteredLogs.map((log, idx) => {
+            const timestamp = log?.timestamp
+              ? new Date(log.timestamp).toLocaleTimeString()
+              : "Invalid Time";
+            const source = log?.source || "Unknown Source";
+            const type = log?.type ? log.type.toUpperCase() : "UNKNOWN";
+            const message = log?.message || "No message available";
+            const typeClass = typeColorMap?.[log?.type] || "text-gray-400";
+
+            return (
+              <div key={idx} className="whitespace-pre-wrap">
+                <span className="text-gray-500">[{timestamp}]</span>{" "}
+                <span className="text-purple-400">{source}</span>{" "}
+                <span className={typeClass}>[{type}]</span>{" "}
+                <span>{message}</span>
+              </div>
+            );
+          })
         )}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default page
+export default page;
