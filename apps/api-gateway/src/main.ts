@@ -85,6 +85,15 @@ app.use("/chatting", proxy("http://localhost:6006", {
     return proxyReqOpts;
   }
 }));
+app.use("/chatbot", proxy("http://localhost:6007", {
+  proxyReqOptDecorator: function(proxyReqOpts, srcReq) {
+    // Forward cookies
+    if (srcReq.headers.cookie) {
+      proxyReqOpts.headers.cookie = srcReq.headers.cookie;
+    }
+    return proxyReqOpts;
+  }
+}));
 app.use("/admin", proxy("http://localhost:6005", {
   proxyReqOptDecorator: function(proxyReqOpts, srcReq) {
     // Forward cookies

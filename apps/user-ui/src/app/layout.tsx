@@ -5,6 +5,10 @@ import {Poppins,Roboto} from "next/font/google";
 import { getUserSession } from "../utils/session";
 import { WebSocketProvider } from '../context/web-socket-context';
 import ConditionalFooter from './components/ConditionalFooter';
+import { ChatbotProvider } from '../context/ChatbotContext';
+import ChatbotButton from './shared/components/ChatbotButton';
+import ChatbotModal from './shared/components/ChatbotModal';
+import PreLoader from './shared/components/PreLoader';
 
 
 
@@ -35,12 +39,16 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className={`${roboto.variable} ${poppins.variable}`}>
+        <PreLoader />
         {/* <WebSocketProvider user={user}> */}
         <Providers>
-        <Header/>
-        {children}
-        <ConditionalFooter />
-
+        <ChatbotProvider>
+          <Header/>
+          {children}
+          <ConditionalFooter />
+          <ChatbotButton />
+          <ChatbotModal />
+        </ChatbotProvider>
         </Providers>
         {/* </WebSocketProvider> */}
       </body>

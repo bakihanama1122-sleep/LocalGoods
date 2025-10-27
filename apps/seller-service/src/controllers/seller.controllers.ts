@@ -444,3 +444,400 @@ export const toggleFollow = async (req: any, res: Response, next: NextFunction) 
     next(error);
   }
 };
+
+// Create an event (product with starting and ending dates)
+export const createEvent = async (req: any, res: Response, next: NextFunction) => {
+  try {
+    const seller = req.seller;
+
+    if (!seller) {
+      return res.status(401).json({
+        success: false,
+        message: "Seller authentication required"
+      });
+    }
+
+    const {
+      title,
+      short_description,
+      detailed_description,
+      warranty,
+      custom_specifications,
+      slug,
+      tags,
+      cash_on_delivery,
+      brand,
+      video_url,
+      category,
+      colors = [],
+      sizes = [],
+      discountCodes = [],
+      stock,
+      sale_price,
+      regular_price,
+      subCategory,
+      customProperties = {},
+      images = [],
+      starting_date,
+      ending_date,
+    } = req.body;
+
+    if (!title || !slug || !short_description || !category || !subCategory || !sale_price || !images || !tags || !stock || !regular_price) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing required fields"
+      });
+    }
+
+    if (!starting_date || !ending_date) {
+      return res.status(400).json({
+        success: false,
+        message: "Starting date and ending date are required for events"
+      });
+    }
+
+    // Check if slug already exists
+    const slugCheck = await prisma.products.findUnique({
+      where: { slug },
+    });
+
+    if (slugCheck) {
+      return res.status(400).json({
+        success: false,
+        message: "Slug already exists! Please use a different slug"
+      });
+    }
+
+    // Get shop ID from seller
+    const sellerWithShop = await prisma.sellers.findUnique({
+      where: { id: seller.id },
+      select: { Shop: { select: { id: true } } }
+    });
+
+    if (!sellerWithShop?.Shop) {
+      return res.status(404).json({
+        success: false,
+        message: "Shop not found for this seller"
+      });
+    }
+
+    // Create the event product
+    const newEvent = await prisma.products.create({
+      data: {
+        title,
+        short_description,
+        detailed_description,
+        warranty,
+        cashOnDelivery: cash_on_delivery,
+        slug,
+        shopId: sellerWithShop.Shop.id,
+        tags: Array.isArray(tags) ? tags : tags.split(","),
+        brand,
+        video_url,
+        category,
+        subCategory,
+        colors: colors || [],
+        discount_codes: discountCodes.map((codeId: string) => codeId),
+        sizes: sizes || [],
+        stock: parseInt(stock),
+        sale_price: parseFloat(sale_price),
+        regular_price: parseFloat(regular_price),
+        custom_properties: customProperties || {},
+        custom_specifications: custom_specifications || {},
+        starting_date: new Date(starting_date),
+        ending_date: new Date(ending_date),
+        images: {
+          create: images
+            .filter((img: any) => img && img.fileId && img.file_url)
+            .map((image: any) => ({
+              file_id: image.fileId,
+              url: [image.file_url],
+            })),
+        },
+      },
+      include: { images: true },
+    });
+
+    res.status(201).json({
+      success: true,
+      event: newEvent,
+      message: "Event created successfully"
+    });
+  } catch (error: any) {
+    console.error('Error in createEvent:', error);
+    next(error);
+  }
+};
+
+// Update an event
+export const updateEvent = async (req: any, res: Response, next: NextFunction) => {
+  try {
+    const seller = req.seller;
+    const { eventId } = req.params;
+
+    if (!seller) {
+      return res.status(401).json({
+        success: false,
+        message: "Seller authentication required"
+      });
+    }
+
+    const {
+      title,
+      short_description,
+      detailed_description,
+      warranty,
+      custom_specifications,
+      slug,
+      tags,
+      cash_on_delivery,
+      brand,
+      video_url,
+      category,
+      colors = [],
+      sizes = [],
+      discountCodes = [],
+      stock,
+      sale_price,
+      regular_price,
+      subCategory,
+      customProperties = {},
+      images = [],
+      starting_date,
+      ending_date,
+    } = req.body;
+
+    // Verify the event belongs to the seller's shop
+    const sellerWithShop = await prisma.sellers.findUnique({
+      where: { id: seller.id },
+      select: { Shop: { select: { id: true } } }
+    });
+
+    if (!sellerWithShop?.Shop) {
+      return res.status(404).json({
+        success: false,
+        message: "Shop not found for this seller"
+      });
+    }
+
+    const event = await prisma.products.findUnique({
+      where: { id: eventId },
+      select: { id: true, shopId: true, ending_date: true }
+    });
+
+    if (!event) {
+      return res.status(404).json({
+        success: false,
+        message: "Event not found"
+      });
+    }
+
+    if (event.shopId !== sellerWithShop.Shop.id) {
+      return res.status(403).json({
+        success: false,
+        message: "Unauthorized: This event does not belong to your shop"
+      });
+    }
+
+    // Check if slug is being changed and if new slug exists
+    if (slug) {
+      const slugCheck = await prisma.products.findUnique({
+        where: { slug },
+      });
+
+      if (slugCheck && slugCheck.id !== eventId) {
+        return res.status(400).json({
+          success: false,
+          message: "Slug already exists! Please use a different slug"
+        });
+      }
+    }
+
+    // Update the event
+    const updateData: any = {};
+
+    if (title) updateData.title = title;
+    if (short_description) updateData.short_description = short_description;
+    if (detailed_description) updateData.detailed_description = detailed_description;
+    if (warranty !== undefined) updateData.warranty = warranty;
+    if (custom_specifications) updateData.custom_specifications = custom_specifications;
+    if (slug) updateData.slug = slug;
+    if (tags) updateData.tags = Array.isArray(tags) ? tags : tags.split(",");
+    if (cash_on_delivery !== undefined) updateData.cashOnDelivery = cash_on_delivery;
+    if (brand) updateData.brand = brand;
+    if (video_url !== undefined) updateData.video_url = video_url;
+    if (category) updateData.category = category;
+    if (subCategory) updateData.subCategory = subCategory;
+    if (colors) updateData.colors = colors;
+    if (sizes) updateData.sizes = sizes;
+    if (discountCodes) updateData.discount_codes = discountCodes.map((codeId: string) => codeId);
+    if (stock) updateData.stock = parseInt(stock);
+    if (sale_price) updateData.sale_price = parseFloat(sale_price);
+    if (regular_price) updateData.regular_price = parseFloat(regular_price);
+    if (customProperties) updateData.custom_properties = customProperties;
+    if (starting_date) updateData.starting_date = new Date(starting_date);
+    if (ending_date) updateData.ending_date = new Date(ending_date);
+
+    const updatedEvent = await prisma.products.update({
+      where: { id: eventId },
+      data: updateData,
+      include: { images: true },
+    });
+
+    res.status(200).json({
+      success: true,
+      event: updatedEvent,
+      message: "Event updated successfully"
+    });
+  } catch (error: any) {
+    console.error('Error in updateEvent:', error);
+    next(error);
+  }
+};
+
+// Get all events for the authenticated seller
+export const getSellerOwnEvents = async (req: any, res: Response, next: NextFunction) => {
+  try {
+    const seller = req.seller;
+
+    if (!seller) {
+      return res.status(401).json({
+        success: false,
+        message: "Seller authentication required"
+      });
+    }
+
+    const { page = 1, limit = 10 } = req.query;
+    const parsedPage = Number(page);
+    const parsedLimit = Number(limit);
+    const skip = (parsedPage - 1) * parsedLimit;
+
+    // Get seller's shop
+    const sellerWithShop = await prisma.sellers.findUnique({
+      where: { id: seller.id },
+      select: { Shop: { select: { id: true } } }
+    });
+
+    if (!sellerWithShop?.Shop) {
+      return res.status(404).json({
+        success: false,
+        message: "Shop not found for this seller"
+      });
+    }
+
+    const events = await prisma.products.findMany({
+      where: {
+        shopId: sellerWithShop.Shop.id,
+        isDeleted: false,
+        ending_date: { not: null }
+      },
+      include: {
+        images: true,
+        Shop: {
+          select: {
+            name: true,
+            avatar: true
+          }
+        }
+      },
+      skip,
+      take: parsedLimit,
+      orderBy: {
+        ending_date: 'asc'
+      }
+    });
+
+    const total = await prisma.products.count({
+      where: {
+        shopId: sellerWithShop.Shop.id,
+        isDeleted: false,
+        ending_date: { not: null }
+      }
+    });
+
+    res.status(200).json({
+      success: true,
+      events,
+      pagination: {
+        total,
+        page: parsedPage,
+        totalPages: Math.ceil(total / parsedLimit)
+      }
+    });
+  } catch (error: any) {
+    console.error('Error in getSellerOwnEvents:', error);
+    next(error);
+  }
+};
+
+// Delete an event
+export const deleteEvent = async (req: any, res: Response, next: NextFunction) => {
+  try {
+    const seller = req.seller;
+    const { eventId } = req.params;
+
+    if (!seller) {
+      return res.status(401).json({
+        success: false,
+        message: "Seller authentication required"
+      });
+    }
+
+    // Get seller's shop
+    const sellerWithShop = await prisma.sellers.findUnique({
+      where: { id: seller.id },
+      select: { Shop: { select: { id: true } } }
+    });
+
+    if (!sellerWithShop?.Shop) {
+      return res.status(404).json({
+        success: false,
+        message: "Shop not found for this seller"
+      });
+    }
+
+    // Verify the event belongs to the seller's shop
+    const event = await prisma.products.findUnique({
+      where: { id: eventId },
+      select: { id: true, shopId: true, isDeleted: true, ending_date: true }
+    });
+
+    if (!event) {
+      return res.status(404).json({
+        success: false,
+        message: "Event not found"
+      });
+    }
+
+    if (event.shopId !== sellerWithShop.Shop.id) {
+      return res.status(403).json({
+        success: false,
+        message: "Unauthorized: This event does not belong to your shop"
+      });
+    }
+
+    if (!event.ending_date) {
+      return res.status(400).json({
+        success: false,
+        message: "This product is not an event"
+      });
+    }
+
+    // Soft delete the event
+    await prisma.products.update({
+      where: { id: eventId },
+      data: {
+        isDeleted: true,
+        deletedAt: new Date(Date.now() + 24 * 60 * 60 * 1000)
+      }
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Event scheduled for deletion in 24 hours. You can restore it within this time."
+    });
+  } catch (error: any) {
+    console.error('Error in deleteEvent:', error);
+    next(error);
+  }
+};

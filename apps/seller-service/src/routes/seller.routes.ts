@@ -1,5 +1,5 @@
 import express, { Router } from "express";
-import { getSeller, getShop, getSellerProducts, isFollowing, getSellerEvents, toggleFollow, getSellerStats } from "../controllers/seller.controllers";
+import { getSeller, getShop, getSellerProducts, isFollowing, getSellerEvents, toggleFollow, getSellerStats, createEvent, updateEvent, getSellerOwnEvents, deleteEvent } from "../controllers/seller.controllers";
 import isAuthenticated from "../../../../packages/middleware/isAuthenticated";
 
 const router: Router = express.Router();
@@ -16,5 +16,11 @@ router.post("/toggle-follow/:id", isAuthenticated, toggleFollow);
 
 // Seller dashboard stats (authentication required)
 router.get("/get-stats", isAuthenticated, getSellerStats);
+
+// Event management routes (authentication required)
+router.get("/get-events", isAuthenticated, getSellerOwnEvents);
+router.post("/create-event", isAuthenticated, createEvent);
+router.put("/update-event/:eventId", isAuthenticated, updateEvent);
+router.delete("/delete-event/:eventId", isAuthenticated, deleteEvent);
 
 export default router;
